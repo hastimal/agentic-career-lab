@@ -1,8 +1,8 @@
-# OpenCareer Agents Architecture
+# Agentic Career Lab Architecture
 
 ## Overview
 
-OpenCareer Agents is a privacy-aware hybrid multi-agent career platform designed specifically for college students seeking internships and early-career roles.
+Agentic Career Lab is a privacy-aware hybrid multi-agent career platform designed specifically for college students seeking internships and early-career roles.
 
 ```text
 Student

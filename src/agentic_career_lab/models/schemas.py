@@ -1,4 +1,4 @@
-"""Core typed domain models for OpenCareer Agents."""
+"""Core typed domain models for Agentic Career Lab."""
 
 from enum import StrEnum
 from typing import Any

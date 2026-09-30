@@ -1,6 +1,6 @@
-"""Export models for opencareer_agents."""
+"""Export models for agentic_career_lab."""
 
-from opencareer_agents.models.schemas import (
+from agentic_career_lab.models.schemas import (
     EvidenceStatus,
     LearningPlan,
     Opportunity,

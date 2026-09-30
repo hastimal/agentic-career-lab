@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "opencareer-agents"
+name = "agentic-career-lab"
 version = "0.1.0"
 description = "A privacy-aware hybrid multi-agent career platform for college students."
 readme = "README.md"

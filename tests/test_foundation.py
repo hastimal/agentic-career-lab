@@ -1,10 +1,10 @@
-"""Basic foundation tests for OpenCareer Agents models and settings."""
+"""Basic foundation tests for Agentic Career Lab models and settings."""
 
 import pytest
 from pydantic import ValidationError
 
-from opencareer_agents.config import Settings
-from opencareer_agents.models import (
+from agentic_career_lab.config import Settings
+from agentic_career_lab.models import (
     EvidenceStatus,
     LearningPlan,
     Opportunity,

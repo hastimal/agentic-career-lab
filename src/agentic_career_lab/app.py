@@ -1,12 +1,12 @@
-"""Streamlit UI Shell for OpenCareer Agents."""
+"""Streamlit UI Shell for Agentic Career Lab."""
 
 import streamlit as st
 
-from opencareer_agents.config import settings
+from agentic_career_lab.config import settings
 
 # Page configuration
 st.set_page_config(
-    page_title="OpenCareer Agents",
+    page_title="Agentic Career Lab",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -99,7 +99,7 @@ st.markdown(
 
 # Sidebar Navigation & Settings
 with st.sidebar:
-    st.title("🎓 OpenCareer Agents")
+    st.title("🎓 Agentic Career Lab")
     st.caption("Privacy-Aware Hybrid Multi-Agent Platform")
 
     st.markdown("---")
@@ -139,7 +139,7 @@ def render_overview():
     st.markdown(
         """
         <div class="hero-card">
-            <div class="hero-title">OpenCareer Agents</div>
+            <div class="hero-title">Agentic Career Lab</div>
             <div class="hero-subtitle">
                 Find the opportunity.<br>
                 Understand your gaps.<br>

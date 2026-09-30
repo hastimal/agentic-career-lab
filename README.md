@@ -1,4 +1,4 @@
-# OpenCareer Agents
+# Agentic Career Lab
 
 A privacy-aware hybrid multi-agent career platform for college students.
 
@@ -69,7 +69,7 @@ cp .env.example .env
 ### 3. Run Streamlit UI Shell
 
 ```bash
-streamlit run src/opencareer_agents/app.py
+streamlit run src/agentic_career_lab/app.py
 ```
 
 ---

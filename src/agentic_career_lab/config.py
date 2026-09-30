@@ -1,4 +1,4 @@
-"""Configuration settings for OpenCareer Agents."""
+"""Configuration settings for Agentic Career Lab."""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     gemma_model: str = "gemma4:12b"
 
     # App Settings
-    app_title: str = "OpenCareer Agents"
+    app_title: str = "Agentic Career Lab"
     debug: bool = False
 
 
