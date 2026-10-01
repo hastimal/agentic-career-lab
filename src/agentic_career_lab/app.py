@@ -1,11 +1,19 @@
 """Streamlit UI Shell for Agentic Career Lab."""
 
 import streamlit as st
+from dotenv import load_dotenv
+
+# Load env before any provider or client initialization
+load_dotenv()
+
+# ruff: noqa: E402
+import os
+
+import httpx
 
 from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
-from agentic_career_lab.agents.skill_builder.planner import FakePlanningLLM
 from agentic_career_lab.coordinator import (
     ADKCareerCoordinator,
     CareerAction,
@@ -13,12 +21,17 @@ from agentic_career_lab.coordinator import (
     CareerWorkflowState,
     LocalResumeContext,
 )
-from agentic_career_lab.llm.local import FakeGemmaClient
+from agentic_career_lab.llm.gemini import GeminiVertexClient
 from agentic_career_lab.models import OpportunitySearchQuery, StudentProfile
 from agentic_career_lab.providers.adzuna import (
     AdzunaOpportunityProvider,
 )
 from agentic_career_lab.providers.mock import MockOpportunityProvider
+from agentic_career_lab.runtime.factory import (
+    create_job_provider,
+    create_resume_llm,
+    create_skill_planner,
+)
 from agentic_career_lab.services.resume_parser import ResumeParser
 from agentic_career_lab.ui_helpers import (
     ACTIVITY,
@@ -136,9 +149,9 @@ def initialize_session_state() -> None:
 
     if "coordinator" not in st.session_state:
         domain_coord = CareerCoordinator(
-            job_scout=JobScoutAgent(provider=MockOpportunityProvider()),
-            resume_agent=PrivateResumeAgent(llm=FakeGemmaClient(is_online=True)),
-            skill_builder=SkillBuilderAgent(llm=FakePlanningLLM()),
+            job_scout=JobScoutAgent(provider=create_job_provider()),
+            resume_agent=PrivateResumeAgent(llm=create_resume_llm()),
+            skill_builder=SkillBuilderAgent(llm=create_skill_planner()),
         )
         st.session_state["coordinator"] = ADKCareerCoordinator(domain_coord)
     if "career_workflow_state" not in st.session_state:
@@ -750,13 +763,29 @@ Final Career Action Plan
         language="text",
     )
 
-    st.markdown("### Example Future Status")
+    st.markdown("### Runtime Connection Status")
+    adzuna_status = "Configured" if os.environ.get("ADZUNA_APP_ID") else "Not Configured"
+
+    # Check Ollama
+    ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    gemma_model = os.environ.get("GEMMA_MODEL", "gemma4:12b")
+    ollama_connected = False
+    try:
+        r = httpx.get(f"{ollama_url}/api/tags", timeout=1.0)
+        ollama_connected = r.status_code == 200
+    except Exception:
+        pass
+    ollama_status = "Connected" if ollama_connected else "Unavailable"
+
+    gemini_client = GeminiVertexClient()
+    gemini_status = "Configured" if gemini_client.is_available() else "Fallback"
+
     st.markdown(
-        """
-        - ○ Coordinator      not running
-        - ○ Job Scout        not running
-        - ○ Resume Agent     not running
-        - ○ Skill Builder    not running
+        f"""
+        - **Adzuna**: {adzuna_status}
+        - **Ollama**: {ollama_status}
+        - **Gemma model**: {gemma_model if ollama_connected else "Not available"}
+        - **Gemini / Vertex**: {gemini_status}
         """
     )
 

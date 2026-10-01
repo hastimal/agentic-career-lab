@@ -24,11 +24,12 @@ class PrivateResumeAgent:
 
         # Routing Check for Resume Analysis
         analysis_route = HybridRouter.route(TaskType.RESUME_ANALYSIS)
-        model_name = getattr(self.llm, "model_name", "gemma4:12b")
+        model_name = getattr(self.llm, "model_name", None)
+        runtime_display = f"{analysis_route.runtime} / {model_name}" if model_name else str(analysis_route.runtime)
         self.events.append(
             RoutingEvent(
                 task_type=str(analysis_route.task_type),
-                runtime=f"{analysis_route.runtime} / {model_name}",
+                runtime=runtime_display,
                 reason=analysis_route.reason,
                 privacy_level=str(analysis_route.privacy_level),
                 duration_ms=10.0,

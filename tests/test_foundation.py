@@ -19,6 +19,7 @@ from agentic_career_lab.models import (
 def test_settings_defaults():
     """Verify default settings configuration."""
     settings = Settings(
+        _env_file=None,
         google_cloud_project="test-project",
         google_cloud_location="us-central1",
     )

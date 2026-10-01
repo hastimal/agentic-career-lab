@@ -9,7 +9,7 @@ from agentic_career_lab.routing import (
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
 
 from .gap_analyzer import GapAnalyzer
-from .planner import Planner, PlanningLLM
+from .planner import DeterministicPlanningLLM, Planner, PlanningError, PlanningLLM
 
 
 class SkillBuilderAgent:
@@ -64,14 +64,29 @@ class SkillBuilderAgent:
         plan_route = HybridRouter.route(TaskType.LEARNING_PLAN)
 
         fallback_used = False
-        if not self.llm.is_available():
-            fallback_used = True
+        reason_display = plan_route.reason
 
-        model_name = getattr(self.llm, "model_name", "gemini-1.5-pro")
-        runtime_display = (
-            f"{plan_route.runtime} / {model_name}" if not fallback_used else "python fallback"
-        )
-        reason_display = plan_route.reason if not fallback_used else "Gemini unavailable"
+        try:
+            if not self.llm.is_available():
+                raise PlanningError("LLM is not available")
+            plan = self.planner.generate_plan(opportunity.role, strengths, gaps, duration_weeks)
+
+            if hasattr(self.llm, "client") and hasattr(self.llm.client, "model_name") and self.llm.client.model_name:
+                model_name = self.llm.client.model_name
+                runtime_display = f"{plan_route.runtime} / {model_name}"
+            elif hasattr(self.llm, "model_name") and self.llm.model_name:
+                model_name = self.llm.model_name
+                runtime_display = f"{plan_route.runtime} / {model_name}"
+            else:
+                runtime_display = f"{plan_route.runtime}"
+
+        except PlanningError as e:
+            fallback_used = True
+            reason_display = f"Gemini / Vertex generation failed or unavailable: {str(e)}"
+            runtime_display = "Python fallback"
+
+            fallback_planner = Planner(DeterministicPlanningLLM())
+            plan = fallback_planner.generate_plan(opportunity.role, strengths, gaps, duration_weeks)
 
         self.events.append(
             RoutingEvent(
@@ -83,7 +98,5 @@ class SkillBuilderAgent:
                 duration_ms=2100.0,
             ).model_dump()
         )
-
-        plan = self.planner.generate_plan(opportunity.role, strengths, gaps, duration_weeks)
 
         return plan

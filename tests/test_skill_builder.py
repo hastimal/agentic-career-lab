@@ -1,5 +1,5 @@
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
-from agentic_career_lab.agents.skill_builder.planner import FakePlanningLLM
+from agentic_career_lab.agents.skill_builder.planner import DeterministicPlanningLLM
 from agentic_career_lab.models import (
     EvidenceStatus,
     Opportunity,
@@ -11,7 +11,7 @@ from agentic_career_lab.models import (
 
 
 def test_skill_builder_deterministic_gaps():
-    agent = SkillBuilderAgent(llm=FakePlanningLLM())
+    agent = SkillBuilderAgent(llm=DeterministicPlanningLLM())
 
     opp = Opportunity(
         opportunity_id="1",

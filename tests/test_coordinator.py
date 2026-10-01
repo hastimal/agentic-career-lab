@@ -3,7 +3,7 @@ import pytest
 from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
-from agentic_career_lab.agents.skill_builder.planner import FakePlanningLLM
+from agentic_career_lab.agents.skill_builder.planner import DeterministicPlanningLLM
 from agentic_career_lab.coordinator.adk_coordinator import ADKCareerCoordinator
 from agentic_career_lab.coordinator.career_coordinator import CareerCoordinator
 from agentic_career_lab.coordinator.state import (
@@ -26,7 +26,7 @@ def coordinator():
     domain = CareerCoordinator(
         job_scout=JobScoutAgent(provider=MockOpportunityProvider()),
         resume_agent=PrivateResumeAgent(llm=FakeGemmaClient(is_online=True)),
-        skill_builder=SkillBuilderAgent(llm=FakePlanningLLM()),
+        skill_builder=SkillBuilderAgent(llm=DeterministicPlanningLLM()),
     )
     return ADKCareerCoordinator(domain)
 
@@ -82,7 +82,7 @@ def test_prepare_resume_failure_preserves_state():
         CareerCoordinator(
             job_scout=JobScoutAgent(provider=MockOpportunityProvider()),
             resume_agent=offline_resume_agent,
-            skill_builder=SkillBuilderAgent(llm=FakePlanningLLM()),
+            skill_builder=SkillBuilderAgent(llm=DeterministicPlanningLLM()),
         )
     )
     state = CareerWorkflowState()

@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import pytest
 
 from agentic_career_lab.routing import (
@@ -75,3 +76,33 @@ def test_privacy_guard_secret():
     bad_payload = {"some_field": "PRIVATE_RESUME_SECRET_12345"}
     with pytest.raises(PrivacyGuardError, match="Private resume secret"):
         assert_cloud_safe(bad_payload)
+
+
+from agentic_career_lab.agents.skill_builder.planner import (
+    DeterministicPlanningLLM,
+)
+from agentic_career_lab.llm.local import OllamaGemmaClient
+from agentic_career_lab.providers.mock import MockOpportunityProvider
+from agentic_career_lab.runtime.factory import (
+    create_job_provider,
+    create_resume_llm,
+    create_skill_planner,
+)
+
+
+def test_resume_factory_returns_ollama():
+    llm = create_resume_llm()
+    assert isinstance(llm, OllamaGemmaClient)
+    assert not isinstance(llm, type(None))
+
+def test_job_provider_factory_returns_mock():
+    provider = create_job_provider()
+    assert isinstance(provider, MockOpportunityProvider)
+
+def test_skill_planner_factory(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_CLOUD_PROJECT", raising=False)
+    planner = create_skill_planner()
+    # It should fallback deterministically if no api key
+    assert isinstance(planner, DeterministicPlanningLLM)
+
