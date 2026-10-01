@@ -11,14 +11,19 @@ from agentic_career_lab.services.learning_resources import ResourceCatalog
 
 
 class PlanningLLM(Protocol):
+    def is_available(self) -> bool: ...
     def create_learning_plan(
         self, target_role: str, strengths: list[str], gaps: list[SkillGap], duration_weeks: int
     ) -> SkillBuilderPlan: ...
 
 
 class FakePlanningLLM:
-    def __init__(self):
+    def __init__(self, is_online: bool = True):
         self.catalog = ResourceCatalog()
+        self.is_online = is_online
+
+    def is_available(self) -> bool:
+        return self.is_online
 
     def create_learning_plan(
         self, target_role: str, strengths: list[str], gaps: list[SkillGap], duration_weeks: int

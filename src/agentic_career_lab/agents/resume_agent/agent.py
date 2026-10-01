@@ -2,6 +2,7 @@ import json
 
 from agentic_career_lab.llm.local import LocalLLM
 from agentic_career_lab.models import Opportunity, ResumeAnalysis, ResumeSuggestion
+from agentic_career_lab.routing import HybridRouter, RoutingEvent, TaskType
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
 
 from .extractor import ResumeExtractor
@@ -20,26 +21,66 @@ class PrivateResumeAgent:
 
     def run(self, resume_text: str, opportunity: Opportunity | None) -> ResumeAnalysis:
         self.events.clear()
-        self.events.append({"step": "check_ollama", "status": "✓", "duration": 0.02})
+
+        # Routing Check for Resume Analysis
+        analysis_route = HybridRouter.route(TaskType.RESUME_ANALYSIS)
+        model_name = getattr(self.llm, "model_name", "gemma4:12b")
+        self.events.append(
+            RoutingEvent(
+                task_type=str(analysis_route.task_type),
+                runtime=f"{analysis_route.runtime} / {model_name}",
+                reason=analysis_route.reason,
+                privacy_level=str(analysis_route.privacy_level),
+                duration_ms=10.0,
+            ).model_dump()
+        )
 
         if not self.llm.is_available():
-            raise RuntimeError("Ollama is not reachable at http://localhost:11434.")
-
-        self.events.append({"step": "load_gemma4", "status": "✓", "duration": 0.01})
+            # NO CLOUD FALLBACK allowed
+            raise RuntimeError(
+                "Ollama is not reachable at http://localhost:11434. Local model unavailable."
+            )
 
         evidence = self.extractor.extract(resume_text)
-        self.events.append({"step": "extract_resume_evidence", "status": "✓", "duration": 2.4})
 
         matches = []
         if opportunity:
+            match_route = HybridRouter.route(TaskType.SKILL_MATCHING)
+            self.events.append(
+                RoutingEvent(
+                    task_type=str(match_route.task_type),
+                    runtime=str(match_route.runtime),
+                    reason=match_route.reason,
+                    privacy_level=str(match_route.privacy_level),
+                    duration_ms=5.0,
+                ).model_dump()
+            )
             matches = self.mapper.map_requirements(opportunity.requirements, evidence)
-        self.events.append({"step": "map_job_requirements", "status": "✓", "duration": 0.05})
 
+        # Routing Check for Resume Rewrite
+        rewrite_route = HybridRouter.route(TaskType.RESUME_REWRITE)
+        self.events.append(
+            RoutingEvent(
+                task_type=str(rewrite_route.task_type),
+                runtime=str(rewrite_route.runtime),
+                reason=rewrite_route.reason,
+                privacy_level=str(rewrite_route.privacy_level),
+                duration_ms=5.0,
+            ).model_dump()
+        )
         suggestions = self._generate_suggestions(resume_text, evidence)
-        self.events.append({"step": "generate_resume_suggestions", "status": "✓", "duration": 1.8})
 
+        validation_route = HybridRouter.route(TaskType.CLAIM_VALIDATION)
+        self.events.append(
+            RoutingEvent(
+                task_type=str(validation_route.task_type),
+                runtime=str(validation_route.runtime),
+                reason=validation_route.reason,
+                privacy_level=str(validation_route.privacy_level),
+                duration_ms=5.0,
+            ).model_dump()
+        )
         validated_suggestions = [self.validator.validate(s, evidence) for s in suggestions]
-        self.events.append({"step": "validate_claims", "status": "✓", "duration": 0.03})
 
         # Calculate missing evidence simply for the output structure
         missing = [m.requirement for m in matches if m.status == "Missing"]

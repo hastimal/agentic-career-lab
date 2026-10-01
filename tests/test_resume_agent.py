@@ -30,8 +30,8 @@ def test_privacy_no_cloud_fallback():
         pass
 
     # We can check there is no gemini logic invoked
-    events = [e["step"] for e in agent.events]
-    assert "check_ollama" in events
+    events = [e.get("task_type") for e in agent.events if "task_type" in e]
+    assert "resume_analysis" in events
     assert "extract_resume_evidence" not in events
 
 

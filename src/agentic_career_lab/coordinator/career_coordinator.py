@@ -157,15 +157,35 @@ class CareerCoordinator:
         default_runtime: str,
     ):
         for e in agent_events:
-            self._log_event(
-                state,
-                agent=agent_name,
-                step=e.get("step", "unknown_step"),
-                status=e.get("status", "Success"),
-                runtime=default_runtime,
-                duration=e.get("duration", 0.0) * 1000,
-                summary=e.get("summary", ""),
-            )
+            # Check if it's a new RoutingEvent dict
+            if "task_type" in e:
+                step = e.get("task_type", "unknown_task")
+                runtime = e.get("runtime", default_runtime)
+                if e.get("fallback_used"):
+                    runtime += " fallback"
+                summary = e.get("reason", "")
+                privacy = e.get("privacy_level", "")
+                if privacy:
+                    summary += f" | Privacy: {privacy}"
+                self._log_event(
+                    state,
+                    agent=agent_name,
+                    step=step,
+                    status=e.get("status", "Success"),
+                    runtime=runtime,
+                    duration=e.get("duration_ms", 0.0),
+                    summary=summary,
+                )
+            else:
+                self._log_event(
+                    state,
+                    agent=agent_name,
+                    step=e.get("step", "unknown_step"),
+                    status=e.get("status", "Success"),
+                    runtime=default_runtime,
+                    duration=e.get("duration", 0.0) * 1000,
+                    summary=e.get("summary", ""),
+                )
 
     def _log_event(
         self,

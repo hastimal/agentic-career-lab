@@ -126,5 +126,5 @@ def test_job_scout_agent():
     assert len(agent.events) > 0
 
     for event in agent.events:
-        assert "step" in event
+        assert "task_type" in event
         assert "status" in event
