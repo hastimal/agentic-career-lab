@@ -1,4 +1,4 @@
-from agentic_career_lab.models import Opportunity, StudentProfile, OpportunityMatch
+from agentic_career_lab.models import Opportunity, OpportunityMatch, StudentProfile
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
 
 

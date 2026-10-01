@@ -1,19 +1,18 @@
 import pytest
 from pydantic import ValidationError
 
+from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
+from agentic_career_lab.agents.job_scout.matcher import Matcher
+from agentic_career_lab.agents.job_scout.requirement_extractor import RequirementExtractor
 from agentic_career_lab.models import (
-    StudentProfile,
-    OpportunityRequirement,
-    RequirementType,
-    OpportunitySearchQuery,
-    OpportunityMatch,
     Opportunity,
+    OpportunityRequirement,
+    OpportunitySearchQuery,
+    RequirementType,
+    StudentProfile,
 )
 from agentic_career_lab.providers.mock import MockOpportunityProvider
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
-from agentic_career_lab.agents.job_scout.requirement_extractor import RequirementExtractor
-from agentic_career_lab.agents.job_scout.matcher import Matcher
-from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 
 
 def test_mock_provider_returns_deterministic_opportunities():

@@ -1,5 +1,6 @@
-import httpx
 from typing import Protocol
+
+import httpx
 
 
 class LocalLLM(Protocol):
@@ -35,7 +36,7 @@ class OllamaGemmaClient:
             r.raise_for_status()
             return r.json().get("response", "")
         except Exception as e:
-            raise RuntimeError(f"Ollama generation failed: {e}")
+            raise RuntimeError(f"Ollama generation failed: {e}") from e
 
 
 class FakeGemmaClient:

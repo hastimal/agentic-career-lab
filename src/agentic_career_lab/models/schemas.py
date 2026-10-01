@@ -152,6 +152,43 @@ class SkillGap(BaseModel):
         default="",
         description="Explainable reasoning for this gap status",
     )
+    priority: str = Field(default="Low", description="High, Medium, or Low")
+    reason: str = Field(default="", description="Reason for priority")
+
+
+class LearningResource(BaseModel):
+    title: str
+    provider: str
+    resource_type: str
+    url: str | None = None
+    skill: str
+    reason: str
+
+
+class LearningStep(BaseModel):
+    week: int
+    focus: str
+    skills: list[str] = Field(default_factory=list)
+    activities: list[str] = Field(default_factory=list)
+    expected_output: str
+
+
+class PortfolioProject(BaseModel):
+    title: str
+    objective: str
+    skills_practiced: list[str] = Field(default_factory=list)
+    deliverables: list[str] = Field(default_factory=list)
+    evidence_created: list[str] = Field(default_factory=list)
+
+
+class SkillBuilderPlan(BaseModel):
+    target_role: str
+    strengths: list[str] = Field(default_factory=list)
+    priority_gaps: list[SkillGap] = Field(default_factory=list)
+    learning_steps: list[LearningStep] = Field(default_factory=list)
+    recommended_resources: list[LearningResource] = Field(default_factory=list)
+    portfolio_project: PortfolioProject | None = None
+    summary: str = ""
 
 
 class LearningPlan(BaseModel):

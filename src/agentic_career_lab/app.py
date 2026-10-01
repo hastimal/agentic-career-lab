@@ -1,11 +1,15 @@
 """Streamlit UI Shell for Agentic Career Lab."""
 
 import streamlit as st
+
 from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
+from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
+from agentic_career_lab.agents.skill_builder.planner import FakePlanningLLM
 from agentic_career_lab.llm.local import FakeGemmaClient
+from agentic_career_lab.models import OpportunitySearchQuery, StudentProfile
 from agentic_career_lab.providers.mock import MockOpportunityProvider
-from agentic_career_lab.models import StudentProfile, OpportunitySearchQuery
+from agentic_career_lab.services.resume_parser import ResumeParser
 
 # Page configuration
 st.set_page_config(
@@ -14,6 +18,18 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+HOME = "Home"
+OPPORTUNITIES = "Find Opportunities"
+RESUME = "Prepare Resume"
+SKILLS = "Build Skills"
+ACTIVITY = "Agent Activity"
+
+
+def navigate(page: str):
+    st.session_state["nav"] = page
+    st.rerun()
+
 
 # Custom Styling for modern AI Career Workspace
 st.markdown(
@@ -87,20 +103,33 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Session State for Defaults
-if "preset_prompt" not in st.session_state:
-    st.session_state["preset_prompt"] = ""
-if "resume_text" not in st.session_state:
-    st.session_state["resume_text"] = ""
-if "job_scout_agent" not in st.session_state:
-    st.session_state["job_scout_agent"] = JobScoutAgent(provider=MockOpportunityProvider())
-if "resume_agent" not in st.session_state:
-    # Use FakeGemmaClient to avoid internet/local LLM issues during tests
-    st.session_state["resume_agent"] = PrivateResumeAgent(llm=FakeGemmaClient(is_online=True))
-if "agent_events" not in st.session_state:
-    st.session_state["agent_events"] = []
-if "job_matches" not in st.session_state:
-    st.session_state["job_matches"] = []
+
+def initialize_session_state() -> None:
+    defaults = {
+        "selected_opportunity": None,
+        "resume_analysis": None,
+        "skill_builder_plan": None,
+        "agent_events": [],
+        "job_matches": [],
+        "preset_prompt": "",
+        "resume_text": "",
+        "resume_source": "paste",
+        "resume_file_name": "",
+        "nav": "Home",
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+    if "job_scout_agent" not in st.session_state:
+        st.session_state["job_scout_agent"] = JobScoutAgent(provider=MockOpportunityProvider())
+    if "resume_agent" not in st.session_state:
+        st.session_state["resume_agent"] = PrivateResumeAgent(llm=FakeGemmaClient(is_online=True))
+    if "skill_builder_agent" not in st.session_state:
+        st.session_state["skill_builder_agent"] = SkillBuilderAgent(llm=FakePlanningLLM())
+
+
+initialize_session_state()
 
 # Sidebar Navigation & Settings
 with st.sidebar:
@@ -108,18 +137,20 @@ with st.sidebar:
     st.caption("Privacy-Aware Hybrid Multi-Agent Platform")
 
     st.markdown("---")
-    navigation = st.radio(
-        "Navigation",
-        [
-            "Overview",
-            "Chat",
-            "Opportunities",
-            "Private Resume",
-            "Skill Builder",
-            "Agent Activity",
-        ],
-        index=0,
-    )
+
+    st.markdown("### Navigation")
+    if st.button("Home", use_container_width=True):
+        navigate(HOME)
+    if st.button("Find Opportunities", use_container_width=True):
+        navigate(OPPORTUNITIES)
+    if st.button("Prepare Resume", use_container_width=True):
+        navigate(RESUME)
+    if st.button("Build Skills", use_container_width=True):
+        navigate(SKILLS)
+
+    st.markdown("### Advanced")
+    if st.button("Agent Activity", use_container_width=True):
+        navigate(ACTIVITY)
 
     st.markdown("---")
     with st.expander("📝 Demo Student Profile", expanded=False):
@@ -131,26 +162,26 @@ with st.sidebar:
         st.caption("These are editable demo defaults.")
 
     st.markdown("---")
-    st.subheader("Planned Architecture")
-    st.markdown(
-        """
-        <div style="font-size: 0.85rem; line-height: 1.8;">
-        <div><b>Cloud Runtime:</b>
-            <span class="model-badge-cloud">☁ Gemini / Vertex AI</span>
-        </div>
-        <div style="margin-top: 6px;"><b>Local Runtime:</b>
-            <span class="model-badge-local">🔒 Gemma 4 Local / Ollama</span>
-        </div>
-        <div style="margin-top: 6px;"><b>Deterministic:</b>
-            <span class="model-badge-python">⚙ Python</span>
-        </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    with st.expander("Technical Architecture"):
+        st.markdown(
+            """
+            <div style="font-size: 0.85rem; line-height: 1.8;">
+            <div><b>Cloud AI:</b>
+                <span class="model-badge-cloud">☁ Gemini / Vertex AI</span>
+            </div>
+            <div style="margin-top: 6px;"><b>Private Local AI:</b>
+                <span class="model-badge-local">🔒 Gemma 4 Local / Ollama</span>
+            </div>
+            <div style="margin-top: 6px;"><b>Deterministic Logic:</b>
+                <span class="model-badge-python">⚙ Python</span>
+            </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
-def render_overview():
+def render_home():
     """Render landing screen."""
     st.markdown(
         """
@@ -158,47 +189,77 @@ def render_overview():
             <div class="hero-title">Agentic Career Lab</div>
             <div class="hero-subtitle">
                 Find the opportunity.<br>
-                Understand your gaps.<br>
-                Build the skills.<br>
-                Apply with confidence.
+                Prepare your resume.<br>
+                Build the missing skills.<br>
             </div>
+            <p>A privacy-aware career preparation assistant for students.</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        """
-        <div class="badge-container">
-            <span class="model-badge-cloud">☁ Gemini / Vertex AI</span>
-            <span class="model-badge-local">🔒 Gemma 4 Local / Ollama</span>
-            <span class="model-badge-python">⚙ Deterministic Python</span>
-        </div>
-        <p style="color: gray; font-size: 0.9em;"><em>Note: These are planned/future capabilities in Milestone 1.</em></p>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Progress tracking
+    opp = st.session_state.get("selected_opportunity")
+    analysis = st.session_state.get("resume_analysis")
+    plan = st.session_state.get("skill_builder_plan")
 
-    col1, col2, col3, col4 = st.columns(4)
+    st.markdown("### Career Preparation Progress")
+    if opp:
+        st.success("✓ Opportunity selected")
+    else:
+        st.info("○ Select an opportunity")
+
+    if analysis:
+        st.success("✓ Resume analyzed")
+    else:
+        st.info("○ Analyze your resume")
+
+    if plan:
+        st.success("✓ Skill plan built")
+    else:
+        st.info("○ Build your skill plan")
+
+    st.markdown("---")
+
+    col1, col2 = st.columns([2, 1])
+
     with col1:
-        if st.button("Find Internships", key="btn_opps", use_container_width=True):
-            st.session_state["nav"] = "Opportunities"
-            st.rerun()
+        st.markdown("### STEP 1: Find Opportunity")
+        st.write("Discover internships and understand what each role requires.")
+        if st.button("Find Opportunities", key="btn_step1"):
+            navigate(OPPORTUNITIES)
+
+        st.markdown("---")
+        st.markdown("### STEP 2: Prepare Resume")
+        st.write("Upload your resume and compare it privately against the selected role.")
+        st.markdown("🔒 Local Resume Analysis")
+        if st.button("Prepare Resume", key="btn_step2"):
+            navigate(RESUME)
+
+        st.markdown("---")
+        st.markdown("### STEP 3: Build Skills")
+        st.write("Identify skill gaps and get a practical learning plan with trusted resources.")
+        if st.button("Build Skills", key="btn_step3"):
+            navigate(SKILLS)
 
     with col2:
-        if st.button("Analyze Resume", key="btn_resume", use_container_width=True):
-            st.session_state["nav"] = "Private Resume"
-            st.rerun()
-
-    with col3:
-        if st.button("Build My Skills", key="btn_skills", use_container_width=True):
-            st.session_state["nav"] = "Skill Builder"
-            st.rerun()
-
-    with col4:
-        if st.button("Full Career Workflow", key="btn_workflow", use_container_width=True):
-            st.session_state["nav"] = "Chat"
-            st.rerun()
+        st.markdown("### Current Target")
+        if opp:
+            st.info(f"**{opp.role}**\\n\\n{opp.company}\\n\\n{opp.location}")
+            if analysis:
+                st.write("**Status:** Resume analyzed")
+                st.write("**Next step:** Build your skill plan")
+                if st.button("Continue", key="btn_cont_skills"):
+                    navigate(SKILLS)
+            else:
+                st.write("**Status:** Opportunity selected")
+                st.write("**Next step:** Prepare your resume")
+                if st.button("Continue", key="btn_cont_resume"):
+                    navigate(RESUME)
+        else:
+            st.info("No opportunity selected yet.")
+            if st.button("Find Opportunity", key="btn_cont_opps"):
+                navigate(OPPORTUNITIES)
 
 
 def render_chat():
@@ -359,10 +420,9 @@ def render_opportunities():
         with c1:
             st.link_button("View Source", opp.source_url)
         with c2:
-            if st.button(f"Prepare Me ({opp.opportunity_id})"):
-                st.toast(
-                    "Selected for future Skill Builder analysis. Skill Builder arrives in Milestone 4."
-                )
+            if st.button("Prepare My Resume", key=f"prep_btn_{opp.opportunity_id}"):
+                st.session_state["selected_opportunity"] = opp
+                navigate(RESUME)
 
 
 def render_private_resume():
@@ -372,45 +432,86 @@ def render_private_resume():
 
     st.info("Resume analysis runs locally. Raw resume content is not sent to Gemini or Vertex AI.")
 
-    demo_resume = "Alex Student\\nB.S. Computer Science, Expected 2027\\n\\nSkills:\\nPython, SQL, Docker, Google Cloud, REST APIs\\n\\nProject:\\nBuilt a Python REST API and containerized it with Docker.\\n\\nExperience:\\nStudent Developer — Example University Lab\\nBuilt internal Python utilities and worked with SQL datasets."
-
-    if st.button("Load Demo Resume"):
-        st.session_state["resume_text"] = demo_resume
-        st.rerun()
-
-    resume_input = st.text_area(
-        "Paste Resume Markdown / Text",
-        height=200,
-        value=st.session_state["resume_text"],
-        placeholder=(
-            "Education: B.S. Computer Science...\\n"
-            "Projects: Built high-throughput API with Python and Docker..."
-        ),
-    )
-
-    if resume_input == demo_resume:
-        st.caption("SYNTHETIC DEMO RESUME")
-
-    if st.session_state["selected_opportunity"]:
-        st.write(f"**Target Role:** {st.session_state['selected_opportunity'].role}")
+    selected_opp = st.session_state.get("selected_opportunity")
+    if selected_opp:
+        st.write(f"**Target Role:** {selected_opp.role} at {selected_opp.company}")
     else:
+        st.info("No target opportunity is selected yet.")
         st.write(
-            "Select an opportunity from the Opportunities page to enable requirement-to-resume comparison."
+            "You can analyze your resume privately now, or select an opportunity first for role-specific evidence matching."
         )
+        if st.button("Find an Opportunity"):
+            navigate(OPPORTUNITIES)
 
-    if st.button("Analyze Resume", type="primary"):
-        if not resume_input.strip():
-            st.error("Please provide resume text.")
+    st.markdown("---")
+    st.write("### Choose how to provide your resume:")
+
+    tab_upload, tab_paste, tab_demo = st.tabs(["Upload Resume", "Paste Resume Text", "Load Demo"])
+
+    with tab_upload:
+        uploaded_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"])
+        if uploaded_file is not None:
+            if uploaded_file.size > 5 * 1024 * 1024:
+                st.error("File is too large. Max size is 5MB.")
+            else:
+                parser = ResumeParser()
+                parsed = parser.parse_uploaded_file(uploaded_file.getvalue(), uploaded_file.name)
+
+                if parsed.extraction_warnings:
+                    for warning in parsed.extraction_warnings:
+                        st.warning(warning)
+
+                if parsed.text.strip():
+                    st.session_state["resume_text"] = parsed.text
+                    st.session_state["resume_source"] = "upload"
+                    st.session_state["resume_file_name"] = parsed.file_name
+                    st.success("✓ Resume loaded locally")
+                    st.caption(f"File: {parsed.file_name}")
+                    st.caption("Privacy: 🔒 Processed locally")
+
+    with tab_paste:
+        resume_input = st.text_area(
+            "Paste Resume Markdown / Text",
+            height=200,
+            value=st.session_state["resume_text"]
+            if st.session_state["resume_source"] == "paste"
+            else "",
+            placeholder=(
+                "Education: B.S. Computer Science...\\n"
+                "Projects: Built high-throughput API with Python and Docker..."
+            ),
+        )
+        if resume_input:
+            st.session_state["resume_text"] = resume_input
+            st.session_state["resume_source"] = "paste"
+            st.session_state["resume_file_name"] = ""
+
+    with tab_demo:
+        demo_resume = "Alex Student\\nB.S. Computer Science, Expected 2027\\n\\nSkills:\\nPython, SQL, Docker, Google Cloud, REST APIs\\n\\nProject:\\nBuilt a Python REST API and containerized it with Docker.\\n\\nExperience:\\nStudent Developer — Example University Lab\\nBuilt internal Python utilities and worked with SQL datasets."
+        if st.button("Load Demo Resume"):
+            st.session_state["resume_text"] = demo_resume
+            st.session_state["resume_source"] = "paste"
+            st.session_state["resume_file_name"] = "demo_resume"
+            st.rerun()
+
+    st.markdown("---")
+
+    if st.button("Analyze Resume Privately", type="primary"):
+        resume_content = st.session_state.get("resume_text", "").strip()
+        if not resume_content:
+            st.error("Please provide resume text either by pasting or uploading.")
             return
 
         try:
             analysis = st.session_state["resume_agent"].run(
-                resume_text=resume_input, opportunity=st.session_state["selected_opportunity"]
+                resume_text=resume_content, opportunity=st.session_state.get("selected_opportunity")
             )
             st.session_state["agent_events"].extend(st.session_state["resume_agent"].events)
             st.session_state["resume_analysis"] = analysis
         except Exception as e:
-            st.error(str(e))
+            st.error(
+                f"Private resume analysis is unavailable because the local Ollama runtime is not running. Or another error occurred: {str(e)}"
+            )
 
     if "resume_analysis" in st.session_state:
         analysis = st.session_state["resume_analysis"]
@@ -469,33 +570,82 @@ def render_private_resume():
                 )
                 st.write(sugg.unsupported_claims_detected)
 
+        if st.button("Build My Skill Plan", type="primary"):
+            navigate(SKILLS)
+
 
 def render_skill_builder():
     """Render Skill Builder UI."""
-    st.title("🛠️ Skill Builder Agent")
-    st.caption("DEMO PREVIEW — live Skill Builder arrives in Milestone 4.")
-
-    st.subheader("Target Role: AI Engineering Intern")
-
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("#### Demonstrated")
-        st.success("✓ Python\n\n✓ SQL\n\n✓ Docker")
-
-    with c2:
-        st.markdown("#### Example Gaps")
-        st.warning("△ Vertex AI\n\n△ Google ADK\n\n△ Kubernetes")
-
-    st.markdown("---")
-    st.subheader("Example 4-Week Plan")
-    st.markdown(
-        """
-        - **Week 1** — Gemini + Vertex AI fundamentals
-        - **Week 2** — Google ADK + tool calling
-        - **Week 3** — Build an agentic AI project
-        - **Week 4** — Docker + Cloud Run + documentation
-        """
+    st.title("🛠️ Build Missing Skills")
+    st.caption(
+        "Turn the gaps between your resume and your selected opportunity into a practical learning plan."
     )
+
+    opp = st.session_state.get("selected_opportunity")
+    analysis = st.session_state.get("resume_analysis")
+
+    if not opp:
+        st.info("Start by selecting an opportunity from the Opportunities page.")
+        return
+
+    if not analysis:
+        st.info("Analyze your resume first so the Skill Builder can identify evidence-based gaps.")
+        if st.button("Go to Private Resume Lab"):
+            navigate(RESUME)
+        return
+
+    st.markdown(f"**Target Role:** {opp.role} at {opp.company}")
+
+    duration = st.radio("Plan Duration", ["2 Weeks", "4 Weeks"], index=1, horizontal=True)
+    weeks = 2 if duration == "2 Weeks" else 4
+
+    if st.button("Build My Learning Plan", type="primary"):
+        plan = st.session_state["skill_builder_agent"].run(opp, analysis, weeks)
+        st.session_state["agent_events"].extend(st.session_state["skill_builder_agent"].events)
+        st.session_state["skill_builder_plan"] = plan
+
+    if "skill_builder_plan" in st.session_state:
+        plan = st.session_state["skill_builder_plan"]
+
+        st.markdown("### B. What You Already Demonstrate")
+        for s in plan.strengths:
+            st.success(f"✓ {s}")
+
+        st.markdown("### C. Priority Skill Gaps")
+        for gap in plan.priority_gaps:
+            if gap.status in ("Missing", "Partial"):
+                color = "#b45309" if gap.status == "Partial" else "#ef4444"
+                st.markdown(
+                    f"**<span style='color: {color};'>{gap.priority.upper()}</span> {gap.skill}**",
+                    unsafe_allow_html=True,
+                )
+                st.caption(f"Why: {gap.reason}")
+
+        st.markdown(f"### D. {duration} Learning Plan")
+        for step in plan.learning_steps:
+            with st.expander(f"Week {step.week}: {step.focus}", expanded=True):
+                st.write("**Activities:**")
+                for act in step.activities:
+                    st.write(f"- {act}")
+                st.write(f"**Expected Output:** {step.expected_output}")
+
+        st.markdown("### E. Recommended Learning Resources")
+        for res in plan.recommended_resources:
+            st.markdown(f"#### {res.skill}")
+            st.markdown(f"**{res.resource_type.upper()}**")
+            st.write(res.title)
+            st.caption(f"Type: {res.resource_type}\\n\\nWhy: {res.reason}")
+            if res.url:
+                st.link_button("Open Resource", res.url)
+            else:
+                st.info(f"Recommended search: {res.skill} beginner tutorial")
+            st.markdown("---")
+
+        if plan.portfolio_project:
+            st.markdown("### F. Suggested Portfolio Project")
+            st.info(f"**{plan.portfolio_project.title}**\\n\\n{plan.portfolio_project.objective}")
+            st.write("**Skills practiced:** " + ", ".join(plan.portfolio_project.skills_practiced))
+            st.write("**Deliverables:** " + ", ".join(plan.portfolio_project.deliverables))
 
 
 def render_agent_activity():
@@ -571,18 +721,20 @@ Final Career Action Plan
 # Handle navigation from state if changed via button
 if "nav" in st.session_state:
     navigation = st.session_state["nav"]
-    del st.session_state["nav"]
+else:
+    navigation = "Home"
 
 # Routing logic
-if navigation == "Overview":
-    render_overview()
-elif navigation == "Chat":
-    render_chat()
-elif navigation == "Opportunities":
+if navigation == HOME:
+    render_home()
+elif navigation == OPPORTUNITIES:
     render_opportunities()
-elif navigation == "Private Resume":
+elif navigation == RESUME:
     render_private_resume()
-elif navigation == "Skill Builder":
+elif navigation == SKILLS:
     render_skill_builder()
-elif navigation == "Agent Activity":
+elif navigation == ACTIVITY:
     render_agent_activity()
+else:
+    # Safe fallback
+    navigate(HOME)

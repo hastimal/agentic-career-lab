@@ -1,4 +1,5 @@
 from typing import Protocol
+
 from agentic_career_lab.models import Opportunity
 
 

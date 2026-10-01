@@ -1,4 +1,5 @@
 import json
+
 from agentic_career_lab.llm.local import LocalLLM
 from agentic_career_lab.models import ResumeEvidence
 
@@ -17,7 +18,7 @@ class ResumeExtractor:
             "education": ["Degrees"],
             "technologies": ["list of technologies mentioned"]
         }}
-        
+
         Resume text:
         {resume_text}
         """

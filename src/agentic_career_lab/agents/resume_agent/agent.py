@@ -1,7 +1,9 @@
 import json
+
 from agentic_career_lab.llm.local import LocalLLM
 from agentic_career_lab.models import Opportunity, ResumeAnalysis, ResumeSuggestion
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
+
 from .extractor import ResumeExtractor
 from .mapper import RequirementMapper
 from .validator import ClaimValidator

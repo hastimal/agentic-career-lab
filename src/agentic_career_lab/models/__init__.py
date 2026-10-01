@@ -3,17 +3,21 @@
 from agentic_career_lab.models.schemas import (
     EvidenceStatus,
     LearningPlan,
+    LearningResource,
+    LearningStep,
     Opportunity,
+    OpportunityMatch,
     OpportunityRequirement,
+    OpportunitySearchQuery,
+    PortfolioProject,
+    RequirementEvidenceMatch,
     RequirementType,
+    ResumeAnalysis,
     ResumeEvidence,
+    ResumeSuggestion,
+    SkillBuilderPlan,
     SkillGap,
     StudentProfile,
-    OpportunitySearchQuery,
-    OpportunityMatch,
-    RequirementEvidenceMatch,
-    ResumeSuggestion,
-    ResumeAnalysis,
 )
 
 __all__ = [
@@ -30,4 +34,8 @@ __all__ = [
     "RequirementEvidenceMatch",
     "ResumeSuggestion",
     "ResumeAnalysis",
+    "LearningResource",
+    "LearningStep",
+    "PortfolioProject",
+    "SkillBuilderPlan",
 ]

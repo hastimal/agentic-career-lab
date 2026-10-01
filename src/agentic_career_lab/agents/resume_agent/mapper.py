@@ -1,8 +1,8 @@
 from agentic_career_lab.models import (
-    OpportunityRequirement,
-    ResumeEvidence,
-    RequirementEvidenceMatch,
     EvidenceStatus,
+    OpportunityRequirement,
+    RequirementEvidenceMatch,
+    ResumeEvidence,
 )
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
 

@@ -1,15 +1,16 @@
 import pytest
+
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
+from agentic_career_lab.agents.resume_agent.validator import ClaimValidator
 from agentic_career_lab.llm.local import FakeGemmaClient
 from agentic_career_lab.models import (
     Opportunity,
     OpportunityRequirement,
     RequirementType,
-    ResumeSuggestion,
     ResumeEvidence,
+    ResumeSuggestion,
 )
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
-from agentic_career_lab.agents.resume_agent.validator import ClaimValidator
 
 
 def test_resume_missing_ollama_fails_safely():

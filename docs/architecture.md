@@ -44,6 +44,14 @@ Career Coordinator — Google ADK
    - Milestone 7: Docker + Cloud Run Deployment
    - Milestone 8: Evaluation & Observability
 
+6. **Simplified Student Flow**:
+   - The user experience is simplified to three main steps:
+     1. Find Opportunity
+     2. Prepare Resume
+     3. Build Missing Skills
+   - Complexities are hidden, avoiding manual re-entry between steps.
+   - Skill Builder deterministically identifies gaps (Python) and relies on LLMs solely for planning.
+
 5. **Logging/Privacy UX Rule**:
    - Future Agent Activity logs must NEVER expose:
      - raw resume text

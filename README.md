@@ -30,7 +30,7 @@ Planned stack:
 - [x] **Milestone 1: Foundation + UI Shell** — Complete
 - [x] **Milestone 2: Job Scout Agent** — Complete
 - [x] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Complete
-- [ ] **Milestone 4: Skill Builder Agent** — Planned
+- [x] **Milestone 4: Skill Builder Agent** — Complete
 - [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — Planned
 - [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
 - [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
@@ -97,6 +97,15 @@ Resume Suggestions
    v
 Claim Validator
 ```
+
+## 🛠️ Skill Builder Agent (Milestone 4)
+
+The Skill Builder helps bridge the gap between your verified resume and the target role by producing an evidence-grounded learning plan.
+
+- **Deterministic Gaps**: Uses standard Python logic to identify and prioritize gaps based on requirements and M3 evidence.
+- **Priority Ranking**: Rules-based approach to score gaps (High/Medium/Low).
+- **Practical Planning**: Recommends short 2 or 4-week learning plans combined with a custom portfolio project.
+- **Privacy Focus**: Minimizes sharing by only generating plans from metadata, not raw resumes.
 
 ---
 

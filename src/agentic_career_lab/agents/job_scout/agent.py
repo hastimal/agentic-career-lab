@@ -1,6 +1,7 @@
-from agentic_career_lab.models import StudentProfile, OpportunitySearchQuery, OpportunityMatch
+from agentic_career_lab.models import OpportunityMatch, OpportunitySearchQuery, StudentProfile
 from agentic_career_lab.providers.base import OpportunityProvider
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
+
 from .matcher import Matcher
 from .requirement_extractor import RequirementExtractor
 

@@ -1,4 +1,5 @@
 from agentic_career_lab.models import Opportunity, OpportunityRequirement, RequirementType
+
 from .base import OpportunityProvider, OpportunitySearchQuery
 
 

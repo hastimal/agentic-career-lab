@@ -1,4 +1,4 @@
-from agentic_career_lab.models import ResumeSuggestion, ResumeEvidence
+from agentic_career_lab.models import ResumeEvidence, ResumeSuggestion
 from agentic_career_lab.services.skill_normalizer import SkillNormalizer
 
 
