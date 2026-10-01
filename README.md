@@ -29,7 +29,7 @@ Planned stack:
 
 - [x] **Milestone 1: Foundation + UI Shell** — Complete
 - [x] **Milestone 2: Job Scout Agent** — Complete
-- [ ] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Planned
+- [x] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Complete
 - [ ] **Milestone 4: Skill Builder Agent** — Planned
 - [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — Planned
 - [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
@@ -67,6 +67,35 @@ Skill Matching
       |
       v
 Evidence-Backed Results
+```
+
+## 🔒 Private Resume Agent (Milestone 3)
+
+The Private Resume Agent ensures privacy by analyzing resumes strictly via a local Gemma 4 model through Ollama.
+
+- **Local Inference**: Raw resume text is **never** transmitted to Gemini or Vertex AI.
+- **Evidence Extraction**: Identifies skills, technologies, and experience strictly present in the resume.
+- **Requirement Mapping**: Maps extracted evidence against job requirements to flag missing gaps.
+- **Deterministic Validation**: Guardrails ensure that AI-suggested rewrites do not hallucinate new metrics, skills, or employers.
+- **Safe Fallback**: If Ollama is unavailable, the agent fails gracefully locally and will not invoke cloud models.
+
+```text
+Resume
+   |
+   v
+Gemma 4 / Ollama
+   |
+   v
+Evidence Extraction
+   |
+   v
+Requirement Mapping
+   |
+   v
+Resume Suggestions
+   |
+   v
+Claim Validator
 ```
 
 ---

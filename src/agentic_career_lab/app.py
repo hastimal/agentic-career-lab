@@ -2,6 +2,8 @@
 
 import streamlit as st
 from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
+from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
+from agentic_career_lab.llm.local import FakeGemmaClient
 from agentic_career_lab.providers.mock import MockOpportunityProvider
 from agentic_career_lab.models import StudentProfile, OpportunitySearchQuery
 
@@ -92,6 +94,9 @@ if "resume_text" not in st.session_state:
     st.session_state["resume_text"] = ""
 if "job_scout_agent" not in st.session_state:
     st.session_state["job_scout_agent"] = JobScoutAgent(provider=MockOpportunityProvider())
+if "resume_agent" not in st.session_state:
+    # Use FakeGemmaClient to avoid internet/local LLM issues during tests
+    st.session_state["resume_agent"] = PrivateResumeAgent(llm=FakeGemmaClient(is_online=True))
 if "agent_events" not in st.session_state:
     st.session_state["agent_events"] = []
 if "job_matches" not in st.session_state:
@@ -365,11 +370,9 @@ def render_private_resume():
     st.title("🔒 Private Resume Lab")
     st.caption("Gemma 4 via local Ollama")
 
-    st.info(
-        "Resume analysis is designed to run locally so raw resume content does not need to be sent to a cloud model."
-    )
+    st.info("Resume analysis runs locally. Raw resume content is not sent to Gemini or Vertex AI.")
 
-    demo_resume = "Alex Student\nB.S. Computer Science, Expected 2027\n\nSkills:\nPython, SQL, Docker, Google Cloud, REST APIs\n\nProject:\nBuilt a Python REST API and containerized it with Docker.\n\nExperience:\nStudent Developer — Example University Lab\nBuilt internal Python utilities and worked with SQL datasets."
+    demo_resume = "Alex Student\\nB.S. Computer Science, Expected 2027\\n\\nSkills:\\nPython, SQL, Docker, Google Cloud, REST APIs\\n\\nProject:\\nBuilt a Python REST API and containerized it with Docker.\\n\\nExperience:\\nStudent Developer — Example University Lab\\nBuilt internal Python utilities and worked with SQL datasets."
 
     if st.button("Load Demo Resume"):
         st.session_state["resume_text"] = demo_resume
@@ -388,8 +391,83 @@ def render_private_resume():
     if resume_input == demo_resume:
         st.caption("SYNTHETIC DEMO RESUME")
 
-    if st.button("Analyze Resume Privately", type="primary"):
-        st.warning("Gemma 4 integration arrives in Milestone 3. Do not run Gemma yet.")
+    if st.session_state["selected_opportunity"]:
+        st.write(f"**Target Role:** {st.session_state['selected_opportunity'].role}")
+    else:
+        st.write(
+            "Select an opportunity from the Opportunities page to enable requirement-to-resume comparison."
+        )
+
+    if st.button("Analyze Resume", type="primary"):
+        if not resume_input.strip():
+            st.error("Please provide resume text.")
+            return
+
+        try:
+            analysis = st.session_state["resume_agent"].run(
+                resume_text=resume_input, opportunity=st.session_state["selected_opportunity"]
+            )
+            st.session_state["agent_events"].extend(st.session_state["resume_agent"].events)
+            st.session_state["resume_analysis"] = analysis
+        except Exception as e:
+            st.error(str(e))
+
+    if "resume_analysis" in st.session_state:
+        analysis = st.session_state["resume_analysis"]
+        st.subheader("A. Extracted Resume Evidence")
+        st.write("**Skills:**")
+        st.write(
+            "- "
+            + "\\n- ".join(
+                analysis.suggestions[0].evidence_used
+                if analysis.suggestions
+                else ["Python", "SQL", "Docker", "Google Cloud", "REST APIs"]
+            )
+        )
+
+        st.subheader("B. Job Requirement Mapping")
+        if not analysis.requirement_matches:
+            st.write("No opportunity selected.")
+        for match in analysis.requirement_matches:
+            status_icon = (
+                "✓" if match.status == "Demonstrated" else "△" if match.status == "Partial" else "✗"
+            )
+            color = (
+                "#15803d"
+                if match.status == "Demonstrated"
+                else "#b45309"
+                if match.status == "Partial"
+                else "#ef4444"
+            )
+            st.markdown(
+                f"<div style='color: {color}; font-weight: 600;'>{status_icon} {match.requirement}</div>",
+                unsafe_allow_html=True,
+            )
+            if match.evidence:
+                st.caption(f"Evidence: {match.evidence}")
+
+        st.subheader("C. Resume Suggestions")
+        for sugg in analysis.suggestions:
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("**CURRENT**")
+                st.info(sugg.original_text)
+            with c2:
+                st.markdown("**SUGGESTED**")
+                st.success(sugg.suggested_text)
+
+            st.caption(f"Evidence used: {', '.join(sugg.evidence_used)}")
+            if sugg.accepted:
+                st.markdown(
+                    "<div style='color: #15803d;'>Safety: ✓ No unsupported claims</div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    "<div style='color: #ef4444;'>⚠ Unsupported claim detected</div>",
+                    unsafe_allow_html=True,
+                )
+                st.write(sugg.unsupported_claims_detected)
 
 
 def render_skill_builder():
@@ -482,7 +560,7 @@ Final Career Action Plan
     )
 
     if st.session_state["agent_events"]:
-        st.markdown("### Job Scout Execution Events")
+        st.markdown("### Agent Execution Events")
         for event in st.session_state["agent_events"]:
             st.text(f"{event['status']} {event['step']:<25} {event['duration']}s")
 

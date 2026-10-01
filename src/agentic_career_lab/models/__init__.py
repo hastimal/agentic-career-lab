@@ -11,6 +11,9 @@ from agentic_career_lab.models.schemas import (
     StudentProfile,
     OpportunitySearchQuery,
     OpportunityMatch,
+    RequirementEvidenceMatch,
+    ResumeSuggestion,
+    ResumeAnalysis,
 )
 
 __all__ = [
@@ -24,4 +27,7 @@ __all__ = [
     "StudentProfile",
     "OpportunitySearchQuery",
     "OpportunityMatch",
+    "RequirementEvidenceMatch",
+    "ResumeSuggestion",
+    "ResumeAnalysis",
 ]

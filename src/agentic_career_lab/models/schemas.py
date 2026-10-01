@@ -106,6 +106,33 @@ class ResumeEvidence(BaseModel):
         default_factory=list,
         description="Any fabricated or unverified claims flagged during validation",
     )
+    technologies: list[str] = Field(
+        default_factory=list,
+        description="List of technologies explicitly mentioned",
+    )
+
+
+class RequirementEvidenceMatch(BaseModel):
+    requirement: str
+    status: EvidenceStatus
+    evidence: str | None = None
+    explanation: str = ""
+
+
+class ResumeSuggestion(BaseModel):
+    original_text: str
+    suggested_text: str
+    evidence_used: list[str] = Field(default_factory=list)
+    unsupported_claims_detected: list[str] = Field(default_factory=list)
+    accepted: bool = False
+
+
+class ResumeAnalysis(BaseModel):
+    profile: StudentProfile | None = None
+    requirement_matches: list[RequirementEvidenceMatch] = Field(default_factory=list)
+    missing_evidence: list[str] = Field(default_factory=list)
+    suggestions: list[ResumeSuggestion] = Field(default_factory=list)
+    safety_summary: str = ""
 
 
 class SkillGap(BaseModel):
