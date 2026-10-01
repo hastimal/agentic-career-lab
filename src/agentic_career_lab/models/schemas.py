@@ -60,6 +60,7 @@ class Opportunity(BaseModel):
     company: str = Field(..., description="Hiring organization")
     location: str = Field(..., description="Job location or Remote status")
     source_url: HttpUrl = Field(..., description="Verifiable external source link")
+    is_demo: bool = Field(default=True, description="Whether this is a demo mock job")
     requirements: list[OpportunityRequirement] = Field(
         default_factory=list,
         description="Parsed requirements",

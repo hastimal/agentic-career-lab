@@ -15,6 +15,9 @@ from agentic_career_lab.coordinator import (
 )
 from agentic_career_lab.llm.local import FakeGemmaClient
 from agentic_career_lab.models import OpportunitySearchQuery, StudentProfile
+from agentic_career_lab.providers.adzuna import (
+    AdzunaOpportunityProvider,
+)
 from agentic_career_lab.providers.mock import MockOpportunityProvider
 from agentic_career_lab.services.resume_parser import ResumeParser
 from agentic_career_lab.ui_helpers import (
@@ -379,8 +382,22 @@ def render_opportunities():
         location = st.text_input("Location", value="Texas")
         internship_only = st.selectbox("Internship only", ["Yes", "No"], index=0)
         skills = st.text_area("Skills", value="Python, SQL, Docker, Google Cloud, REST APIs")
+        source = st.radio("Source:", ["Live Jobs", "Demo Data"], index=1, horizontal=True)
 
         if st.button("Find Opportunities"):
+            if source == "Live Jobs":
+                try:
+                    provider = AdzunaOpportunityProvider()
+                except Exception as e:
+                    st.error(str(e))
+                    st.stop()
+            else:
+                provider = MockOpportunityProvider()
+
+            # Inject provider
+            st.session_state["coordinator"].domain_coordinator.job_scout.provider = provider
+            st.session_state["job_source_label"] = "LIVE" if source == "Live Jobs" else "DEMO DATA"
+
             profile = StudentProfile(
                 name="Student",
                 target_role=role,
@@ -405,7 +422,8 @@ def render_opportunities():
             st.session_state["job_matches"] = state.opportunities
             st.session_state["agent_events"] = state.activity_events
 
-    st.markdown("### DEMO DATA")
+    label = st.session_state.get("job_source_label", "DEMO DATA")
+    st.markdown(f"### {label}")
 
     if not st.session_state["job_matches"]:
         st.info("No matches found. Run a search to see mock opportunities.")
@@ -417,7 +435,9 @@ def render_opportunities():
             <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
-                        <h3 style="margin: 0; color: #0f172a;">{opp.role}</h3>
+                        <h3 style="margin: 0; color: #0f172a;">
+                            {opp.role} <span style="font-size: 0.7em; background: {"#dbeafe" if not getattr(opp, "is_demo", True) else "#f3f4f6"}; color: {"#1e40af" if not getattr(opp, "is_demo", True) else "#4b5563"}; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle;">{"LIVE" if not getattr(opp, "is_demo", True) else "DEMO DATA"}</span>
+                        </h3>
                         <p style="margin: 4px 0; color: #64748b;">
                             {opp.company} • {opp.location}
                         </p>

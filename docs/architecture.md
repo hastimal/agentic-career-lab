@@ -17,9 +17,13 @@ Google ADK
    +----------------------+
    |                      |
    v                      |
-Job Scout                  |
-   |                      |
-   v                      |
+Job Scout
+   |
+   +--> OpportunityProvider
+           +--> MockOpportunityProvider (Demo Data)
+           +--> AdzunaOpportunityProvider (Live Jobs)
+   |
+   v
 Selected Opportunity       |
    |                      |
    v                      |
