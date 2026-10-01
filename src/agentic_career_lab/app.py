@@ -1,6 +1,9 @@
 """Streamlit UI Shell for Agentic Career Lab."""
 
 import streamlit as st
+from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
+from agentic_career_lab.providers.mock import MockOpportunityProvider
+from agentic_career_lab.models import StudentProfile, OpportunitySearchQuery
 
 # Page configuration
 st.set_page_config(
@@ -87,6 +90,12 @@ if "preset_prompt" not in st.session_state:
     st.session_state["preset_prompt"] = ""
 if "resume_text" not in st.session_state:
     st.session_state["resume_text"] = ""
+if "job_scout_agent" not in st.session_state:
+    st.session_state["job_scout_agent"] = JobScoutAgent(provider=MockOpportunityProvider())
+if "agent_events" not in st.session_state:
+    st.session_state["agent_events"] = []
+if "job_matches" not in st.session_state:
+    st.session_state["job_matches"] = []
 
 # Sidebar Navigation & Settings
 with st.sidebar:
@@ -243,10 +252,31 @@ def render_chat():
         if submitted and prompt:
             st.session_state["preset_prompt"] = ""
             st.session_state["messages"].append({"role": "user", "content": prompt})
+
+            # Simple integration for Job Scout
+            if "internship" in prompt.lower() or "find" in prompt.lower():
+                profile = StudentProfile(
+                    name="Student",
+                    target_role="AI Engineering Intern",
+                    education_level="Junior",
+                    major="Computer Science",
+                    skills=["Python", "SQL", "Docker", "Google Cloud", "REST APIs"],
+                )
+                query = OpportunitySearchQuery(
+                    role="Intern", location="Texas", internship_only=True, keywords=[]
+                )
+                matches = st.session_state["job_scout_agent"].run(profile, query)
+                st.session_state["agent_events"] = st.session_state["job_scout_agent"].events
+                st.session_state["job_matches"] = matches
+
+                msg = "Job Scout prepared search, loaded opportunities, extracted requirements, and compared skills. Check Opportunities and Agent Activity."
+            else:
+                msg = "*(Demo Shell)* Coordinator received your message. In upcoming milestones, this orchestrates Job Scout, Resume Agent, and Skill Builder."
+
             st.session_state["messages"].append(
                 {
                     "role": "assistant",
-                    "content": "*(Demo Shell)* Coordinator received your message. In upcoming milestones, this orchestrates Job Scout, Resume Agent, and Skill Builder.",
+                    "content": msg,
                 }
             )
             st.rerun()
@@ -263,38 +293,71 @@ def render_opportunities():
     st.title("🎯 Job Scout — Opportunities")
     st.caption("Evidence-backed opportunity matching with verified source URLs")
 
-    st.info("Evidence-backed Job Scout arrives in Milestone 2.")
+    with st.expander("Search Form", expanded=True):
+        role = st.text_input("Role", value="AI Engineering Intern")
+        location = st.text_input("Location", value="Texas")
+        internship_only = st.selectbox("Internship only", ["Yes", "No"], index=0)
+        skills = st.text_area("Skills", value="Python, SQL, Docker, Google Cloud, REST APIs")
 
-    with st.expander("Demo Search Form", expanded=True):
-        st.text_input("Role", value="AI Engineering Intern")
-        st.text_input("Location", value="Texas")
-        st.selectbox("Internship only", ["Yes", "No"], index=0)
-        st.text_area("Skills", value="Python, SQL, Docker, Google Cloud, REST APIs")
         if st.button("Find Opportunities"):
-            st.toast("Job Scout arrives in Milestone 2")
+            profile = StudentProfile(
+                name="Student",
+                target_role=role,
+                education_level="Junior",
+                major="Computer Science",
+                skills=[s.strip() for s in skills.split(",") if s.strip()],
+            )
+            query = OpportunitySearchQuery(
+                role=role,
+                location=location,
+                internship_only=(internship_only == "Yes"),
+                keywords=[],
+            )
+            matches = st.session_state["job_scout_agent"].run(profile, query)
+            st.session_state["agent_events"] = st.session_state["job_scout_agent"].events
+            st.session_state["job_matches"] = matches
 
     st.markdown("### DEMO DATA")
-    st.markdown(
-        """
-        <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h3 style="margin: 0; color: #0f172a;">AI / ML Engineering Intern</h3>
-                    <p style="margin: 4px 0; color: #64748b;">
-                        Google Cloud • Sunnyvale, CA (Hybrid)
-                    </p>
+
+    if not st.session_state["job_matches"]:
+        st.info("No matches found. Run a search to see mock opportunities.")
+
+    for match in st.session_state["job_matches"]:
+        opp = match.opportunity
+        st.markdown(
+            f"""
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h3 style="margin: 0; color: #0f172a;">{opp.role}</h3>
+                        <p style="margin: 4px 0; color: #64748b;">
+                            {opp.company} • {opp.location}
+                        </p>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 8px;">
+                    <div style="color: #15803d; font-weight: 600;">✓ Demonstrated:</div>
+                    <div style="color: #334155; font-size: 0.9rem; margin-bottom: 8px;">{", ".join(match.demonstrated_skills) if match.demonstrated_skills else "None"}</div>
+                    <div style="color: #b45309; font-weight: 600;">△ Partial:</div>
+                    <div style="color: #334155; font-size: 0.9rem; margin-bottom: 8px;">{", ".join(match.partial_skills) if match.partial_skills else "None"}</div>
+                    <div style="color: #ef4444; font-weight: 600;">✗ Missing:</div>
+                    <div style="color: #334155; font-size: 0.9rem; margin-bottom: 8px;">{", ".join(match.missing_skills) if match.missing_skills else "None"}</div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <p><b>Why relevant:</b> {match.why_relevant}</p>
                 </div>
             </div>
-            <div style="margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 8px;">
-                <div style="color: #15803d; font-weight: 600;">✓ Strong Evidence:</div>
-                <div style="color: #334155; font-size: 0.9rem; margin-bottom: 8px;">Python, SQL, Docker</div>
-                <div style="color: #b45309; font-weight: 600;">△ Missing Evidence:</div>
-                <div style="color: #334155; font-size: 0.9rem;">Vertex AI, Kubernetes</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+            """,
+            unsafe_allow_html=True,
+        )
+        c1, c2 = st.columns(2)
+        with c1:
+            st.link_button("View Source", opp.source_url)
+        with c2:
+            if st.button(f"Prepare Me ({opp.opportunity_id})"):
+                st.toast(
+                    "Selected for future Skill Builder analysis. Skill Builder arrives in Milestone 4."
+                )
 
 
 def render_private_resume():
@@ -417,6 +480,11 @@ Final Career Action Plan
         - ○ Skill Builder    not running
         """
     )
+
+    if st.session_state["agent_events"]:
+        st.markdown("### Job Scout Execution Events")
+        for event in st.session_state["agent_events"]:
+            st.text(f"{event['status']} {event['step']:<25} {event['duration']}s")
 
     if st.button("Replay Demo Trace", disabled=True):
         pass

@@ -71,6 +71,21 @@ class Opportunity(BaseModel):
     )
 
 
+class OpportunitySearchQuery(BaseModel):
+    role: str
+    location: str
+    internship_only: bool
+    keywords: list[str]
+
+
+class OpportunityMatch(BaseModel):
+    opportunity: Opportunity
+    demonstrated_skills: list[str]
+    partial_skills: list[str]
+    missing_skills: list[str]
+    why_relevant: str
+
+
 class ResumeEvidence(BaseModel):
     """Evidence parsed locally from student's resume by Gemma."""
 

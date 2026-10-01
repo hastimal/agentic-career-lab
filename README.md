@@ -28,13 +28,46 @@ Planned stack:
 ## 🗺️ 8-Milestone Roadmap
 
 - [x] **Milestone 1: Foundation + UI Shell** — Complete
-- [ ] **Milestone 2: Job Scout Agent** — Planned
+- [x] **Milestone 2: Job Scout Agent** — Complete
 - [ ] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Planned
 - [ ] **Milestone 4: Skill Builder Agent** — Planned
 - [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — Planned
 - [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
 - [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
 - [ ] **Milestone 8: Evaluation & Observability** — Planned
+
+---
+
+## 🎯 Job Scout Agent (Milestone 2)
+
+The Job Scout Agent provides evidence-backed opportunity matching:
+
+- **Provider Abstraction**: Allows fetching opportunities securely (currently featuring a deterministic mock provider for testing).
+- **Source Preservation**: Every opportunity is tied to a verifiable external source URL to eliminate hallucinated job postings.
+- **Requirement Extraction**: Parses requirements securely from job descriptions.
+- **Skill Normalization**: Translates equivalent terms (e.g., `GCP` to `Google Cloud`, `k8s` to `Kubernetes`).
+- **Explainable Matching**: Categorizes requirements into `Demonstrated`, `Partial`, and `Missing` using deterministic validation rather than arbitrary percentages.
+
+**Limitations**: Currently runs via deterministic execution and mock data for UI safety. Live provider API integrations arrive in later milestones.
+
+```text
+Student Profile
+      |
+      v
+Job Scout
+      |
+      v
+Opportunity Provider
+      |
+      v
+Requirement Extraction
+      |
+      v
+Skill Matching
+      |
+      v
+Evidence-Backed Results
+```
 
 ---
 
