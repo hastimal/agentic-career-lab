@@ -10,6 +10,15 @@ from agentic_career_lab.llm.local import FakeGemmaClient
 from agentic_career_lab.models import OpportunitySearchQuery, StudentProfile
 from agentic_career_lab.providers.mock import MockOpportunityProvider
 from agentic_career_lab.services.resume_parser import ResumeParser
+from agentic_career_lab.ui_helpers import (
+    ACTIVITY,
+    HOME,
+    OPPORTUNITIES,
+    RESUME,
+    SKILLS,
+    get_workflow_progress,
+    normalize_navigation,
+)
 
 # Page configuration
 st.set_page_config(
@@ -18,12 +27,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
-HOME = "Home"
-OPPORTUNITIES = "Find Opportunities"
-RESUME = "Prepare Resume"
-SKILLS = "Build Skills"
-ACTIVITY = "Agent Activity"
 
 
 def navigate(page: str):
@@ -203,18 +206,20 @@ def render_home():
     analysis = st.session_state.get("resume_analysis")
     plan = st.session_state.get("skill_builder_plan")
 
+    progress = get_workflow_progress(opp, analysis, plan)
+
     st.markdown("### Career Preparation Progress")
-    if opp:
+    if progress["opportunity_selected"]:
         st.success("✓ Opportunity selected")
     else:
         st.info("○ Select an opportunity")
 
-    if analysis:
+    if progress["resume_analyzed"]:
         st.success("✓ Resume analyzed")
     else:
         st.info("○ Analyze your resume")
 
-    if plan:
+    if progress["skill_plan_built"]:
         st.success("✓ Skill plan built")
     else:
         st.info("○ Build your skill plan")
@@ -719,10 +724,7 @@ Final Career Action Plan
 
 
 # Handle navigation from state if changed via button
-if "nav" in st.session_state:
-    navigation = st.session_state["nav"]
-else:
-    navigation = "Home"
+navigation = normalize_navigation(st.session_state.get("nav"))
 
 # Routing logic
 if navigation == HOME:
