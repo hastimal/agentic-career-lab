@@ -1,21 +1,18 @@
 # Agentic Career Lab
 
-A privacy-aware hybrid multi-agent career platform for college students.
+A privacy-aware hybrid multi-agent career platform for students.
 
-```text
-Student
-   ↓
-Career Coordinator — Google ADK
-   │
-   ├── Job Scout Agent
-   │      └── Gemini / Vertex AI + job search tools
-   │
-   ├── Private Resume Agent
-   │      └── Gemma 4 via local Ollama
-   │
-   └── Skill Builder Agent
-          └── Gemini / deterministic Python as appropriate
-```
+Planned stack:
+- Gemini
+- Vertex AI
+- Google ADK
+- Gemma 4 on Ollama
+- Streamlit
+- Docker
+- Cloud Run
+- OpenTelemetry
+
+*(Screenshot/Demo section placeholder)*
 
 ---
 
@@ -30,14 +27,14 @@ Career Coordinator — Google ADK
 
 ## 🗺️ 8-Milestone Roadmap
 
-- [x] **Milestone 1: Foundation + UI Shell** — Core models, configuration, Streamlit AI workspace UI.
-- [ ] **Milestone 2: Job Scout Agent** — Opportunity provider abstraction, normalization, verified source extraction.
-- [ ] **Milestone 3: Private Resume Agent (Gemma 4 + Ollama)** — Local resume evidence parsing and guardrails against fabricated claims.
-- [ ] **Milestone 4: Skill Builder Agent** — Deterministic requirement/evidence comparison & personalized learning roadmaps.
-- [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — State orchestration across specialist agents.
-- [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Privacy-aware model routing and offline fallbacks.
-- [ ] **Milestone 7: Docker + Cloud Run Deployment** — Cloud Run deployment with local/cloud execution modes.
-- [ ] **Milestone 8: Light Evaluation + Observability** — Student test fixtures, OpenTelemetry traces, and latency analysis.
+- [x] **Milestone 1: Foundation + UI Shell** — Complete
+- [ ] **Milestone 2: Job Scout Agent** — Planned
+- [ ] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Planned
+- [ ] **Milestone 4: Skill Builder Agent** — Planned
+- [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — Planned
+- [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
+- [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
+- [ ] **Milestone 8: Evaluation & Observability** — Planned
 
 ---
 
@@ -47,7 +44,7 @@ Career Coordinator — Google ADK
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/agentic-career-lab.git
+git clone https://github.com/hastimal/agentic-career-lab.git
 cd agentic-career-lab
 
 # Create and activate virtual environment

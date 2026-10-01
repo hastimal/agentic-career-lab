@@ -43,3 +43,18 @@ Career Coordinator — Google ADK
    - Milestone 6: Hybrid Gemini + Gemma Privacy Routing
    - Milestone 7: Docker + Cloud Run Deployment
    - Milestone 8: Evaluation & Observability
+
+5. **Logging/Privacy UX Rule**:
+   - Future Agent Activity logs must NEVER expose:
+     - raw resume text
+     - personally identifying information
+     - private document content
+   - Future logs may show:
+     - agent name
+     - tool name
+     - model/runtime
+     - status
+     - sanitized summary
+     - latency
+     - result counts
+     - failure state

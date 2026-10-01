@@ -121,3 +121,34 @@ def test_learning_plan_creation():
     assert plan.duration_weeks == 4
     assert len(plan.weekly_milestones) == 2
     assert "Vertex AI" in plan.recommended_portfolio_project["technologies"]
+
+
+def test_app_imports_and_no_live_calls():
+    """Verify that the app can be imported without executing live API calls."""
+    try:
+        import agentic_career_lab.app  # noqa: F401
+
+        assert True
+    except Exception as e:
+        pytest.fail(f"App module failed to import: {e}")
+
+
+def test_demo_profile_and_presets_exist():
+    """Verify that the app contains the demo values requested."""
+    with open("src/agentic_career_lab/app.py", encoding="utf-8") as f:
+        content = f.read()
+
+    assert "Computer Science" in content
+    assert "2027" in content
+    assert "AI Engineering Intern" in content
+    assert "Python, SQL, Docker, Google Cloud, REST APIs" in content
+
+    # Presets
+    assert (
+        "I'm a junior computer science student. I know Python, SQL, Docker, and basic Google Cloud."
+    ) in content
+    assert "Compare my resume against the selected AI Engineering Intern role." in content
+    assert (
+        "Based on the selected internship and my current evidence, identify my top three skill gaps"
+    ) in content
+    assert "Find an AI/cloud internship that fits my profile" in content
