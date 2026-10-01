@@ -31,10 +31,20 @@ Planned stack:
 - [x] **Milestone 2: Job Scout Agent** — Complete
 - [x] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Complete
 - [x] **Milestone 4: Skill Builder Agent** — Complete
-- [ ] **Milestone 5: Google ADK Multi-Agent Coordinator** — Planned
+- [x] **Milestone 5: Google ADK Multi-Agent Coordinator** — Complete
 - [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
 - [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
 - [ ] **Milestone 8: Evaluation & Observability** — Planned
+
+---
+
+## 🎓 Google ADK Coordinator (Milestone 5)
+
+Gemini reasons. Gemma handles private resume intelligence locally. Python verifies deterministic facts. Google ADK coordinates the workflow.
+
+- **Orchestration**: Directs flow between Job Scout, Private Resume Agent, and Skill Builder.
+- **Privacy Boundary**: Guarantees raw resume data remains strictly in local models while sharing only structured outputs with the coordinator.
+- **Partial Failures**: Cleanly handles situations like an offline Ollama instance without destroying prior job scout sessions.
 
 ---
 

@@ -6,17 +6,55 @@ Agentic Career Lab is a privacy-aware hybrid multi-agent career platform designe
 
 ```text
 Student
-   ↓
-Career Coordinator — Google ADK
-   │
-   ├── Job Scout Agent
-   │      └── Gemini / Vertex AI + Job Search Tools
-   │
-   ├── Private Resume Agent
-   │      └── Gemma 4 via local Ollama (Privacy Boundary)
-   │
-   └── Skill Builder Agent
-          └── Gemini / Deterministic Python
+   |
+   v
+Streamlit
+   |
+   v
+Career Coordinator
+Google ADK
+   |
+   +----------------------+
+   |                      |
+   v                      |
+Job Scout                  |
+   |                      |
+   v                      |
+Selected Opportunity       |
+   |                      |
+   v                      |
+Private Resume Agent       |
+Gemma 4 / Ollama           |
+   |                      |
+   v                      |
+ResumeAnalysis             |
+   |                      |
+   v                      |
+Skill Builder              |
+Python + Planner           |
+   |                      |
+   v                      |
+Career Action Plan <-------+
+
+Privacy boundary:
+
+Raw Resume
+   |
+   v
+Local Parser
+   |
+   v
+Gemma / Ollama
+   |
+   v
+Structured ResumeAnalysis
+   |
+   +---- safe structured result ----> Coordinator
+
+Raw Resume
+   X
+   |
+   +---- NOT SENT ----> Gemini / Vertex AI
 ```
 
 ## Architectural Principles

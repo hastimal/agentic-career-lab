@@ -6,6 +6,13 @@ from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
 from agentic_career_lab.agents.skill_builder.planner import FakePlanningLLM
+from agentic_career_lab.coordinator import (
+    ADKCareerCoordinator,
+    CareerAction,
+    CareerCoordinator,
+    CareerWorkflowState,
+    LocalResumeContext,
+)
 from agentic_career_lab.llm.local import FakeGemmaClient
 from agentic_career_lab.models import OpportunitySearchQuery, StudentProfile
 from agentic_career_lab.providers.mock import MockOpportunityProvider
@@ -124,12 +131,15 @@ def initialize_session_state() -> None:
         if key not in st.session_state:
             st.session_state[key] = value
 
-    if "job_scout_agent" not in st.session_state:
-        st.session_state["job_scout_agent"] = JobScoutAgent(provider=MockOpportunityProvider())
-    if "resume_agent" not in st.session_state:
-        st.session_state["resume_agent"] = PrivateResumeAgent(llm=FakeGemmaClient(is_online=True))
-    if "skill_builder_agent" not in st.session_state:
-        st.session_state["skill_builder_agent"] = SkillBuilderAgent(llm=FakePlanningLLM())
+    if "coordinator" not in st.session_state:
+        domain_coord = CareerCoordinator(
+            job_scout=JobScoutAgent(provider=MockOpportunityProvider()),
+            resume_agent=PrivateResumeAgent(llm=FakeGemmaClient(is_online=True)),
+            skill_builder=SkillBuilderAgent(llm=FakePlanningLLM()),
+        )
+        st.session_state["coordinator"] = ADKCareerCoordinator(domain_coord)
+    if "career_workflow_state" not in st.session_state:
+        st.session_state["career_workflow_state"] = CareerWorkflowState()
 
 
 initialize_session_state()
@@ -384,9 +394,16 @@ def render_opportunities():
                 internship_only=(internship_only == "Yes"),
                 keywords=[],
             )
-            matches = st.session_state["job_scout_agent"].run(profile, query)
-            st.session_state["agent_events"] = st.session_state["job_scout_agent"].events
-            st.session_state["job_matches"] = matches
+            state = st.session_state["career_workflow_state"]
+            state.student_profile = profile
+            state.search_query = query
+
+            # Delegate to Coordinator
+            st.session_state["coordinator"].execute_action(CareerAction.FIND_OPPORTUNITIES, state)
+
+            # Sync back to session state for existing UI components
+            st.session_state["job_matches"] = state.opportunities
+            st.session_state["agent_events"] = state.activity_events
 
     st.markdown("### DEMO DATA")
 
@@ -508,11 +525,16 @@ def render_private_resume():
             return
 
         try:
-            analysis = st.session_state["resume_agent"].run(
-                resume_text=resume_content, opportunity=st.session_state.get("selected_opportunity")
+            state = st.session_state["career_workflow_state"]
+            local_context = LocalResumeContext(raw_resume_text=resume_content)
+
+            st.session_state["coordinator"].execute_action(
+                CareerAction.PREPARE_RESUME, state, local_resume=local_context
             )
-            st.session_state["agent_events"].extend(st.session_state["resume_agent"].events)
-            st.session_state["resume_analysis"] = analysis
+
+            st.session_state["resume_analysis"] = state.resume_analysis
+            st.session_state["agent_events"] = state.activity_events
+
         except Exception as e:
             st.error(
                 f"Private resume analysis is unavailable because the local Ollama runtime is not running. Or another error occurred: {str(e)}"
@@ -603,11 +625,15 @@ def render_skill_builder():
 
     duration = st.radio("Plan Duration", ["2 Weeks", "4 Weeks"], index=1, horizontal=True)
     weeks = 2 if duration == "2 Weeks" else 4
+    _ = weeks
 
     if st.button("Build My Learning Plan", type="primary"):
-        plan = st.session_state["skill_builder_agent"].run(opp, analysis, weeks)
-        st.session_state["agent_events"].extend(st.session_state["skill_builder_agent"].events)
-        st.session_state["skill_builder_plan"] = plan
+        state = st.session_state["career_workflow_state"]
+
+        st.session_state["coordinator"].execute_action(CareerAction.BUILD_SKILLS, state)
+
+        st.session_state["skill_builder_plan"] = state.skill_builder_plan
+        st.session_state["agent_events"] = state.activity_events
 
     if "skill_builder_plan" in st.session_state:
         plan = st.session_state["skill_builder_plan"]
@@ -717,7 +743,16 @@ Final Career Action Plan
     if st.session_state["agent_events"]:
         st.markdown("### Agent Execution Events")
         for event in st.session_state["agent_events"]:
-            st.text(f"{event['status']} {event['step']:<25} {event['duration']}s")
+            # Check if event is dict (from old logic) or Pydantic model (new logic)
+            if isinstance(event, dict):
+                st.text(
+                    f"{event.get('status', 'Unknown')} {event.get('step', 'unknown_step'):<25} {event.get('duration', 0)}s"
+                )
+            else:
+                st.markdown(
+                    f"**{event.agent}** | {event.status} | {event.runtime} | {event.duration_ms}ms"
+                )
+                st.text(f"→ {event.action}: {event.summary}")
 
     if st.button("Replay Demo Trace", disabled=True):
         pass

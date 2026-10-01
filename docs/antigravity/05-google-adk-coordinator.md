@@ -1,145 +1,18 @@
-# Milestone 5 — Google ADK Multi-Agent Coordinator
-## Agentic Career Lab — Gemini + Gemma 4 on Ollama + Google ADK + Vertex AI
+# Google ADK Career Coordinator
 
-> Use Google ADK to coordinate Job Scout, Private Resume Agent, and Skill Builder while preserving structured state and privacy boundaries.
+This project uses Google ADK orchestration to sequence the specialized agent behaviors within the application.
 
-## Goal
-Use Google ADK to coordinate Job Scout, Private Resume Agent, and Skill Builder while preserving structured state and privacy boundaries.
+### Architectural Principle
 
-## What This Milestone Adds
-- Google ADK integration
-- coordinator agent
-- specialist routing
-- structured state passing
-- partial failure behavior
-- agent activity stream
+- **Gemini / Vertex AI**: Reasons and plans inside cloud environments.
+- **Gemma 4 / Ollama**: Handles private resume intelligence locally, ensuring PII stays on your machine.
+- **Python**: Verifies deterministic facts, performs strict gap analysis, and queries external APIs reliably.
+- **Google ADK**: Coordinates the multi-agent workflow, managing state transitions and cleanly handling partial failures.
 
-## What This Milestone Does NOT Add
-- Interview Agent
-- Cover Letter Agent
-- Networking Agent
-- central hybrid routing policy
-- Cloud Run deployment
-- observability backend
+### Workflow Sequence
 
-## Architecture
-```text
-                    Career Coordinator
-                       Google ADK
-                            |
-          +-----------------+-----------------+
-          |                 |                 |
-          v                 v                 v
-     Job Scout         Resume Agent      Skill Builder
-          |                 |                 |
- Gemini/Vertex AI     Gemma 4/Ollama     Gemini/Python
-```
+1. **Job Scout Agent**: Triggered to pull roles, extract requirements, and build a deterministic matching structure.
+2. **Private Resume Agent**: Uses local Gemma to extract evidence mapped directly against the job requirements.
+3. **Skill Builder Agent**: Takes extracted strengths and gaps, utilizing Python to prioritize learning topics and Gemini to map custom learning steps.
 
-## Antigravity Command
-
-```text
-Continue from Agentic Career Lab on main.
-
-IMPLEMENT MILESTONE 5 ONLY.
-
-Integrate Google ADK.
-
-Use one coordinator and exactly three specialist agents:
-- Job Scout
-- Private Resume Agent
-- Skill Builder
-
-Do not add:
-- Interview Agent
-- LinkedIn Agent
-- Cover Letter Agent
-- Networking Agent
-- Salary Agent
-
-Coordinator responsibilities:
-- understand intent
-- invoke required specialist agents
-- pass structured state
-- preserve evidence
-- handle partial failures
-- avoid circular delegation
-
-Expected routing:
-
-"Find internships"
--> Job Scout
-
-"Analyze my resume"
--> Resume Agent
-
-"What skills am I missing?"
--> Skill Builder
-
-"Find a role and help me prepare"
--> Job Scout
--> Resume Agent if available
--> Skill Builder
-
-Raw resume text must never be sent to cloud agents.
-
-Resume Agent remains local.
-
-Pass only sanitized/structured outputs when needed.
-
-Preserve:
-- opportunity source
-- requirements
-- resume evidence
-- skill gaps
-- learning plan
-
-Create a sanitized activity stream for UI.
-
-Handle failure safely.
-
-If Ollama is unavailable:
-- Job Scout can continue
-- Skill Builder can continue where possible
-- Resume analysis must be marked unavailable
-- do not silently send the resume to Gemini
-
-Update Chat UI for orchestration.
-
-Update Agent Activity UI.
-
-Tests:
-- routing
-- structured state passing
-- local resume privacy
-- partial failure
-- no circular delegation
-
-Run:
-ruff check .
-ruff format --check .
-pytest
-
-Recommended commit:
-feat: orchestrate career workflow with Google ADK
-
-STOP AFTER MILESTONE 5.
-```
-
-## Verification
-```bash
-ruff check .
-ruff format --check .
-pytest
-streamlit run src/agentic_career_lab/app.py
-```
-
-## Expected Result
-- multi-agent routing works
-- agents delegate correctly
-- private resume boundary is preserved
-
-## Commit
-feat: orchestrate career workflow with Google ADK
-
-## Status
-Planned
+Google ADK guarantees that each transition passes only the required structured data, preserving a strict privacy boundary between the local and cloud runtimes.
