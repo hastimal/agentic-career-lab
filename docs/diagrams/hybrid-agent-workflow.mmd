@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor Student as 🎓 Student User
+    participant UI as 🖥️ Streamlit UI
+    participant ADK as ⚙️ ADK Coordinator
+    participant Scout as 🎯 Job Scout Agent
+    participant Resume as 🔒 Private Resume Agent (Gemma 4)
+    participant Validator as ⚖️ Claim Validator
+    participant Consent as 🛡️ Privacy Consent Gate
+    participant Skills as 🛠️ Skill Builder (Gemini / Python)
+
+    Note over Student,UI: Step 1: Find Target Opportunity
+    Student->>UI: Search Opportunities (Role, Location)
+    UI->>ADK: execute_action(FIND_OPPORTUNITIES)
+    ADK->>Scout: Query Provider (Live Adzuna / Mock)
+    Scout-->>ADK: Return opportunities with parsed requirements
+    ADK-->>UI: Display opportunities (LIVE / DEMO DATA tags)
+    Student->>UI: Select Target Role (e.g., AI Engineering Intern)
+
+    Note over Student,Resume: Step 2: Private Local Resume Analysis
+    Student->>UI: Upload / Paste Resume
+    Student->>UI: Click "Analyze Resume Privately"
+    UI->>ADK: execute_action(PREPARE_RESUME, LocalResumeContext)
+    ADK->>Resume: Analyze locally (Raw Resume + Target Opportunity)
+    Note over Resume: Ollama (gemma4:12b) extracts skills & evidence
+    Resume->>Validator: Validate rewrite suggestions
+    Validator-->>Resume: Reject unsupported claims (0 hallucinations)
+    Resume-->>ADK: Return ResumeAnalysis (Structured Evidence)
+    Note over ADK: Raw resume text discarded from workflow state
+    ADK-->>UI: Display Demonstrated vs Missing Requirements
+
+    Note over Student,Skills: Step 3: Skill Building & Learning Roadmap
+    Student->>UI: Toggle "Cloud Sharing Consent" (Non-PII Gaps)
+    Student->>UI: Select Duration (2 or 4 Weeks) & Click "Build Learning Plan"
+    UI->>ADK: execute_action(BUILD_SKILLS)
+    ADK->>Consent: Check user consent & assert_cloud_safe()
+    alt Consent Granted
+        Consent->>Skills: Send CloudPlanningContext (Target role & missing skills only)
+        Note over Skills: Gemini Flash synthesizes roadmap & portfolio project
+    else Consent Declined
+        Consent->>Skills: Route to local DeterministicPlanningLLM
+        Note over Skills: Offline Python planner synthesizes standard milestones
+    end
+    Skills-->>ADK: Return SkillBuilderPlan
+    ADK->>ADK: create_action_plan(state)
+    ADK-->>UI: Render Final Career Action Plan with Portfolio Project
+    UI-->>Student: Review Actionable Career Roadmap

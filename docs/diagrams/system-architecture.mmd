@@ -1,0 +1,72 @@
+flowchart TD
+    subgraph Client ["Client / UI Layer"]
+        User["🎓 Student User"]
+        StreamlitApp["🖥️ Streamlit Web App (Port 8501)"]
+        User <--> StreamlitApp
+    end
+
+    subgraph Orchestration ["Google ADK Multi-Agent Orchestration"]
+        ADK["Career Coordinator (ADKRootAgent)"]
+        State["CareerWorkflowState (Session State)"]
+        StreamlitApp <--> ADK
+        ADK <--> State
+    end
+
+    subgraph LocalBoundary ["🔒 Strict Local Privacy Boundary (Host Machine)"]
+        ResumeAgent["Private Resume Agent"]
+        Parser["Resume Parser (PDF / DOCX / TXT)"]
+        Ollama["Local Ollama Server (http://localhost:11434)"]
+        Gemma["Gemma 4: 12B Model"]
+        Validator["Deterministic Claim Validator"]
+
+        ADK -->|LocalResumeContext| ResumeAgent
+        Parser --> ResumeAgent
+        ResumeAgent <--> Ollama
+        Ollama <--> Gemma
+        ResumeAgent --> Validator
+        Validator -->|Structured Evidence Only| ADK
+    end
+
+    subgraph ExternalProviders ["Opportunity Intelligence"]
+        JobScout["Job Scout Agent"]
+        MockData["Mock Provider (Deterministic Fixtures)"]
+        AdzunaAPI["Adzuna Job API (Live Opportunities)"]
+
+        ADK --> JobScout
+        JobScout --> MockData
+        JobScout --> AdzunaAPI
+        JobScout -->|Target Opportunity & Requirements| ADK
+    end
+
+    subgraph CloudBoundary ["☁ Cloud Reasoning (Google Cloud / Vertex AI)"]
+        ConsentCheck{"Explicit User Consent?"}
+        PrivacyGuard["Privacy Guard (assert_cloud_safe)"]
+        SkillBuilder["Skill Builder Agent"]
+        GeminiFlash["Gemini Flash (gemini-3.6-flash / Vertex AI)"]
+        PythonFallback["Deterministic Python Planner"]
+        Catalog["Resource Catalog"]
+
+        ADK --> ConsentCheck
+        ConsentCheck -->|Yes| PrivacyGuard
+        PrivacyGuard -->|CloudPlanningContext| GeminiFlash
+        GeminiFlash --> SkillBuilder
+        ConsentCheck -->|No| PythonFallback
+        PythonFallback --> SkillBuilder
+        Catalog --> SkillBuilder
+        SkillBuilder -->|Learning Roadmap & Project| ADK
+    end
+
+    ADK --> Plan["📄 Final Career Action Plan"]
+    Plan --> StreamlitApp
+
+    classDef local fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef cloud fill:#dbeafe,stroke:#2563eb,stroke-width:2px;
+    classDef orch fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef client fill:#f1f5f9,stroke:#64748b,stroke-width:2px;
+    classDef prov fill:#fdf4ff,stroke:#c026d3,stroke-width:2px;
+
+    class LocalBoundary,ResumeAgent,Parser,Ollama,Gemma,Validator local;
+    class CloudBoundary,PrivacyGuard,GeminiFlash,SkillBuilder,Catalog cloud;
+    class Orchestration,ADK,State,Plan orch;
+    class Client,User,StreamlitApp client;
+    class ExternalProviders,JobScout,MockData,AdzunaAPI prov;

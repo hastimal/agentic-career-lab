@@ -1,0 +1,59 @@
+flowchart TD
+    subgraph Stage1 ["Stage 1: Ingestion & Extraction (Local)"]
+        RawDoc["Student Resume<br/>(PDF, DOCX, TXT)"]
+        Parser["Local Text Extraction<br/>(pypdf / python-docx)"]
+        GemmaLLM["Ollama Gemma 4:12b<br/>(Local AI Model)"]
+        Evidence["Structured ResumeEvidence<br/>• Skills & Technologies<br/>• Projects & Experience<br/>• Education"]
+
+        RawDoc --> Parser --> GemmaLLM --> Evidence
+    end
+
+    subgraph Stage2 ["Stage 2: Target Opportunity (Grounded)"]
+        TargetRole["Selected Opportunity<br/>(e.g., AI Engineering Intern)"]
+        Reqs["Opportunity Requirements<br/>• Required vs Preferred<br/>• Verifiable Source Link"]
+
+        TargetRole --> Reqs
+    end
+
+    subgraph Stage3 ["Stage 3: Evidence Mapping & Gap Analysis (Deterministic Python)"]
+        Matcher["RequirementMapper & SkillNormalizer"]
+        StatusMatrix["Evidence Status Categorization<br/>✓ Demonstrated<br/>△ Partial<br/>✗ Missing"]
+        GapPrioritizer["Priority Scoring<br/>High / Medium / Low"]
+
+        Evidence --> Matcher
+        Reqs --> Matcher
+        Matcher --> StatusMatrix
+        StatusMatrix --> GapPrioritizer
+    end
+
+    subgraph Stage4 ["Stage 4: Synthesis & Learning Plan (Cloud / Offline Hybrid)"]
+        Consent{"User Cloud Consent"}
+        GeminiSynthesizer["Gemini Flash (Cloud AI)<br/>(Context-Rich Synthesis)"]
+        PythonSynthesizer["Deterministic Python Planner<br/>(Rule-Based Catalog Match)"]
+        Catalog["Educational Resource Catalog"]
+
+        GapPrioritizer --> Consent
+        Consent -->|Consent Granted| GeminiSynthesizer
+        Consent -->|Consent Declined| PythonSynthesizer
+        Catalog --> PythonSynthesizer
+        Catalog --> GeminiSynthesizer
+    end
+
+    subgraph Stage5 ["Stage 5: Compiled Career Action Plan"]
+        ActionPlan["🎓 CareerActionPlan<br/>━━━━━━━━━━━━━━━━━━━━━<br/>1. Target Role & Verified Evidence<br/>2. Prioritized Skill Gaps (High / Med / Low)<br/>3. Weekly Learning Roadmap (2 or 4 Weeks)<br/>4. Hands-On Portfolio Project<br/>5. Curated Tutorials & Docs Links"]
+
+        GeminiSynthesizer --> ActionPlan
+        PythonSynthesizer --> ActionPlan
+    end
+
+    classDef s1 fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef s2 fill:#fdf4ff,stroke:#c026d3,stroke-width:2px;
+    classDef s3 fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef s4 fill:#dbeafe,stroke:#2563eb,stroke-width:2px;
+    classDef s5 fill:#f1f5f9,stroke:#0f172a,stroke-width:2px;
+
+    class Stage1,RawDoc,Parser,GemmaLLM,Evidence s1;
+    class Stage2,TargetRole,Reqs s2;
+    class Stage3,Matcher,StatusMatrix,GapPrioritizer s3;
+    class Stage4,Consent,GeminiSynthesizer,PythonSynthesizer,Catalog s4;
+    class Stage5,ActionPlan s5;

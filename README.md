@@ -25,6 +25,12 @@ Planned stack:
 
 ---
 
+## 🏛️ System Architecture
+
+![System Architecture](docs/images/system-architecture.svg)
+
+---
+
 ## 🗺️ 8-Milestone Roadmap
 
 - [x] **Milestone 1: Foundation + UI Shell** — Complete
@@ -46,26 +52,23 @@ Milestone 6 provides a working end-to-end multi-agent career preparation demo en
 - **Explicit Cloud Consent**: Streamlit UI includes explicit student consent toggles before sharing sanitized skill gap metadata with cloud AI. Declining consent gracefully falls back to deterministic Python planning.
 - **Google ADK Orchestration**: Sequences Job Scout, Private Resume Agent, and Skill Builder through typed boundaries and compiles the final Career Action Plan.
 
-```mermaid
-flowchart TD
-    subgraph Local ["🔒 Local Boundary (Ollama)"]
-        Resume["Raw Resume (Isolated)"] --> Gemma["Gemma 4: 12B"]
-        Gemma --> Evidence["Structured Evidence"]
-    end
-    subgraph Cloud ["☁ Cloud Boundary (Gemini)"]
-        Sanitized["Sanitized Skill Gaps"] --> Gemini["Gemini Flash"]
-        Gemini --> Roadmap["Learning Roadmap & Project"]
-    end
-    subgraph Orchestrator ["⚙ Multi-Agent Coordinator (Google ADK)"]
-        Jobs["Job Scout"] --> ADK["ADK Coordinator"]
-        Evidence --> ADK
-        ADK --> Consent{"User Cloud Consent"}
-        Consent -->|Approved| Sanitized
-        Consent -->|Declined| Fallback["Deterministic Python"]
-        Roadmap --> ActionPlan["Final Career Action Plan"]
-        Fallback --> ActionPlan
-    end
-```
+### Hybrid Multi-Agent Workflow
+![Hybrid Agent Workflow](docs/images/hybrid-agent-workflow.svg)
+
+### Strict Local vs. Cloud Privacy Boundary
+![Privacy Boundary](docs/images/privacy-boundary.svg)
+
+---
+
+## 🔄 End-to-End Resume-to-Career-Plan Pipeline
+
+![Resume to Career Plan Workflow](docs/images/resume-to-career-plan-workflow.svg)
+
+---
+
+## 🐳 Container & Deployment Architecture (Milestone 7 Preview)
+
+![Docker Architecture](docs/images/docker-architecture.svg)
 
 ---
 

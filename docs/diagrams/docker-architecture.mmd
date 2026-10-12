@@ -1,0 +1,49 @@
+flowchart TD
+    subgraph Host ["💻 Host Machine (Developer / Student Laptop)"]
+        Browser["🌐 Web Browser (http://localhost:8501)"]
+        OllamaHost["🦙 Ollama Runtime Service<br/>Port 11434"]
+        GemmaWeight["📦 Local Model Storage<br/>(gemma4:12b ~8.0 GB)"]
+        OllamaHost <--> GemmaWeight
+    end
+
+    subgraph Container ["🐳 Agentic Career Lab Container (Docker / Cloud Run)"]
+        StreamlitServer["Streamlit Server<br/>Port 8501"]
+        CoordEngine["Multi-Agent Coordinator<br/>(Google ADK Engine)"]
+
+        subgraph LocalAgents ["Local Processing Module"]
+            ResumeParser["Document Parser<br/>(pypdf / python-docx)"]
+            ResumeAgentEngine["Private Resume Agent"]
+        end
+
+        subgraph CloudAgents ["Cloud Integration Module"]
+            JobScoutEngine["Job Scout Agent"]
+            SkillPlannerEngine["Skill Builder Agent"]
+            PrivacyGuardModule["Privacy Guard (assert_cloud_safe)"]
+        end
+
+        StreamlitServer <--> CoordEngine
+        CoordEngine <--> ResumeAgentEngine
+        CoordEngine <--> JobScoutEngine
+        CoordEngine <--> SkillPlannerEngine
+        ResumeParser --> ResumeAgentEngine
+        SkillPlannerEngine --> PrivacyGuardModule
+    end
+
+    subgraph ExternalCloud ["☁ Google Cloud & External Services"]
+        VertexAI["Google Vertex AI / Gemini API<br/>(gemini-3.6-flash / HTTPS 443)"]
+        AdzunaEndpoint["Adzuna API Endpoint<br/>(HTTPS 443)"]
+    end
+
+    Browser <-->|"HTTP :8501"| StreamlitServer
+    ResumeAgentEngine <-->|"HTTP :11434 (host.docker.internal)"| OllamaHost
+    PrivacyGuardModule -->|"Sanitized JSON / HTTPS"| VertexAI
+    JobScoutEngine -->|"HTTPS"| AdzunaEndpoint
+
+    classDef host fill:#f8fafc,stroke:#475569,stroke-width:2px;
+    classDef container fill:#eff6ff,stroke:#1d4ed8,stroke-width:2px;
+    classDef cloud fill:#fdf4ff,stroke:#9333ea,stroke-width:2px;
+    classDef comp fill:#ffffff,stroke:#3b82f6,stroke-width:1px;
+
+    class Host,Browser,OllamaHost,GemmaWeight host;
+    class Container,StreamlitServer,CoordEngine,LocalAgents,CloudAgents,ResumeParser,ResumeAgentEngine,JobScoutEngine,SkillPlannerEngine,PrivacyGuardModule container;
+    class ExternalCloud,VertexAI,AdzunaEndpoint cloud;
