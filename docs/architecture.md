@@ -4,61 +4,68 @@
 
 Agentic Career Lab is a privacy-aware hybrid multi-agent career platform designed specifically for college students seeking internships and early-career roles.
 
-```text
-Student
-   |
-   v
-Streamlit
-   |
-   v
-Career Coordinator
-Google ADK
-   |
-   +----------------------+
-   |                      |
-   v                      |
-Job Scout
-   |
-   +--> OpportunityProvider
-           +--> MockOpportunityProvider (Demo Data)
-           +--> AdzunaOpportunityProvider (Live Jobs)
-   |
-   v
-Selected Opportunity       |
-   |                      |
-   v                      |
-Private Resume Agent       |
-Gemma 4 / Ollama           |
-   |                      |
-   v                      |
-ResumeAnalysis             |
-   |                      |
-   v                      |
-Skill Builder              |
-Python + Planner           |
-   |                      |
-   v                      |
-Career Action Plan <-------+
+```mermaid
+flowchart TD
+    subgraph UI ["Student Workspace (Streamlit)"]
+        User["Student"] --> Navigation["Navigation: Find → Prepare → Build"]
+        Consent["Privacy Consent: Cloud Sharing Checkbox"]
+    end
 
-Privacy boundary:
+    subgraph ADK ["Multi-Agent Coordination (Google ADK)"]
+        Coordinator["Career Coordinator (ADK)"]
+        State["CareerWorkflowState (Sanitized State)"]
+    end
 
-Raw Resume
-   |
-   v
-Local Parser
-   |
-   v
-Gemma / Ollama
-   |
-   v
-Structured ResumeAnalysis
-   |
-   +---- safe structured result ----> Coordinator
+    subgraph LocalBoundary ["🔒 Strict Local Boundary (Local Machine)"]
+        RawResume["Raw Resume (PDF / DOCX / TXT)"]
+        LocalContext["LocalResumeContext (Raw Text Isolated)"]
+        OllamaServer["Ollama (http://localhost:11434)"]
+        GemmaModel["Gemma 4: 12B Model"]
+        ResumeAgent["Private Resume Agent"]
+        Validator["Deterministic Claim Validator"]
+    end
 
-Raw Resume
-   X
-   |
-   +---- NOT SENT ----> Gemini / Vertex AI
+    subgraph CloudBoundary ["☁ Cloud Reasoning (Google Cloud / Gemini)"]
+        SanitizedPayload["CloudPlanningContext (Role & Skill Gap Names Only)"]
+        PrivacyGuard["Privacy Guard (assert_cloud_safe)"]
+        GeminiClient["Gemini / Vertex AI (gemini-3.6-flash)"]
+        SkillBuilder["Skill Builder Cloud Planner"]
+    end
+
+    subgraph Providers ["Opportunity Intelligence"]
+        JobScout["Job Scout Agent"]
+        MockProvider["Mock Fixtures (Demo Data)"]
+        AdzunaProvider["Adzuna API (Live Postings)"]
+    end
+
+    User --> RawResume
+    RawResume --> LocalContext
+    LocalContext --> ResumeAgent
+    ResumeAgent --> OllamaServer --> GemmaModel
+    GemmaModel --> Validator
+    Validator --> State
+
+    Navigation --> Coordinator
+    Coordinator --> JobScout
+    JobScout --> MockProvider
+    JobScout --> AdzunaProvider
+    JobScout --> State
+
+    State --> Consent
+    Consent -->|Granted| PrivacyGuard
+    Consent -->|Withheld| Fallback["Deterministic Python Planner"]
+    PrivacyGuard --> SanitizedPayload
+    SanitizedPayload --> GeminiClient --> SkillBuilder
+    SkillBuilder --> Plan["Career Action Plan"]
+    Fallback --> Plan
+    Plan --> User
+
+    classDef local fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef cloud fill:#dbeafe,stroke:#2563eb,stroke-width:2px;
+    classDef coord fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    class LocalBoundary,RawResume,LocalContext,OllamaServer,GemmaModel,ResumeAgent,Validator local;
+    class CloudBoundary,SanitizedPayload,PrivacyGuard,GeminiClient,SkillBuilder cloud;
+    class ADK,Coordinator,State coord;
 ```
 
 ## Architectural Principles
@@ -81,9 +88,9 @@ Raw Resume
    - Milestone 2: Evidence-Backed Job Scout Agent
    - Milestone 3: Private Resume Agent with Gemma 4 + Ollama
    - Milestone 4: Opportunity-Driven Skill Builder Agent
-   - Milestone 5: Google ADK Multi-Agent Coordinator
-   - Milestone 6: Hybrid Gemini + Gemma Privacy Routing
-   - Milestone 7: Docker + Cloud Run Deployment
+   - Milestone 5: Google ADK Multi-Agent Coordinator (Complete)
+   - Milestone 6: Hybrid Gemini + Gemma Privacy Routing (Complete)
+   - Milestone 7: Docker + Cloud Run Deployment (Planned)
    - Milestone 8: Evaluation & Observability
 
 6. **Simplified Student Flow**:

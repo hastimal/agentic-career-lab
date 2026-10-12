@@ -1,3 +1,4 @@
+import os
 from typing import Protocol
 
 import httpx
@@ -28,10 +29,11 @@ class OllamaGemmaClient:
 
     def generate(self, prompt: str) -> str:
         try:
+            timeout_seconds = float(os.environ.get("OLLAMA_TIMEOUT", "120.0"))
             r = httpx.post(
                 f"{self.base_url}/api/generate",
                 json={"model": self.model_name, "prompt": prompt, "stream": False},
-                timeout=30.0,
+                timeout=timeout_seconds,
             )
             r.raise_for_status()
             return r.json().get("response", "")

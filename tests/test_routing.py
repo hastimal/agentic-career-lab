@@ -95,9 +95,11 @@ def test_resume_factory_returns_ollama():
     assert isinstance(llm, OllamaGemmaClient)
     assert not isinstance(llm, type(None))
 
+
 def test_job_provider_factory_returns_mock():
     provider = create_job_provider()
     assert isinstance(provider, MockOpportunityProvider)
+
 
 def test_skill_planner_factory(monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
@@ -106,3 +108,42 @@ def test_skill_planner_factory(monkeypatch):
     # It should fallback deterministically if no api key
     assert isinstance(planner, DeterministicPlanningLLM)
 
+
+def test_cloud_planning_context_strictly_excludes_raw_resume():
+    ctx = CloudPlanningContext(
+        target_role="AI Engineer",
+        required_skills=["Python", "Docker"],
+        demonstrated_skills=["Python"],
+        partial_skills=[],
+        missing_skills=["Docker"],
+        plan_duration_weeks=4,
+    )
+    # Ensure raw resume text field does not even exist in context schema
+    dumped = ctx.model_dump()
+    assert "raw_resume_text" not in dumped
+    assert "resume_text" not in dumped
+    assert "email" not in dumped
+    assert "phone" not in dumped
+    assert_cloud_safe(ctx)
+
+
+def test_action_plan_creation():
+    from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
+    from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
+    from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
+    from agentic_career_lab.coordinator.adk_coordinator import ADKCareerCoordinator
+    from agentic_career_lab.coordinator.career_coordinator import CareerCoordinator
+    from agentic_career_lab.coordinator.state import CareerActionPlan, CareerWorkflowState
+    from agentic_career_lab.llm.local import FakeGemmaClient
+
+    coord = ADKCareerCoordinator(
+        CareerCoordinator(
+            job_scout=JobScoutAgent(provider=MockOpportunityProvider()),
+            resume_agent=PrivateResumeAgent(llm=FakeGemmaClient(is_online=True)),
+            skill_builder=SkillBuilderAgent(llm=DeterministicPlanningLLM()),
+        )
+    )
+    state = CareerWorkflowState()
+    plan = coord.create_action_plan(state)
+    assert isinstance(plan, CareerActionPlan)
+    assert plan.workflow_status == "Incomplete"

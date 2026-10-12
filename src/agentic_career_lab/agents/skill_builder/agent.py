@@ -71,7 +71,11 @@ class SkillBuilderAgent:
                 raise PlanningError("LLM is not available")
             plan = self.planner.generate_plan(opportunity.role, strengths, gaps, duration_weeks)
 
-            if hasattr(self.llm, "client") and hasattr(self.llm.client, "model_name") and self.llm.client.model_name:
+            if (
+                hasattr(self.llm, "client")
+                and hasattr(self.llm.client, "model_name")
+                and self.llm.client.model_name
+            ):
                 model_name = self.llm.client.model_name
                 runtime_display = f"{plan_route.runtime} / {model_name}"
             elif hasattr(self.llm, "model_name") and self.llm.model_name:

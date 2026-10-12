@@ -8,6 +8,7 @@ from .base import BaseLLMClient
 class CloudLLM(BaseLLMClient):
     pass
 
+
 class GeminiVertexClient(CloudLLM):
     def __init__(self, model_name: str | None = None):
         self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-1.5-pro")
@@ -15,18 +16,20 @@ class GeminiVertexClient(CloudLLM):
         self.location = os.environ.get("GOOGLE_CLOUD_LOCATION")
 
         self.client = None
-        if self.project and self.location:
+        if self.project and self.location and self.project != "your-gcp-project-id":
             try:
-                self.client = genai.Client(vertexai=True, project=self.project, location=self.location)
+                self.client = genai.Client(
+                    vertexai=True, project=self.project, location=self.location
+                )
             except Exception:
                 pass
-        else:
-            # Fallback to standard API key if provided
-            if os.environ.get("GEMINI_API_KEY"):
-                try:
-                    self.client = genai.Client()
-                except Exception:
-                    pass
+
+        # Fallback to standard API key if Vertex is not configured or failed
+        if self.client is None and os.environ.get("GEMINI_API_KEY"):
+            try:
+                self.client = genai.Client()
+            except Exception:
+                pass
 
     def is_available(self) -> bool:
         return self.client is not None
@@ -41,11 +44,12 @@ class GeminiVertexClient(CloudLLM):
                 contents=prompt,
                 config=genai.types.GenerateContentConfig(
                     response_mime_type="application/json",
-                )
+                ),
             )
             return response.text
         except Exception as e:
             raise RuntimeError(f"Gemini generation failed: {e}") from e
+
 
 class FakeCloudLLM(CloudLLM):
     def __init__(self, is_online: bool = True):

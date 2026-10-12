@@ -32,9 +32,40 @@ Planned stack:
 - [x] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Complete
 - [x] **Milestone 4: Skill Builder Agent** — Complete
 - [x] **Milestone 5: Google ADK Multi-Agent Coordinator** — Complete
-- [ ] **Milestone 6: Hybrid Gemini + Gemma Routing** — Planned
+- [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
 - [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
 - [ ] **Milestone 8: Evaluation & Observability** — Planned
+
+---
+
+## 🔀 Hybrid Gemini + Gemma Privacy Routing (Milestone 6)
+
+Milestone 6 provides a working end-to-end multi-agent career preparation demo enforcing strict data privacy boundaries:
+- **Local Gemma 4 Inference**: Private resume parsing, evidence extraction, and suggestion validation run locally via Ollama (`gemma4:12b`). Raw resume content is never transmitted to cloud models.
+- **Cloud Gemini Reasoning**: Generates customized learning plans and portfolio project recommendations with `gemini-3.6-flash` / `gemini-3.8-flash` via Vertex AI / Gemini API.
+- **Explicit Cloud Consent**: Streamlit UI includes explicit student consent toggles before sharing sanitized skill gap metadata with cloud AI. Declining consent gracefully falls back to deterministic Python planning.
+- **Google ADK Orchestration**: Sequences Job Scout, Private Resume Agent, and Skill Builder through typed boundaries and compiles the final Career Action Plan.
+
+```mermaid
+flowchart TD
+    subgraph Local ["🔒 Local Boundary (Ollama)"]
+        Resume["Raw Resume (Isolated)"] --> Gemma["Gemma 4: 12B"]
+        Gemma --> Evidence["Structured Evidence"]
+    end
+    subgraph Cloud ["☁ Cloud Boundary (Gemini)"]
+        Sanitized["Sanitized Skill Gaps"] --> Gemini["Gemini Flash"]
+        Gemini --> Roadmap["Learning Roadmap & Project"]
+    end
+    subgraph Orchestrator ["⚙ Multi-Agent Coordinator (Google ADK)"]
+        Jobs["Job Scout"] --> ADK["ADK Coordinator"]
+        Evidence --> ADK
+        ADK --> Consent{"User Cloud Consent"}
+        Consent -->|Approved| Sanitized
+        Consent -->|Declined| Fallback["Deterministic Python"]
+        Roadmap --> ActionPlan["Final Career Action Plan"]
+        Fallback --> ActionPlan
+    end
+```
 
 ---
 

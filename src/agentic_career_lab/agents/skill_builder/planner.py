@@ -6,6 +6,7 @@ from typing import Protocol
 class PlanningError(Exception):
     pass
 
+
 from agentic_career_lab.llm.gemini import CloudLLM
 from agentic_career_lab.models import (
     EvidenceStatus,
@@ -83,6 +84,8 @@ class DeterministicPlanningLLM:
         )
 
 
+FakePlanningLLM = DeterministicPlanningLLM
+
 
 class CloudPlanningLLM:
     def __init__(self, client: CloudLLM):
@@ -149,6 +152,7 @@ class CloudPlanningLLM:
             )
         except Exception as e:
             raise PlanningError(f"Cloud generation or parsing failed: {e}") from e
+
 
 class Planner:
     def __init__(self, llm: PlanningLLM):

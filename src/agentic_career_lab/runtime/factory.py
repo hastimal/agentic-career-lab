@@ -17,12 +17,14 @@ def create_resume_llm():
     model_name = os.environ.get("GEMMA_MODEL", "gemma4:12b")
     return OllamaGemmaClient(base_url=base_url, model_name=model_name)
 
+
 def create_skill_planner() -> PlanningLLM:
     """Create a real Gemini planner if available, else fallback."""
     gemini_client = GeminiVertexClient()
     if gemini_client.is_available():
         return CloudPlanningLLM(gemini_client)
     return DeterministicPlanningLLM()
+
 
 def create_job_provider() -> OpportunityProvider:
     """Create the initial opportunity provider."""

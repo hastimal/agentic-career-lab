@@ -26,17 +26,27 @@ class MockGenaiClient:
             return "invalid json {"
         return '{"summary": "test", "learning_steps": []}'
 
+
 def get_agent_with_mock_client(succeeds=True, valid_json=True, is_configured=True):
     client = MockGenaiClient(succeeds, valid_json, is_configured)
     llm = CloudPlanningLLM(client) if is_configured else DeterministicPlanningLLM()
     return SkillBuilderAgent(llm)
 
+
 @pytest.fixture
 def mock_opportunity():
     return Opportunity(
-        opportunity_id="1", role="Role", company="Company", location="Location",
-        source_url="http://example.com", description="", requirements=[], source="mock", is_demo=True
+        opportunity_id="1",
+        role="Role",
+        company="Company",
+        location="Location",
+        source_url="http://example.com",
+        description="",
+        requirements=[],
+        source="mock",
+        is_demo=True,
     )
+
 
 @pytest.fixture
 def mock_resume():
@@ -44,26 +54,42 @@ def mock_resume():
         profile=None, requirement_matches=[], missing_evidence=[], suggestions=[], safety_summary=""
     )
 
+
 def test_gemini_configured_succeeds(mock_opportunity, mock_resume):
     agent = get_agent_with_mock_client()
     agent.run(mock_opportunity, mock_resume)
-    plan_event = next(e for e in agent.events if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN")
+    plan_event = next(
+        e
+        for e in agent.events
+        if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN"
+    )
     assert plan_event["fallback_used"] is False
     assert "gemini_vertex" in plan_event["runtime"]
+
 
 def test_gemini_configured_raises_error(mock_opportunity, mock_resume):
     agent = get_agent_with_mock_client(succeeds=False)
     agent.run(mock_opportunity, mock_resume)
-    plan_event = next(e for e in agent.events if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN")
+    plan_event = next(
+        e
+        for e in agent.events
+        if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN"
+    )
     assert plan_event["fallback_used"] is True
     assert plan_event["runtime"] == "Python fallback"
+
 
 def test_gemini_response_invalid_json(mock_opportunity, mock_resume):
     agent = get_agent_with_mock_client(valid_json=False)
     agent.run(mock_opportunity, mock_resume)
-    plan_event = next(e for e in agent.events if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN")
+    plan_event = next(
+        e
+        for e in agent.events
+        if e["task_type"] == "learning_plan" or e["task_type"] == "TaskType.LEARNING_PLAN"
+    )
     assert plan_event["fallback_used"] is True
     assert plan_event["runtime"] == "Python fallback"
+
 
 def test_gemini_not_configured(mock_opportunity, mock_resume):
     agent = get_agent_with_mock_client(is_configured=False)

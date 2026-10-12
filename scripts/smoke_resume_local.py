@@ -86,7 +86,7 @@ def main():
         role="AI Engineering Intern",
         company="Example Company",
         location="Texas",
-        source_url="DEMO / SYNTHETIC",
+        source_url="https://example.com/demo-synthetic",
         description="Demo job for smoke test.",
         requirements=[
             OpportunityRequirement(
@@ -126,9 +126,9 @@ def main():
         sys.exit(1)
 
     demonstrated = [
-        m.requirement.skill for m in analysis.requirement_matches if m.status == "Demonstrated"
+        m.requirement for m in analysis.requirement_matches if m.status == "Demonstrated"
     ]
-    partial = [m.requirement.skill for m in analysis.requirement_matches if m.status == "Partial"]
+    partial = [m.requirement for m in analysis.requirement_matches if m.status == "Partial"]
     missing = analysis.missing_evidence
 
     print("\nTarget Role Mapping")
@@ -140,7 +140,7 @@ def main():
         print(f"- {s}")
     print("\nMissing:")
     for m in missing:
-        print(f"- {m.skill}")
+        print(f"- {m}")
 
     print(f"\nSuggestions: {len(analysis.suggestions)}")
     print("Safety:\n✓ No unsupported claims accepted")

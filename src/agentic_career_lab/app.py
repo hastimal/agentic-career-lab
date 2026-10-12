@@ -14,6 +14,7 @@ import httpx
 from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
+from agentic_career_lab.agents.skill_builder.planner import DeterministicPlanningLLM
 from agentic_career_lab.coordinator import (
     ADKCareerCoordinator,
     CareerAction,
@@ -473,10 +474,12 @@ def render_opportunities():
         )
         c1, c2 = st.columns(2)
         with c1:
-            st.link_button("View Source", opp.source_url)
+            if opp.source_url:
+                st.link_button("View Source", str(opp.source_url))
         with c2:
             if st.button("Prepare My Resume", key=f"prep_btn_{opp.opportunity_id}"):
                 st.session_state["selected_opportunity"] = opp
+                st.session_state["career_workflow_state"].selected_opportunity = opp
                 navigate(RESUME)
 
 
@@ -557,8 +560,14 @@ def render_private_resume():
             st.error("Please provide resume text either by pasting or uploading.")
             return
 
+        opp = st.session_state.get("selected_opportunity")
+        if not opp:
+            st.error("Please select a target opportunity first from Find Opportunities.")
+            return
+
         try:
             state = st.session_state["career_workflow_state"]
+            state.selected_opportunity = opp
             local_context = LocalResumeContext(raw_resume_text=resume_content)
 
             st.session_state["coordinator"].execute_action(
@@ -658,15 +667,33 @@ def render_skill_builder():
 
     duration = st.radio("Plan Duration", ["2 Weeks", "4 Weeks"], index=1, horizontal=True)
     weeks = 2 if duration == "2 Weeks" else 4
-    _ = weeks
+
+    st.markdown("---")
+    st.markdown("#### 🔒 Privacy & Cloud Sharing Consent")
+    consent_cloud = st.checkbox(
+        "I explicitly consent to sharing structured, non-PII skill gaps (target role title and missing skill names) with Cloud AI (Gemini) for learning roadmap synthesis.",
+        value=True,
+        help="Raw resume text and personal contact information stay strictly on your machine and are NEVER sent to Cloud AI.",
+    )
 
     if st.button("Build My Learning Plan", type="primary"):
         state = st.session_state["career_workflow_state"]
+        state.selected_opportunity = opp
+        state.resume_analysis = analysis
 
-        st.session_state["coordinator"].execute_action(CareerAction.BUILD_SKILLS, state)
-
-        st.session_state["skill_builder_plan"] = state.skill_builder_plan
-        st.session_state["agent_events"] = state.activity_events
+        if not consent_cloud:
+            st.info(
+                "Privacy Boundary: Cloud sharing declined by user. Using local deterministic Python planner."
+            )
+            fallback_builder = SkillBuilderAgent(llm=DeterministicPlanningLLM())
+            plan = fallback_builder.run(opp, analysis, duration_weeks=weeks)
+            state.skill_builder_plan = plan
+            st.session_state["skill_builder_plan"] = plan
+            st.session_state["agent_events"] = fallback_builder.events
+        else:
+            st.session_state["coordinator"].execute_action(CareerAction.BUILD_SKILLS, state)
+            st.session_state["skill_builder_plan"] = state.skill_builder_plan
+            st.session_state["agent_events"] = state.activity_events
 
     if "skill_builder_plan" in st.session_state:
         plan = st.session_state["skill_builder_plan"]
@@ -700,7 +727,7 @@ def render_skill_builder():
             st.write(res.title)
             st.caption(f"Type: {res.resource_type}\\n\\nWhy: {res.reason}")
             if res.url:
-                st.link_button("Open Resource", res.url)
+                st.link_button("Open Resource", str(res.url))
             else:
                 st.info(f"Recommended search: {res.skill} beginner tutorial")
             st.markdown("---")
@@ -710,6 +737,28 @@ def render_skill_builder():
             st.info(f"**{plan.portfolio_project.title}**\\n\\n{plan.portfolio_project.objective}")
             st.write("**Skills practiced:** " + ", ".join(plan.portfolio_project.skills_practiced))
             st.write("**Deliverables:** " + ", ".join(plan.portfolio_project.deliverables))
+
+        st.markdown("---")
+        st.markdown("### 🎓 Final Career Action Plan")
+        action_plan = st.session_state["coordinator"].create_action_plan(
+            st.session_state["career_workflow_state"]
+        )
+        st.success(f"Career Action Plan Status: **{action_plan.workflow_status}**")
+        with st.expander("📄 View Full Compiled Career Report", expanded=True):
+            st.write(
+                f"**Target Role:** {action_plan.target_opportunity.role if action_plan.target_opportunity else 'N/A'}"
+            )
+            st.write(
+                f"**Company:** {action_plan.target_opportunity.company if action_plan.target_opportunity else 'N/A'}"
+            )
+            st.write(
+                f"**Resume Verification:** {action_plan.resume_evidence_summary or 'Verified'}"
+            )
+            st.write(f"**Identified Gaps:** {len(action_plan.priority_skill_gaps)} skills")
+            st.write(f"**Curated Resources:** {len(action_plan.recommended_resources)} items")
+            st.write(f"**Roadmap Length:** {len(action_plan.learning_plan)} weekly milestones")
+            if action_plan.portfolio_project:
+                st.write(f"**Recommended Project:** {action_plan.portfolio_project.title}")
 
 
 def render_agent_activity():
