@@ -154,6 +154,25 @@ The Skill Builder helps bridge the gap between your verified resume and the targ
 
 ---
 
+## 🎨 Planned Feature: Resume Studio (AI Resume Builder + Progress Tracker)
+
+*(Planned for integration post-M7/M8 stabilization, targeted prior to v1.0.0 — Not yet implemented)*
+
+The upcoming **Resume Studio** extends the workflow into an interactive lifecycle loop:
+- **Continuous Progress Tracking**: Track skills across states (`Not Started` → `Learning` → `Completed` → `Demonstrated`).
+- **Local Conversational Evidence Gathering**: Multi-turn dialogue powered by local Gemma 4 on Ollama to explore student projects, codebase accomplishments, and artifacts without sending resumes or personal data to cloud services.
+- **Strict Evidence Verification**: Clear separation of self-reported claims from independently verifiable evidence (e.g. GitHub repos, Dockerfiles). Unverified skills are never claimed automatically.
+- **Side-by-Side Diff Review**: Proposes grounded resume bullet revisions with visual before/after diffs requiring explicit student approval.
+- **ATS-Friendly Export & Versioning**: Generates clean DOCX and PDF documents while preserving immutable version history and rollback capabilities.
+- **Dynamic Gap Recalculation**: Immediately updates job readiness scores and skill gap analyses upon approving resume revisions.
+
+![Resume Studio Workflow](docs/images/resume-studio-workflow.svg)
+
+For complete technical specifications, data models, and acceptance criteria, see [docs/features/resume-studio.md](docs/features/resume-studio.md).
+
+---
+
+
 ## 🐳 Docker Quick Start (Recommended)
 
 Run the entire application with Docker Compose in a single command:

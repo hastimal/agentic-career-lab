@@ -1,0 +1,61 @@
+flowchart TD
+    subgraph StudentUI ["🎓 Student Workspace (Streamlit / Resume Studio)"]
+        Upload["1. Upload / Select Resume (v1)"]
+        ProgressTracker["2. Career Progress Tracker<br/>(Track skills: Learning, Completed, Demonstrated)"]
+        ChatbotUI["3. Interactive Chat with Local Gemma 4<br/>(What did you build? What is the evidence?)"]
+        DiffReview["4. Before/After Visual Diff Review<br/>(Approve / Edit / Reject Changes)"]
+        ExportHub["5. ATS Export & History Hub<br/>(Clean DOCX / PDF & Rollback Versions)"]
+    end
+
+    subgraph LocalEngine ["🔒 Local Privacy Boundary (Local Machine / Ollama)"]
+        ParsedProfile["Structured Resume Profile (JSON)"]
+        GemmaInference["Local Gemma 4 Inference<br/>(Evidence Validation & Bullet Synthesis)"]
+        ClaimGuard["Deterministic Claim Validator<br/>(Enforce evidence, block hallucinations)"]
+        DiffGenerator["Diff Calculation Engine"]
+        VersionStore["Resume Version History Store<br/>(v1, v2, v3... rollback support)"]
+        ATSExporter["ATS Document Formatter<br/>(python-docx / reportlab)"]
+
+        ParsedProfile --> GemmaInference
+        ChatbotUI <--> GemmaInference
+        GemmaInference --> ClaimGuard
+        ClaimGuard --> DiffGenerator
+        DiffGenerator --> DiffReview
+        DiffReview -->|"Explicit User Approval"| VersionStore
+        VersionStore --> ATSExporter
+        ATSExporter --> ExportHub
+        VersionStore --> ProgressTracker
+    end
+
+    subgraph Verification ["🔍 Evidence Ingestion"]
+        SelfReport["Self-Reported Achievements<br/>(Subjective claim)"]
+        VerifiedArtifacts["Verified Artifacts<br/>(GitHub Repos, Dockerfiles, Deployed Apps)"]
+        SelfReport --> ClaimGuard
+        VerifiedArtifacts --> ClaimGuard
+    end
+
+    subgraph Recalculation ["⚙ Multi-Agent Coordinator"]
+        JobScoutMatch["Job Scout Requirement Matrix"]
+        SkillBuilderRoadmap["Skill Builder Roadmap"]
+        VersionStore -->|"Trigger Update"| JobScoutMatch
+        JobScoutMatch --> SkillBuilderRoadmap
+    end
+
+    subgraph OptionalCloud ["☁ Cloud Services (Optional / With Explicit Consent)"]
+        CloudGemini["Cloud Gemini / Vertex AI<br/>(High-level industry skill roadmaps only)"]
+    end
+
+    Upload --> ParsedProfile
+    ProgressTracker <--> ChatbotUI
+    SkillBuilderRoadmap -.->|"Sanitized Skill Names Only"| CloudGemini
+
+    classDef ui fill:#eff6ff,stroke:#1d4ed8,stroke-width:2px;
+    classDef local fill:#f0fdf4,stroke:#15803d,stroke-width:2px;
+    classDef verify fill:#fefce8,stroke:#ca8a04,stroke-width:2px;
+    classDef engine fill:#f8fafc,stroke:#475569,stroke-width:2px;
+    classDef cloud fill:#fdf4ff,stroke:#9333ea,stroke-width:2px;
+
+    class StudentUI,Upload,ProgressTracker,ChatbotUI,DiffReview,ExportHub ui;
+    class LocalEngine,ParsedProfile,GemmaInference,ClaimGuard,DiffGenerator,VersionStore,ATSExporter local;
+    class Verification,SelfReport,VerifiedArtifacts verify;
+    class Recalculation,JobScoutMatch,SkillBuilderRoadmap engine;
+    class OptionalCloud,CloudGemini cloud;
