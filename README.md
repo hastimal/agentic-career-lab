@@ -39,8 +39,9 @@ Planned stack:
 - [x] **Milestone 4: Skill Builder Agent** — Complete
 - [x] **Milestone 5: Google ADK Multi-Agent Coordinator** — Complete
 - [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
-- [ ] **Milestone 7: Docker + Cloud Run Deployment** — Planned
+- [x] **Milestone 7: Docker-First Application Distribution** — Complete
 - [ ] **Milestone 8: Evaluation & Observability** — Planned
+
 
 ---
 
@@ -153,9 +154,49 @@ The Skill Builder helps bridge the gap between your verified resume and the targ
 
 ---
 
-## 🛠️ Quick Start
+## 🐳 Docker Quick Start (Recommended)
 
-### 1. Installation
+Run the entire application with Docker Compose in a single command:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/hastimal/agentic-career-lab.git
+cd agentic-career-lab
+
+# 2. Configure environment (optional overrides)
+cp .env.example .env
+
+# 3. Start the application
+docker compose up -d
+```
+
+Open **[http://localhost:8501](http://localhost:8501)** in your browser.
+
+### Ollama Runtime Modes & Platform Guidance
+
+- **macOS / Apple Silicon (M1/M2/M3/M4) [Recommended]**:
+  Run Ollama natively on macOS (`brew install ollama` or via Ollama Desktop app) and pull Gemma 4:
+  ```bash
+  ollama run gemma4:12b
+  ```
+  The container connects automatically to `http://host.docker.internal:11434` with **full Metal GPU acceleration** (Docker Desktop for macOS does not support Metal GPU passthrough to Linux containers).
+
+- **Linux / Standalone (Containerized Ollama)**:
+  If running without native Ollama, start the containerized Ollama service using the standalone profile:
+  ```bash
+  docker compose --profile standalone up -d
+  # Download Gemma 4 model into the persistent container volume:
+  docker exec -it agentic-career-lab-ollama ollama pull gemma4:12b
+  ```
+
+- **Stopping the Application**:
+  ```bash
+  docker compose down
+  ```
+
+---
+
+## 🛠️ Local Development Quick Start (Virtual Environment)
 
 ```bash
 # Clone repository

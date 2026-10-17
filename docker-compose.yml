@@ -1,0 +1,54 @@
+services:
+  # Agentic Career Lab Application (Streamlit + Google ADK + Private Agents)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agentic-career-lab:latest
+    container_name: agentic-career-lab-app
+    ports:
+      - "8501:8501"
+    environment:
+      # Use host.docker.internal to route to host's native Ollama runtime (optimal for Apple Silicon & local dev)
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - GEMMA_MODEL=${GEMMA_MODEL:-gemma4:12b}
+      - JOB_PROVIDER=${JOB_PROVIDER:-mock}
+      - ADZUNA_APP_ID=${ADZUNA_APP_ID:-}
+      - ADZUNA_APP_KEY=${ADZUNA_APP_KEY:-}
+      - ADZUNA_COUNTRY=${ADZUNA_COUNTRY:-us}
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT:-}
+      - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION:-us-central1}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8501/_stcore/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Optional containerized Ollama service for standalone deployment (e.g. Linux servers / self-contained)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: agentic-career-lab-ollama
+    profiles:
+      - standalone
+      - ollama-container
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  ollama_models:
+    name: agentic_career_lab_ollama_models

@@ -42,3 +42,7 @@ addopts = "-ra -q"
 testpaths = ["tests"]
 pythonpath = ["src"]
 asyncio_mode = "auto"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_career_lab"]
+

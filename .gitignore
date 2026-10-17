@@ -44,3 +44,7 @@ htmlcov/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Scratch files
+scratch/
+
