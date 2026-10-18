@@ -38,17 +38,36 @@ class GeminiVertexClient(CloudLLM):
         if not self.is_available():
             raise RuntimeError("Gemini client is not configured or available.")
 
-        try:
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
-                config=genai.types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                ),
-            )
-            return response.text
-        except Exception as e:
-            raise RuntimeError(f"Gemini generation failed: {e}") from e
+        from agentic_career_lab.observability import trace_span
+
+        with trace_span(
+            "llm.gemini.generate",
+            agent_name="Skill Builder",
+            model_name=self.model_name,
+            runtime="Gemini / Vertex AI",
+            attributes={"prompt_length": len(prompt)},
+        ) as span:
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                    config=genai.types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                    ),
+                )
+                if hasattr(response, "usage_metadata") and response.usage_metadata:
+                    span.set_attribute(
+                        "llm.prompt_token_count",
+                        getattr(response.usage_metadata, "prompt_token_count", 0),
+                    )
+                    span.set_attribute(
+                        "llm.candidates_token_count",
+                        getattr(response.usage_metadata, "candidates_token_count", 0),
+                    )
+                return response.text
+            except Exception as e:
+                span.set_attribute("error.message", str(e)[:200])
+                raise RuntimeError(f"Gemini generation failed: {e}") from e
 
 
 class FakeCloudLLM(CloudLLM):

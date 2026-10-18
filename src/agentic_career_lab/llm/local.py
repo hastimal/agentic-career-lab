@@ -28,17 +28,34 @@ class OllamaGemmaClient:
             return False
 
     def generate(self, prompt: str) -> str:
-        try:
-            timeout_seconds = float(os.environ.get("OLLAMA_TIMEOUT", "120.0"))
-            r = httpx.post(
-                f"{self.base_url}/api/generate",
-                json={"model": self.model_name, "prompt": prompt, "stream": False},
-                timeout=timeout_seconds,
-            )
-            r.raise_for_status()
-            return r.json().get("response", "")
-        except Exception as e:
-            raise RuntimeError(f"Ollama generation failed: {e}") from e
+        from agentic_career_lab.observability import trace_span
+
+        with trace_span(
+            "llm.ollama.generate",
+            agent_name="Private Resume Agent",
+            model_name=self.model_name,
+            runtime="Gemma 4 / Ollama",
+            attributes={"prompt_length": len(prompt)},
+        ) as span:
+            try:
+                timeout_seconds = float(os.environ.get("OLLAMA_TIMEOUT", "120.0"))
+                r = httpx.post(
+                    f"{self.base_url}/api/generate",
+                    json={"model": self.model_name, "prompt": prompt, "stream": False},
+                    timeout=timeout_seconds,
+                )
+                r.raise_for_status()
+                resp = r.json()
+                eval_count = resp.get("eval_count")
+                if eval_count:
+                    span.set_attribute("llm.eval_tokens", eval_count)
+                prompt_eval_count = resp.get("prompt_eval_count")
+                if prompt_eval_count:
+                    span.set_attribute("llm.prompt_eval_tokens", prompt_eval_count)
+                return resp.get("response", "")
+            except Exception as e:
+                span.set_attribute("error.message", str(e)[:200])
+                raise RuntimeError(f"Ollama generation failed: {e}") from e
 
 
 class FakeGemmaClient:

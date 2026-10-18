@@ -54,41 +54,52 @@ class ADKCareerCoordinator:
         Executes deterministic routing using ADK registered tools directly.
         Avoids LLM reasoning overhead for UI-driven sequential steps.
         """
-        try:
-            if action == CareerAction.FIND_OPPORTUNITIES:
-                self.job_scout_agent.tools[0](state)
-            elif action == CareerAction.PREPARE_RESUME:
-                self.private_resume_agent.tools[0](state, local_resume)
-            elif action == CareerAction.BUILD_SKILLS:
-                self.skill_builder_agent.tools[0](state)
-            elif action == CareerAction.FULL_WORKFLOW:
-                self.job_scout_agent.tools[0](state)
-                if state.opportunities:
-                    state.selected_opportunity = state.opportunities[0].opportunity
-                self.private_resume_agent.tools[0](state, local_resume)
-                self.skill_builder_agent.tools[0](state)
+        from agentic_career_lab.observability import trace_span
 
-            self.domain_coordinator._log_event(
-                state,
-                agent="Career Coordinator",
-                step=f"route_{action.value}",
-                status="Success",
-                runtime="Google ADK Orchestration",
-                duration=0.1,
-                summary=f"Successfully orchestrated {action.value}",
-            )
-        except Exception as e:
-            self.domain_coordinator._log_event(
-                state,
-                agent="Career Coordinator",
-                step=f"route_{action.value}",
-                status="Failed",
-                runtime="Google ADK Orchestration",
-                duration=0.1,
-                summary=f"Orchestration failed: {str(e)}",
-                error_code="COORDINATOR_ERROR",
-            )
-            state.errors.append(str(e))
+        with trace_span(
+            f"coordinator.{action.value}",
+            agent_name="Google ADK Career Coordinator",
+            runtime="Google ADK Orchestration",
+            attributes={"action": action.value},
+        ) as span:
+            try:
+                if action == CareerAction.FIND_OPPORTUNITIES:
+                    self.job_scout_agent.tools[0](state)
+                elif action == CareerAction.PREPARE_RESUME:
+                    self.private_resume_agent.tools[0](state, local_resume)
+                elif action == CareerAction.BUILD_SKILLS:
+                    self.skill_builder_agent.tools[0](state)
+                elif action == CareerAction.FULL_WORKFLOW:
+                    self.job_scout_agent.tools[0](state)
+                    if state.opportunities:
+                        state.selected_opportunity = state.opportunities[0].opportunity
+                    self.private_resume_agent.tools[0](state, local_resume)
+                    self.skill_builder_agent.tools[0](state)
+
+                span.set_attribute("workflow.status", "Success")
+                self.domain_coordinator._log_event(
+                    state,
+                    agent="Career Coordinator",
+                    step=f"route_{action.value}",
+                    status="Success",
+                    runtime="Google ADK Orchestration",
+                    duration=0.1,
+                    summary=f"Successfully orchestrated {action.value}",
+                )
+            except Exception as e:
+                span.set_attribute("workflow.status", "Failed")
+                span.set_attribute("error.code", "COORDINATOR_ERROR")
+                self.domain_coordinator._log_event(
+                    state,
+                    agent="Career Coordinator",
+                    step=f"route_{action.value}",
+                    status="Failed",
+                    runtime="Google ADK Orchestration",
+                    duration=0.1,
+                    summary=f"Orchestration failed: {str(e)}",
+                    error_code="COORDINATOR_ERROR",
+                )
+                state.errors.append(str(e))
 
         return state
 

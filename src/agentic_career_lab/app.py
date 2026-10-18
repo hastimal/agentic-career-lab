@@ -849,9 +849,34 @@ Final Career Action Plan
                 )
             else:
                 st.markdown(
-                    f"**{event.agent}** | {event.status} | {event.runtime} | {event.duration_ms}ms"
+                    f"**{event.agent}** | {event.status} | {event.runtime} | {event.duration_ms:.1f}ms"
                 )
                 st.text(f"→ {event.action}: {event.summary}")
+
+    st.markdown("### 🔭 OpenTelemetry Live Spans")
+    from agentic_career_lab.observability import get_in_memory_spans
+
+    spans = get_in_memory_spans()
+    if spans:
+        st.caption(f"Captured {len(spans)} telemetry spans without PII or raw resume leakage:")
+        for s in reversed(spans[-10:]):
+            duration_ms = (
+                (s.end_time - s.start_time) / 1_000_000 if s.end_time and s.start_time else 0
+            )
+            st.markdown(
+                f"- **`{s.name}`** | Status: `{s.status.status_code.name}` | Duration: `{duration_ms:.1f}ms`"
+            )
+            if s.attributes:
+                safe_attrs = {
+                    k: v
+                    for k, v in s.attributes.items()
+                    if not any(b in k.lower() for b in ("prompt", "resume", "text"))
+                }
+                st.caption(f"  Attributes: {safe_attrs}")
+    else:
+        st.info(
+            "No OpenTelemetry spans captured in this session yet. Run a workflow action to generate spans."
+        )
 
     if st.button("Replay Demo Trace", disabled=True):
         pass

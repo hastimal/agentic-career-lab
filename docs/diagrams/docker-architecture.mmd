@@ -1,6 +1,7 @@
 flowchart TD
     subgraph Host ["💻 Host Machine (macOS / Linux / Windows)"]
         Browser["🌐 Web Browser (http://localhost:8501)"]
+        GrafanaUI["📊 Grafana Dashboard (http://localhost:3000)"]
         OllamaNative["🦙 Native Ollama Service (Port 11434)<br/>Metal GPU Accelerated on Apple Silicon"]
         GemmaNativeStorage["📦 Host Model Storage (~/.ollama)<br/>(gemma4:12b ~8.0 GB)"]
         OllamaNative <--> GemmaNativeStorage
@@ -15,6 +16,7 @@ flowchart TD
             JobScoutEngine["Job Scout Agent<br/>(Mock / Adzuna)"]
             SkillPlannerEngine["Skill Builder Agent<br/>(Hybrid / Deterministic)"]
             PrivacyGuardModule["Privacy Guard<br/>(assert_cloud_safe)"]
+            OTelTracer["🔭 OpenTelemetry SDK<br/>(Sanitized Spans & Metrics)"]
 
             StreamlitServer <--> CoordEngine
             CoordEngine <--> ResumeAgentEngine
@@ -22,12 +24,27 @@ flowchart TD
             CoordEngine <--> SkillPlannerEngine
             ResumeParser --> ResumeAgentEngine
             SkillPlannerEngine --> PrivacyGuardModule
+            CoordEngine --> OTelTracer
+            ResumeAgentEngine --> OTelTracer
+            SkillPlannerEngine --> OTelTracer
         end
 
         subgraph StandaloneProfile ["Optional: Standalone Profile (--profile standalone)"]
             OllamaContainer["🐳 Ollama Container Service<br/>(ollama/ollama:latest)"]
             OllamaVolume["💾 Named Volume<br/>(agentic_career_lab_ollama_models)"]
             OllamaContainer <--> OllamaVolume
+        end
+
+        subgraph ObservabilityProfile ["Optional: Observability Profile (--profile observability)"]
+            OTelCollector["📡 OpenTelemetry Collector<br/>(Port 4317 gRPC / 4318 HTTP)"]
+            TempoServer["⏱️ Tempo Tracing Backend<br/>(Port 3200)"]
+            PrometheusServer["📈 Prometheus Server<br/>(Port 9090)"]
+            GrafanaServer["📊 Grafana Dashboard Server<br/>(Port 3000)"]
+
+            OTelCollector --> TempoServer
+            OTelCollector --> PrometheusServer
+            TempoServer --> GrafanaServer
+            PrometheusServer --> GrafanaServer
         end
     end
 
@@ -37,17 +54,21 @@ flowchart TD
     end
 
     Browser <-->|"HTTP :8501"| StreamlitServer
+    GrafanaUI <-->|"HTTP :3000"| GrafanaServer
     ResumeAgentEngine <-->|"Default: HTTP :11434<br/>(host.docker.internal)"| OllamaNative
     ResumeAgentEngine -.->|"Standalone Profile: HTTP :11434"| OllamaContainer
+    OTelTracer -.->|"OTLP gRPC :4317"| OTelCollector
     PrivacyGuardModule -->|"Sanitized Gaps Only (With Consent)"| VertexAI
     JobScoutEngine -->|"HTTPS"| AdzunaEndpoint
 
     classDef host fill:#f8fafc,stroke:#475569,stroke-width:2px;
     classDef container fill:#eff6ff,stroke:#1d4ed8,stroke-width:2px;
     classDef standalone fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef obs fill:#f3e8ff,stroke:#7e22ce,stroke-width:2px;
     classDef cloud fill:#fdf4ff,stroke:#9333ea,stroke-width:2px;
 
-    class Host,Browser,OllamaNative,GemmaNativeStorage host;
-    class DockerCompose,AppContainer,StreamlitServer,CoordEngine,ResumeParser,ResumeAgentEngine,JobScoutEngine,SkillPlannerEngine,PrivacyGuardModule container;
+    class Host,Browser,GrafanaUI,OllamaNative,GemmaNativeStorage host;
+    class DockerCompose,AppContainer,StreamlitServer,CoordEngine,ResumeParser,ResumeAgentEngine,JobScoutEngine,SkillPlannerEngine,PrivacyGuardModule,OTelTracer container;
     class StandaloneProfile,OllamaContainer,OllamaVolume standalone;
+    class ObservabilityProfile,OTelCollector,TempoServer,PrometheusServer,GrafanaServer obs;
     class ExternalCloud,VertexAI,AdzunaEndpoint cloud;

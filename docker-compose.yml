@@ -20,6 +20,9 @@ services:
       - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION:-us-central1}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL:-grpc}
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -48,6 +51,65 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+
+  # Optional Observability Stack: OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    container_name: agentic-career-lab-otel-collector
+    profiles:
+      - observability
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./monitoring/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8889:8889" # Prometheus metrics exporter
+    restart: unless-stopped
+
+  # Optional Observability Stack: Prometheus
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: agentic-career-lab-prometheus
+    profiles:
+      - observability
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  # Optional Observability Stack: Tempo (Traces)
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: agentic-career-lab-tempo
+    profiles:
+      - observability
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./monitoring/tempo.yaml:/etc/tempo.yaml:ro
+    ports:
+      - "3200:3200" # Tempo HTTP
+    restart: unless-stopped
+
+  # Optional Observability Stack: Grafana
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: agentic-career-lab-grafana
+    profiles:
+      - observability
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - tempo
+    restart: unless-stopped
 
 volumes:
   ollama_models:

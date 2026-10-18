@@ -40,10 +40,10 @@ Planned stack:
 - [x] **Milestone 5: Google ADK Multi-Agent Coordinator** — Complete
 - [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
 - [x] **Milestone 7: Docker-First Application Distribution** — Complete
-- [ ] **Milestone 8: Evaluation & Observability** — Planned
-
+- [x] **Milestone 8: OpenTelemetry + Grafana Observability & Evaluation** — Complete
 
 ---
+
 
 ## 🔀 Hybrid Gemini + Gemma Privacy Routing (Milestone 6)
 
@@ -67,11 +67,12 @@ Milestone 6 provides a working end-to-end multi-agent career preparation demo en
 
 ---
 
-## 🐳 Container & Deployment Architecture (Milestone 7 Preview)
+## 🐳 Container & Observability Architecture (Milestones 7 & 8)
 
 ![Docker Architecture](docs/images/docker-architecture.svg)
 
 ---
+
 
 ## 🎓 Google ADK Coordinator (Milestone 5)
 
@@ -208,10 +209,21 @@ Open **[http://localhost:8501](http://localhost:8501)** in your browser.
   docker exec -it agentic-career-lab-ollama ollama pull gemma4:12b
   ```
 
+- **🔭 Optional Observability Stack (Grafana, Prometheus, Tempo, OTel Collector)**:
+  Launch the complete observability stack alongside the application:
+  ```bash
+  docker compose --profile observability up -d
+  ```
+  - **Streamlit App**: [http://localhost:8501](http://localhost:8501)
+  - **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000) (pre-configured with Prometheus & Tempo)
+  - **Prometheus Metrics**: [http://localhost:9090](http://localhost:9090)
+  - **Tempo Traces**: [http://localhost:3200](http://localhost:3200)
+
 - **Stopping the Application**:
   ```bash
   docker compose down
   ```
+
 
 ---
 

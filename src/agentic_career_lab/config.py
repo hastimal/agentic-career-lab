@@ -25,5 +25,11 @@ class Settings(BaseSettings):
     app_title: str = "Agentic Career Lab"
     debug: bool = False
 
+    # Observability & OpenTelemetry settings
+    otel_service_name: str = "agentic-career-lab"
+    otel_exporter_otlp_endpoint: str = ""
+    otel_exporter_otlp_protocol: str = "grpc"  # "grpc" or "http"
+    otel_enabled: bool = True
+
 
 settings = Settings()
