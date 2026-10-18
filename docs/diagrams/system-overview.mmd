@@ -3,44 +3,54 @@ flowchart LR
     classDef coord fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
     classDef local fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#064e3b;
     classDef cloud fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px,color:#4c1d95;
-    classDef provider fill:#fdf2f8,stroke:#ec4899,stroke-width:2px,color:#831843;
+    classDef tools fill:#fdf2f8,stroke:#ec4899,stroke-width:2px,color:#831843;
 
-    subgraph ClientLayer ["1. Student Interface"]
-        UI["🖥️ Streamlit UI & Chatbox<br/><b>Ask Career AI (Port 8501)</b>"]
-    end
-
-    subgraph CoordLayer ["2. Orchestration Layer"]
-        ADK["🤖 Google ADK Coordinator<br/><b>Multi-Agent Orchestration</b>"]
-    end
-
-    subgraph LocalPrivacy ["3. Local Privacy Boundary (Host Machine)"]
+    subgraph ClientLayer ["1. Student Interface (Port 8501)"]
         direction TB
-        ResumeAgent["📄 Private Resume Agent<br/><b>Local Evidence Extraction</b>"]
-        Ollama["🦙 Ollama Local Server<br/><b>gemma4:12b (100% Private)</b>"]
-        ResumeAgent <--> Ollama
+        Streamlit["🖥️ Streamlit Application<br/><b>Interactive Career Lab Shell</b>"]
+        AskAI["💬 Ask Career AI Chatbox<br/><b>Multi-Turn Guidance & Actions</b>"]
+        Streamlit <--> AskAI
     end
 
-    subgraph ExternalOps ["4. Opportunity Intelligence"]
-        JobScout["💼 Job Scout Agent<br/><b>Opportunity & Skill Parsing</b>"]
-        Catalog["📚 Resource Catalog<br/><b>104 Curated Learning Items</b>"]
+    subgraph CoordLayer ["2. Orchestration & Google ADK Integration"]
+        direction TB
+        Orchestrator["🤖 CareerChatOrchestrator<br/><b>Intent Classification & Tool Dispatch</b>"]
+        ADK["📦 Google ADK Coordinator<br/><b>Registered Specialist Agents & Tools</b>"]
+        AskAI <--> Orchestrator
+        Orchestrator <--> ADK
     end
 
-    subgraph OptionalCloud ["5. Optional Cloud AI (Consent-Gated)"]
-        Guard{"🛡️ Privacy Guard<br/>Consent ON?"}
-        Gemini["☁️ Gemini Flash<br/><b>Advanced Synthesis</b>"]
-        Fallback["⚙️ Deterministic Planner<br/><b>Offline Local Fallback</b>"]
-        Guard -->|Consent Given| Gemini
-        Guard -->|Consent Denied| Fallback
+    subgraph LocalAI ["3. Local AI & Privacy Zone (Host Ollama)"]
+        direction TB
+        Gemma["🦙 Local Gemma 4: 12B<br/><b>Token Streaming (httpx.stream)</b>"]
+        ResumeAgent["📄 Private Resume Agent<br/><b>Evidence Extraction from Text</b>"]
+        Gemma <--> ResumeAgent
+        Orchestrator <-->|Local Stream| Gemma
+        ADK <-->|Structured Evidence Only| ResumeAgent
     end
 
-    UI <-->|Student Context & Prompts| ADK
-    ADK <-->|Private Evidence Only| LocalPrivacy
-    ADK <-->|Opportunity Matching| JobScout
-    ADK <-->|Grounded Curriculum| OptionalCloud
-    Catalog -.->|Curated Resources| OptionalCloud
+    subgraph SpecialistAgents ["4. Grounded Career Tools & Agents"]
+        direction TB
+        JobScout["💼 Job Scout Agent<br/><b>Opportunity Search & Requirements</b>"]
+        SkillBuilder["🔍 Skill Builder Agent<br/><b>Deterministic Skill Gap Breakdown</b>"]
+        Catalog["📚 Resource Catalog<br/><b>104 Vetted Learning Resources</b>"]
+        ADK <--> JobScout
+        ADK <--> SkillBuilder
+        SkillBuilder <--> Catalog
+    end
 
-    class UI client;
-    class ADK coord;
-    class LocalPrivacy,ResumeAgent,Ollama local;
-    class OptionalCloud,Gemini,Fallback,Guard cloud;
-    class ExternalOps,JobScout,Catalog provider;
+    subgraph CloudLayer ["5. Optional Cloud Reasoning (Explicit Consent Only)"]
+        direction TB
+        ConsentCheck{"🛡️ Consent Guard<br/>cloud_consent=True?"}
+        Gemini["☁️ Gemini Flash<br/><b>Advanced Roadmap Synthesis</b>"]
+        OfflinePlanner["⚙️ Deterministic Planner<br/><b>Offline Local Fallback</b>"]
+        ConsentCheck -->|Approved| Gemini
+        ConsentCheck -->|Declined / Default| OfflinePlanner
+        SkillBuilder <--> ConsentCheck
+    end
+
+    class Streamlit,AskAI client;
+    class Orchestrator,ADK coord;
+    class Gemma,ResumeAgent local;
+    class JobScout,SkillBuilder,Catalog tools;
+    class ConsentCheck,Gemini,OfflinePlanner cloud;
