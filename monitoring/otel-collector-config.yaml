@@ -20,13 +20,19 @@ exporters:
   debug:
     verbosity: detailed
 
+connectors:
+  spanmetrics:
+
 service:
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, debug]
+      exporters: [otlp, debug, spanmetrics]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, spanmetrics]
       processors: [batch]
       exporters: [prometheus, debug]

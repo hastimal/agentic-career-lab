@@ -35,6 +35,18 @@
       "id": 2,
       "title": "Recent Multi-Agent Spans",
       "type": "traces",
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "search",
+          "serviceName": "agentic-career-lab",
+          "limit": 10,
+          "refId": "A"
+        }
+      ],
       "options": {}
     },
     {
@@ -88,7 +100,7 @@
         "y": 1
       },
       "id": 3,
-      "title": "OTel Collector Received Spans",
+      "title": "OTel Collector System Uptime & Scrapes",
       "type": "timeseries",
       "targets": [
         {
@@ -97,9 +109,21 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(otelcol_receiver_accepted_spans[1m])) by (receiver)",
+          "expr": "otelcol_process_uptime{job='otel-collector-internal'}",
+          "legendFormat": "Collector Uptime (s)",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "rate(otelcol_process_cpu_seconds{job='otel-collector-internal'}[1m])",
+          "legendFormat": "Collector CPU Rate",
+          "range": true,
+          "refId": "B"
         }
       ]
     }

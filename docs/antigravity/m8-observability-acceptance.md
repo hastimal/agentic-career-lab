@@ -107,12 +107,44 @@ BROWSER ACCEPTANCE TEST PASSED WITH 100% SUCCESS!
 
 ---
 
-## 3. Observability Architecture & Privacy Policy
+## 4. Real Observability Verification Evidence (Tempo + Prometheus + Grafana)
 
-1. **Air-Gapped Telemetry**:
-   Span attributes explicitly filter out all keys matching `("resume", "text", "prompt", "response", "pii", "content")`.
-2. **Deterministic Fallback Tracing**:
-   When cloud consent is declined, spans explicitly record `runtime: Python fallback` and `privacy: local_only`.
-3. **Multi-Stage Compose Distribution**:
-   - `docker compose up -d` (Default): Lightweight local app execution with in-memory telemetry view.
-   - `docker compose --profile observability up -d`: Full enterprise stack with Grafana, Tempo, Prometheus, and OTel Collector.
+### A. Live Container Health Check
+```text
+$ docker compose --profile observability ps
+NAME                                 IMAGE                                          STATUS                    PORTS
+agentic-career-lab-app               agentic-career-lab:latest                      Up 25 minutes (healthy)   0.0.0.0:8501->8501/tcp
+agentic-career-lab-grafana           grafana/grafana:11.2.0                         Up 3 minutes              127.0.0.1:3000->3000/tcp
+agentic-career-lab-otel-collector    otel/opentelemetry-collector-contrib:0.111.0   Up 8 minutes              127.0.0.1:4317-4318->4317-4318/tcp, 127.0.0.1:8888-8889->8888-8889/tcp
+agentic-career-lab-prometheus        prom/prometheus:v2.54.1                        Up 13 minutes             127.0.0.1:9090->9090/tcp
+agentic-career-lab-tempo             grafana/tempo:2.6.1                            Up 25 minutes             127.0.0.1:3200->3200/tcp
+```
+
+### B. Real Workflow Tracing & Tempo Evidence
+Captured Trace ID from real end-to-end browser execution (Ollama `gemma4:12b` + Google ADK):
+- **Trace ID**: `947c2209b3513394471ff14a0675c9ec`
+- **Root Span**: `coordinator.prepare_resume` (Duration: 101,017 ms / 1m 41s)
+- **Child Span**: `agent.private_resume` (Duration: 101,016 ms)
+- **Leaf Spans**:
+  - `llm.ollama.generate` (Prompt eval: 150 tokens, Generation: 1,316 tokens, Duration: 40,384 ms)
+  - `llm.ollama.generate` (Prompt eval: 25 tokens, Generation: 1,771 tokens, Duration: 60,610 ms)
+- **Skill Plan Trace ID**: `c0f459312a91b9ee12b5fa95f0ba9b68`
+  - `coordinator.build_skills` -> `agent.skill_builder` -> `llm.gemini.generate` (Prompt tokens: 153, Candidates: 1,070, Duration: 10,827 ms)
+- **Report Generation Trace ID**: `256874fff3552fcfa35b0a5ac6417f22` (`coordinator.report_generation`, Duration: 0.12 ms)
+
+### C. Privacy & Security Inspection of Telemetry
+- Verified span attributes in OTel Collector debug exporter and Tempo API:
+  - ZERO raw resume text or contact details exported.
+  - ZERO user prompts or model completions exported.
+  - ZERO API keys or credentials exported.
+  - Only duration, token counts, agent names, and status codes exported.
+- Localhost binding (`127.0.0.1`) enforced on host ports for Grafana (`:3000`), Prometheus (`:9090`), Tempo (`:3200`), and OTel Collector (`:4317`, `:4318`, `:8888`, `:8889`).
+
+### D. Captured Visual Evidence
+
+#### 1. Grafana Dashboard Overview (`docs/images/grafana-dashboard.png`)
+![Grafana Dashboard](file:///Users/hastimal.jangid/Desktop/hmeb/GitHub/agentic-career-lab/docs/images/grafana-dashboard.png)
+
+#### 2. Tempo Distributed Trace View in Grafana Explore (`docs/images/tempo-trace.png`)
+![Tempo Trace View](file:///Users/hastimal.jangid/Desktop/hmeb/GitHub/agentic-career-lab/docs/images/tempo-trace.png)
+

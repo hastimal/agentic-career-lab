@@ -55,10 +55,10 @@ def run_browser_acceptance():
         print("\n6. Clicking 'Analyze Resume Privately' (Executing Gemma 4 inference)...")
         page.locator("button:has-text('Analyze Resume Privately')").click()
 
-        # Wait for Gemma 4 analysis output
+        # Wait for Gemma 4 analysis output (Gemma 4 12B thinking models take ~180-210s on full resume extraction + requirement mapping)
         print("Waiting for Gemma 4 analysis results...")
-        page.wait_for_selector("text=Extracted Resume Evidence", timeout=90000)
-        page.wait_for_selector("text=Job Requirement Mapping", timeout=20000)
+        page.wait_for_selector("text=Extracted Resume Evidence", timeout=240000)
+        page.wait_for_selector("text=Job Requirement Mapping", timeout=30000)
         print("✓ Gemma 4 inference completed:")
 
         # Verify demonstrated and missing items from DOM

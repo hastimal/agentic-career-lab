@@ -20,7 +20,7 @@ services:
       - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION:-us-central1}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
-      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
       - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL:-grpc}
 
     extra_hosts:
@@ -62,9 +62,10 @@ services:
     volumes:
       - ./monitoring/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
     ports:
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
-      - "8889:8889" # Prometheus metrics exporter
+      - "127.0.0.1:4317:4317" # OTLP gRPC
+      - "127.0.0.1:4318:4318" # OTLP HTTP
+      - "127.0.0.1:8888:8888" # Internal collector metrics
+      - "127.0.0.1:8889:8889" # Prometheus metrics exporter
     restart: unless-stopped
 
   # Optional Observability Stack: Prometheus
@@ -76,7 +77,7 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     restart: unless-stopped
 
   # Optional Observability Stack: Tempo (Traces)
@@ -89,7 +90,7 @@ services:
     volumes:
       - ./monitoring/tempo.yaml:/etc/tempo.yaml:ro
     ports:
-      - "3200:3200" # Tempo HTTP
+      - "127.0.0.1:3200:3200" # Tempo HTTP
     restart: unless-stopped
 
   # Optional Observability Stack: Grafana
@@ -105,7 +106,7 @@ services:
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - prometheus
       - tempo
