@@ -1,6 +1,8 @@
 """Export models for agentic_career_lab."""
 
 from agentic_career_lab.models.schemas import (
+    ActivityProgress,
+    ActivityStatus,
     EvidenceStatus,
     LearningPlan,
     LearningResource,
@@ -21,6 +23,8 @@ from agentic_career_lab.models.schemas import (
 )
 
 __all__ = [
+    "ActivityProgress",
+    "ActivityStatus",
     "EvidenceStatus",
     "LearningPlan",
     "Opportunity",

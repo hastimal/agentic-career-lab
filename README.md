@@ -1,27 +1,48 @@
 # Agentic Career Lab
 
-A privacy-aware hybrid multi-agent career platform for students.
+A privacy-first hybrid multi-agent career platform for students and technical job seekers.
 
-Planned stack:
-- Gemini
-- Vertex AI
-- Google ADK
-- Gemma 4 on Ollama
-- Streamlit
-- Docker
-- Cloud Run
-- OpenTelemetry
-
-*(Screenshot/Demo section placeholder)*
+**Core Technology Stack**:
+- **Google ADK** (Multi-Agent Coordinator)
+- **Local Gemma 4 on Ollama** (100% Private Resume Analysis & Evidence Extraction)
+- **Optional Gemini / Vertex AI** (Cloud Reasoning with Explicit Consent)
+- **Streamlit** (Responsive Student UI Shell & Interactive Career Journey Tracker)
+- **Docker & Docker Compose** (Container-First Deployment & Packaging)
+- **OpenTelemetry, Prometheus, Tempo & Grafana** (End-to-End Tracing & Observability)
 
 ---
 
-## 🚀 Key Highlights
+## 📸 Student Application Preview
 
-- **🔒 Local Privacy Boundary:** Resume processing, evidence extraction, and bullet suggestions run 100% locally via **Gemma 4** (`gemma4:12b`) using Ollama.
-- **☁ Opportunity Intelligence:** Current internship and job opportunity search powered by **Google Gemini** on Vertex AI.
-- **⚙ Deterministic Matching:** Grounded, explainable skill gap analysis without fake arbitrary percentages.
-- **🎓 Student-First:** Tailored 4-week learning roadmaps and portfolio project recommendations.
+| Modern Student Dashboard | My Profile & Target Role | Job Explorer & Opportunities |
+| :---: | :---: | :---: |
+| [![Dashboard](docs/images/ui-dashboard.png)](docs/images/ui-dashboard.png) | [![My Profile](docs/images/ui-my-profile.png)](docs/images/ui-my-profile.png) | [![Job Explorer](docs/images/ui-job-explorer.png)](docs/images/ui-job-explorer.png) |
+| **Private Resume Analysis** | **Transparent Skill Gap Breakdown** | **Verified Learning Hub** |
+| [![My Resume](docs/images/ui-my-resume.png)](docs/images/ui-my-resume.png) | [![Skill Gap Analysis](docs/images/ui-skill-gap-analysis.png)](docs/images/ui-skill-gap-analysis.png) | [![Learning Hub](docs/images/ui-learning-hub.png)](docs/images/ui-learning-hub.png) |
+| **Guided Learning Plan** | **Exportable Career Report** | **Milestone Diagnostics** |
+| [![Learning Plan](docs/images/ui-learning-plan.png)](docs/images/ui-learning-plan.png) | [![Career Report](docs/images/ui-career-report.png)](docs/images/ui-career-report.png) | [![Activity & Diagnostics](docs/images/ui-activity-diagnostics.png)](docs/images/ui-activity-diagnostics.png) |
+
+> ℹ️ *For the complete inventory of all 10 verified application screenshots, see the [Screenshot Manifest](docs/images/SCREENSHOT-MANIFEST.md).*
+
+---
+
+## 🚀 Key Highlights & Capabilities (v0.9.0)
+
+- **🔒 100% Private Local Resume Processing:** Your resume text, contact details, and work history are parsed and analyzed entirely on your device using **Gemma 4** (`gemma4:12b`) running via local Ollama. Raw resume data is never transmitted to cloud AI or external providers.
+- **🧭 Interactive Career Journey Progress Tracker:** Clickable, persistent 3-stage tracker (`1. Job Selected` → `2. Resume Analyzed` → `3. Learning Plan Ready`) across all primary student screens with dynamic "Continue Journey" navigation.
+- **👤 Dedicated Student Profile:** Manage field of study, graduation year, target role, and location preferences with clear visual separation between self-reported profile skills and verified resume evidence.
+- **💼 Job Explorer with Transparent Sourcing:** Explore real internships via Adzuna or evaluate deterministic sample roles with clear `DEMO DATA` vs `LIVE` indicators and verifiable requirement links.
+- **🔍 Explainable Skill Gap Analysis:** Transparent 3-category evaluation: Demonstrated Strengths (verified with concrete resume evidence), Mentioned/Partial Skills (keyword/coursework only), and Missing Job Requirements with actionable explanations.
+- **📚 Curated 104-Resource Learning Catalog:** High-quality multi-modal learning materials across 4 distinct learning modalities:
+  - **📺 WATCH**: 45 verified YouTube videos and tech conference tutorials (Nana, freeCodeCamp, Fireship, Corey Schafer, Karpathy, etc.).
+  - **📖 LEARN**: Structured courses, official documentation, and guides (Google Cloud, CNCF, Kubernetes, Python PSF).
+  - **💻 PRACTICE**: Hands-on interactive sandbox labs (Killercoda, Google Cloud Skills Boost, PGExercises).
+  - **🛠️ BUILD**: Canonical open-source repositories and portfolio architectures (Google Cloud Microservices Demo, FastAPI, etc.).
+- **🎨 Compact Resource Cards with Provider Favicons:** Clean dark-mode cards with small, official 24–32px provider icons (Google Cloud, Docker, YouTube, GitHub, Hugging Face, AWS, etc.), difficulty/duration chips, and direct canonical action buttons without oversized video thumbnails or banners.
+- **🗺️ Guided Weekly Learning Plan:** Strict 2-week (Fast-Track) or 4-week (Comprehensive) roadmaps with milestone deliverables, evidence notes fields, and independent progress calculations decoupled from the top-level Career Journey Tracker.
+- **💡 "Continue Learning" Action Recommendation:** Proactive recommendation banner highlighting the student's next incomplete weekly task and associated learning material.
+- **📊 Exportable Markdown Career Report:** Compile readiness metrics, verified evidence, skill gaps, roadmap milestones, and capstone projects into an ATS-ready Markdown action plan.
+- **🔭 Clean Activity & Diagnostics:** Student-facing milestone timeline paired with collapsed developer OpenTelemetry spans, sanitized telemetry, and pre-configured Grafana/Tempo integration.
 
 ---
 
@@ -31,7 +52,7 @@ Planned stack:
 
 ---
 
-## 🗺️ 8-Milestone Roadmap
+## 🗺️ Engineering Milestone Progress
 
 - [x] **Milestone 1: Foundation + UI Shell** — Complete
 - [x] **Milestone 2: Job Scout Agent** — Complete
@@ -41,6 +62,7 @@ Planned stack:
 - [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
 - [x] **Milestone 7: Docker-First Application Distribution** — Complete
 - [x] **Milestone 8: OpenTelemetry + Grafana Observability & Evaluation** — Complete
+- [x] **v0.9.0: Streamlit Redesign, Learning Hub & Compact Guided Learning** — Release Ready Candidate
 
 ---
 
@@ -144,14 +166,21 @@ Resume Suggestions
 Claim Validator
 ```
 
-## 🛠️ Skill Builder Agent (Milestone 4)
+## 🛠️ Skill Builder Agent & Guided Learning Platform (Milestone 4 & v0.9.0)
 
-The Skill Builder helps bridge the gap between your verified resume and the target role by producing an evidence-grounded learning plan.
+The Skill Builder helps bridge the gap between your verified resume and the target role by producing an evidence-grounded, multi-modal learning plan:
 
 - **Deterministic Gaps**: Uses standard Python logic to identify and prioritize gaps based on requirements and M3 evidence.
 - **Priority Ranking**: Rules-based approach to score gaps (High/Medium/Low).
-- **Practical Planning**: Recommends short 2 or 4-week learning plans combined with a custom portfolio project.
-- **Privacy Focus**: Minimizes sharing by only generating plans from metadata, not raw resumes.
+- **Multi-Modal Guided Learning (v0.9.0)**:
+  - **📺 WATCH**: Curated YouTube tutorials and technical demos from verified engineering sources.
+  - **📖 LEARN**: Structured courses, certification paths, and official documentation (Google Cloud, CNCF, Kubernetes, Python).
+  - **💻 PRACTICE**: Interactive hands-on labs and exercises.
+  - **🛠️ BUILD**: GitHub reference architectures, open-source codebases, and capstone project deliverables.
+- **Task-Resource Integration**: Weekly checklist tasks link directly to canonical learning resources with practical evidence inputs (GitHub repo links, lab verification, notes).
+- **Dual Progress Decoupling**: Tracks overall and weekly learning completion independently from the high-level 3-stage Career Journey Progress Tracker.
+- **Privacy Focus**: Minimizes sharing by generating plans 100% locally when cloud AI consent is declined, with zero raw resume data ever sent over the network.
+
 
 ---
 
@@ -258,10 +287,32 @@ streamlit run src/agentic_career_lab/app.py
 
 ---
 
-## 🧪 Testing & Linting
+## 🧪 Testing, Quality Gates & Acceptance
+
+Run the automated verification suite using `uv`:
 
 ```bash
-ruff check .
-ruff format --check .
-pytest
+# Code standards & formatting
+uv run ruff check .
+uv run ruff format --check .
+
+# Full unit and regression test suite (75 tests)
+uv run pytest
+
+# End-to-end browser acceptance suite across all 10 student workflows
+uv run python scripts/test_browser_acceptance.py
 ```
+
+### Verified Test Results (v0.9.0 Candidate)
+- **Ruff Linter & Formatter**: 75 files checked, 100% compliant.
+- **Pytest Suite**: 75 passed (including deterministic roadmaps, consent boundaries, provider icons, and catalog metadata).
+- **Playwright Browser Acceptance**: 10/10 student workflows verified live on Docker (`http://localhost:8501`).
+
+---
+
+## ⚠️ Known Limitations & Future Roadmap
+
+For an honest assessment of current limitations (such as in-session learning progress persistence and planned future features), see:
+- [docs/known-issues.md](docs/known-issues.md) — Comprehensive v0.9.0 known issues and roadmap (v0.10.0–v0.12.0).
+- [docs/images/SCREENSHOT-MANIFEST.md](docs/images/SCREENSHOT-MANIFEST.md) — Detailed screenshot inventory and visual verification records.
+- [docs/manual-acceptance-checklist.md](docs/manual-acceptance-checklist.md) — Step-by-step verification walkthrough.

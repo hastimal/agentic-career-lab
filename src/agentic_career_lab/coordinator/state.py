@@ -28,6 +28,7 @@ class CareerWorkflowState(BaseModel):
     resume_source: str | None = None
     resume_analysis: Any | None = None
     skill_builder_plan: Any | None = None
+    requested_duration_weeks: int = 4
     current_step: str | None = None
     completed_steps: list[str] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)

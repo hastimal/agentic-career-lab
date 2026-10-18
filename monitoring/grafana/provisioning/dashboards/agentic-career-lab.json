@@ -41,8 +41,8 @@
             "type": "tempo",
             "uid": "tempo"
           },
-          "queryType": "search",
-          "serviceName": "agentic-career-lab",
+          "queryType": "traceql",
+          "query": "{resource.service.name = \"agentic-career-lab\"}",
           "limit": 10,
           "refId": "A"
         }

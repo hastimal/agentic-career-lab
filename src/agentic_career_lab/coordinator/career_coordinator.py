@@ -155,11 +155,12 @@ class CareerCoordinator:
                     "selected_opportunity and resume_analysis required for Skill Builder."
                 )
 
+            weeks = getattr(state, "requested_duration_weeks", 4) or 4
             plan, events, err = build_skill_plan_tool(
                 self.skill_builder,
                 state.selected_opportunity,
                 state.resume_analysis,
-                duration_weeks=4,
+                duration_weeks=weeks,
             )
             self._map_events(state, events, "Skill Builder", "Python / Gemini")
 

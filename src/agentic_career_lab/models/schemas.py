@@ -158,12 +158,60 @@ class SkillGap(BaseModel):
 
 
 class LearningResource(BaseModel):
-    title: str
-    provider: str
-    resource_type: str
-    url: str | None = None
-    skill: str
-    reason: str
+    resource_id: str = Field(default="", description="Unique canonical resource identifier")
+    title: str = Field(..., description="Actual course, lab, video, or tutorial title")
+    provider: str = Field(..., description="Official publisher or training provider")
+    resource_type: str = Field(
+        ...,
+        description="Course, Hands-on Lab, Documentation, Article / Blog, Video / Talk, or GitHub Project",
+    )
+    category: str = Field(
+        default="LEARN",
+        description="Core guided learning category: WATCH, LEARN, PRACTICE, or BUILD",
+    )
+    url: str | None = Field(default=None, description="Verified destination URL")
+    skill: str = Field(..., description="Primary missing skill addressed")
+    relevant_skills: list[str] = Field(
+        default_factory=list, description="All skills practiced by this resource"
+    )
+    reason: str = Field(default="", description="Why this resource is recommended")
+    difficulty: str = Field(
+        default="Intermediate", description="Beginner, Intermediate, or Advanced"
+    )
+    estimated_duration: str = Field(default="2-4 hours", description="Estimated completion time")
+    prerequisites: list[str] = Field(
+        default_factory=list, description="Recommended background skills"
+    )
+    learning_outcome: str = Field(default="", description="Specific competency or skill gained")
+    practical_exercise: str = Field(default="", description="Hands-on deliverable or lab scenario")
+    free_or_paid: str = Field(default="Free", description="Free, Free Tier / Credits, or Paid")
+    is_verified: bool = Field(default=True, description="Whether resource is official and verified")
+
+
+class ActivityStatus(StrEnum):
+    NOT_STARTED = "Not Started"
+    IN_PROGRESS = "In Progress"
+    COMPLETED = "Completed"
+
+
+class ActivityProgress(BaseModel):
+    """Tracks local student learning progress against learning roadmap activities."""
+
+    step_id: str = Field(..., description="Identifier for roadmap step or activity")
+    activity_name: str = Field(..., description="Title of the activity")
+    status: ActivityStatus = Field(default=ActivityStatus.NOT_STARTED)
+    evidence_notes: str = Field(
+        default="", description="Student notes or reflection on what was learned"
+    )
+    supporting_link: str | None = Field(
+        default=None, description="Optional GitHub repo or project PR link"
+    )
+    completion_timestamp: str | None = Field(
+        default=None, description="ISO timestamp when marked completed"
+    )
+    associated_resource_id: str | None = Field(
+        default=None, description="Optional associated canonical learning resource ID"
+    )
 
 
 class LearningStep(BaseModel):
@@ -172,6 +220,10 @@ class LearningStep(BaseModel):
     skills: list[str] = Field(default_factory=list)
     activities: list[str] = Field(default_factory=list)
     expected_output: str
+    activity_resource_ids: dict[int, str] = Field(
+        default_factory=dict,
+        description="Mapping of activity index to canonical LearningResource ID",
+    )
 
 
 class PortfolioProject(BaseModel):
