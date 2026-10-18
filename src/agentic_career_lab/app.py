@@ -582,9 +582,10 @@ def render_private_resume():
                 f"Private resume analysis is unavailable because the local Ollama runtime is not running. Or another error occurred: {str(e)}"
             )
 
-    if "resume_analysis" in st.session_state:
+    if st.session_state.get("resume_analysis") is not None:
         analysis = st.session_state["resume_analysis"]
         st.subheader("A. Extracted Resume Evidence")
+
         st.write("**Skills:**")
         st.write(
             "- "
@@ -695,7 +696,7 @@ def render_skill_builder():
             st.session_state["skill_builder_plan"] = state.skill_builder_plan
             st.session_state["agent_events"] = state.activity_events
 
-    if "skill_builder_plan" in st.session_state:
+    if st.session_state.get("skill_builder_plan") is not None:
         plan = st.session_state["skill_builder_plan"]
 
         st.markdown("### B. What You Already Demonstrate")

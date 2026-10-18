@@ -23,7 +23,9 @@
 | **AC-7** | DOCX / PDF Document Parsing in Container | **PASS** | Successfully parsed `scratch/sample_resume.docx` (200 characters). |
 | **AC-8** | Multi-Agent Coordinator Execution | **PASS** | Sequenced `FIND_OPPORTUNITIES` -> `PREPARE_RESUME` -> `BUILD_SKILLS`. |
 | **AC-9** | Privacy Boundary Verification | **PASS** | Raw resume text was NOT present in serialized `CareerWorkflowState`. |
-| **AC-10**| Automated Test Suite & Linter | **PASS** | 53 pytest tests passed in 1.02s; Ruff lint and format clean. |
+| **AC-10**| Automated Test Suite & Linter | **PASS** | 53 pytest tests passed in 1.05s; Ruff lint and format clean. |
+| **AC-11**| Real Browser UI End-to-End Workflow | **PASS** | Automated Playwright browser upload (.docx), Gemma 4 analysis, & plan build. |
+
 
 ---
 
@@ -135,16 +137,57 @@ RESULT: PASS
 ### F. Pytest & Ruff Checks
 ```text
 $ pytest
-53 passed, 1 warning in 1.02s
+53 passed, 1 warning in 1.05s
 
 $ ruff check .
 All checks passed!
 
 $ ruff format --check .
-66 files already formatted
+70 files already formatted
+```
+
+### G. Real Browser Acceptance Test (Playwright Chromium)
+```text
+$ python scripts/test_browser_acceptance.py
+============================================================
+STARTING REAL BROWSER ACCEPTANCE TEST (http://localhost:8501)
+============================================================
+
+1. Navigating to http://localhost:8501...
+✓ Streamlit landing page loaded successfully
+
+2. Navigating to Find Opportunities via sidebar...
+✓ Opportunities view rendered
+
+3. Searching for opportunities (Source: Demo Data / Mock)...
+✓ Opportunities found and displayed with DEMO DATA badge
+
+4. Selecting first opportunity and proceeding to Prepare Resume...
+✓ Private Resume Lab loaded for target role
+
+5. Uploading sample resume: scratch/sample_resume.docx...
+✓ Resume parsed and loaded locally in container memory
+
+6. Clicking 'Analyze Resume Privately' (Executing Gemma 4 inference)...
+Waiting for Gemma 4 analysis results...
+✓ Gemma 4 inference completed:
+  Requirement mapping detected
+
+7. Navigating to Build My Skill Plan...
+✓ Build Missing Skills page loaded
+  Privacy & Cloud Sharing Consent checkbox present (checked: True)
+
+8. Generating Career Action Plan...
+✓ Career Action Plan Status: Complete
+✓ Full-page screenshot saved to scratch/browser_acceptance_success.png
+
+============================================================
+BROWSER ACCEPTANCE TEST PASSED WITH 100% SUCCESS!
+============================================================
 ```
 
 ---
+
 
 ## 3. Platform Limitations & Architecture Notes
 
