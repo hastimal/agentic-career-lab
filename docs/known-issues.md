@@ -1,42 +1,31 @@
-# v0.9.0 Known Issues & Engineering Roadmap
+# v0.10.0 Known Issues & Engineering Roadmap
 
-This document outlines known limitations, pending refinements, and the future development roadmap for **Agentic Career Lab** following the completion of the v0.9.0 candidate release.
+This document outlines known limitations, pending refinements, and the future development roadmap for **Agentic Career Lab** following the completion of the v0.10.0 candidate release.
 
 ---
 
-## ⚠️ Known Issues & Current Limitations (v0.9.0)
+## ⚠️ Known Issues & Current Limitations (v0.10.0)
 
-The following items represent known behaviors and architectural limitations in v0.9.0 that will be addressed in subsequent releases:
+The following items represent known behaviors and architectural limitations in v0.10.0 that will be addressed in subsequent releases:
 
-1. **Session-Bound Learning Progress**:
-   - Weekly learning activity checkboxes and evidence notes persist cleanly within the student's active Streamlit session state.
-   - However, progress is currently stored in memory and will not survive a container restart or browser session reset without an external database or local filesystem storage backend (targeted for v0.12.0).
+1. **Session-Bound Chat & Learning State**:
+   - Multi-turn conversation turns, weekly learning checkboxes, and evidence notes persist cleanly within the student's active Streamlit session state and survive page reruns.
+   - However, progress and chat history are held in application memory and will not survive a container restart without an external database or local filesystem storage backend (targeted for v0.12.0).
 
-2. **Technical Milestone Diagnostics**:
-   - While developer OpenTelemetry trace data is now collapsed under diagnostics, some student milestone event labels in **Activity & Diagnostics** may still display low-level agent action nomenclature (e.g. `requirement_interpretation` or `claim_validation`) instead of purely conversational phrases.
+2. **Resume Studio Status (Preview Only)**:
+   - Resume Studio is currently an architectural specification and preview UI (`docs/features/resume-studio.md`). Automatic bullet diffs and resume document modifications are not yet enabled for student production use.
 
-3. **Grafana Observability Spans Panel**:
-   - In specific local container setups, the Grafana *Recent Multi-Agent Spans* panel may experience latency querying Tempo traces via TraceQL (`{resource.service.name = "agentic-career-lab"}`).
-   - Occasional transient "Unauthorized" notifications seen in Grafana dashboard loading require automated datasource credential pinning.
-
-4. **Resource Icon Domain Availability**:
+3. **Air-Gapped Favicon Fallback**:
    - Compact learning cards map 40+ canonical providers and creators to high-resolution official favicons.
    - In fully offline or air-gapped environments without external internet connectivity, third-party favicons gracefully fall back to the neutral bookmark emoji (`🔖`) without affecting layout.
 
-5. **Video Embed Privacy Boundaries**:
-   - To prevent third-party tracking scripts, cookies, and oversized page loads, YouTube videos open directly in the verified destination via `Watch Video ↗` rather than embedded inline iframe players.
-
-6. **Resume Studio Status**:
-   - Resume Studio is currently an architectural specification and preview UI (`docs/features/resume-studio.md`). Automatic bullet diffs and resume document modifications are not yet enabled for student production use.
+4. **Local LLM Inference Latency**:
+   - Initial cold-start queries against local Gemma 4 (12B parameters via Ollama) on CPU-only machines may take 60–90 seconds to load weights into memory.
+   - Fine-grained token streaming and configurable 180s timeouts prevent disconnects while keeping the student informed with real-time status indicators.
 
 ---
 
 ## 🗺️ Future Engineering Roadmap
-
-### v0.10.0: AI Career Agent Chatbox & Interactive Coaching
-- **Local-First Conversational Assistant**: Multi-turn career advising directly integrated into the Streamlit sidebar/drawer.
-- **Google ADK Integration**: Structured tool calling enabling the conversational agent to query job opportunities, check skill prerequisites, and recommend tailored courses.
-- **Resume Studio Foundation**: Initial schema and prompt engineering for conversational evidence gathering.
 
 ### v0.11.0: Evidence-Based Resume Revision Studio
 - **Side-by-Side Bullet Diff Review**: Visual before-and-after comparison of suggested resume improvements based strictly on verified project evidence.
@@ -44,7 +33,7 @@ The following items represent known behaviors and architectural limitations in v
 - **ATS Export Upgrades**: Clean DOCX and PDF compilation with deterministic formatting.
 
 ### v0.12.0: Persistent Student Workspace & Evidence Storage
-- **Persistent Workspace Engine**: Local SQLite / JSON-backed storage for student profiles, milestone progress, and evidence notes surviving container restarts.
+- **Persistent Workspace Engine**: Local SQLite / JSON-backed storage for student profiles, milestone progress, evidence notes, and chat transcripts surviving container restarts.
 - **Deliverable Portfolio Vault**: Local storage for capstone project code, Dockerfiles, and GitHub repository links.
 
 ### Future Stabilization & Enhancements

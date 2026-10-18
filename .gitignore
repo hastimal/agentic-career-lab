@@ -48,3 +48,5 @@ htmlcov/
 # Scratch files
 scratch/
 
+# macOS Finder metadata (all directories)
+.DS_Store

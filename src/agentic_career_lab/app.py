@@ -22,6 +22,15 @@ from agentic_career_lab.agents.job_scout.agent import JobScoutAgent
 from agentic_career_lab.agents.resume_agent.agent import PrivateResumeAgent
 from agentic_career_lab.agents.skill_builder.agent import SkillBuilderAgent
 from agentic_career_lab.agents.skill_builder.planner import DeterministicPlanningLLM
+from agentic_career_lab.chat import (
+    CareerChatOrchestrator,
+    CareerChatToolAdapters,
+    ChatActionType,
+    ChatContext,
+    ChatRole,
+    ChatSession,
+    ConsentDecision,
+)
 from agentic_career_lab.coordinator import (
     ADKCareerCoordinator,
     CareerAction,
@@ -33,8 +42,10 @@ from agentic_career_lab.llm.gemini import GeminiVertexClient
 from agentic_career_lab.models import (
     ActivityProgress,
     ActivityStatus,
+    EvidenceStatus,
     LearningResource,
     OpportunitySearchQuery,
+    ResumeAnalysis,
     StudentProfile,
 )
 from agentic_career_lab.providers.adzuna import AdzunaOpportunityProvider
@@ -48,6 +59,7 @@ from agentic_career_lab.services.learning_resources import ResourceCatalog
 from agentic_career_lab.services.resume_parser import ResumeParser
 from agentic_career_lab.ui_helpers import (
     ACTIVITY_DIAGNOSTICS,
+    ASK_CAREER_AI,
     CAREER_REPORT,
     DASHBOARD,
     FALLBACK_EMOJI_ICON,
@@ -596,6 +608,18 @@ def initialize_session_state() -> None:
         st.session_state["career_workflow_state"] = CareerWorkflowState()
     if "resource_catalog" not in st.session_state:
         st.session_state["resource_catalog"] = ResourceCatalog()
+    if "chat_session" not in st.session_state:
+        st.session_state["chat_session"] = ChatSession()
+    if "chat_orchestrator" not in st.session_state:
+        st.session_state["chat_orchestrator"] = CareerChatOrchestrator(
+            llm=create_resume_llm(),
+            tool_adapters=CareerChatToolAdapters(
+                resource_catalog=st.session_state["resource_catalog"],
+                adk_coordinator=st.session_state["coordinator"],
+            ),
+        )
+    if "chat_preset_query" not in st.session_state:
+        st.session_state["chat_preset_query"] = None
 
 
 initialize_session_state()
@@ -622,6 +646,11 @@ with st.sidebar:
         "👤 My Profile",
         use_container_width=True,
         type="primary" if nav_current == MY_PROFILE else "secondary",
+    )
+    btn_chat = st.button(
+        "💬 Ask Career AI",
+        use_container_width=True,
+        type="primary" if nav_current == ASK_CAREER_AI else "secondary",
     )
     btn_jobs = st.button(
         "🎯 Job Explorer",
@@ -672,6 +701,8 @@ with st.sidebar:
         navigate(DASHBOARD)
     elif btn_profile:
         navigate(MY_PROFILE)
+    elif btn_chat:
+        navigate(ASK_CAREER_AI)
     elif btn_jobs:
         navigate(JOB_EXPLORER)
     elif btn_resume:
@@ -2046,6 +2077,456 @@ def render_resume_studio():
 
 
 # ---------------------------------------------------------
+# Page 10: Ask Career AI (M10.2 Chatbox)
+# ---------------------------------------------------------
+def render_ask_career_ai():
+    """Render interactive multi-turn AI Career Agent Chatbox."""
+    st.title("💬 Ask Career AI")
+    st.caption(
+        "Context-aware AI Career Coach powered by local Gemma 4 and deterministic Google ADK workflows."
+    )
+
+    render_career_journey_tracker(page_key_prefix="chat", compact=True)
+
+    # 1. Connection & Privacy Status Header
+    ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    gemma_model = os.environ.get("GEMMA_MODEL", "gemma4:12b")
+
+    ollama_online = False
+    try:
+        r = httpx.get(f"{ollama_url}/api/tags", timeout=1.5)
+        if r.status_code == 200:
+            models = [m.get("name") for m in r.json().get("models", [])]
+            ollama_online = gemma_model in models or len(models) > 0
+    except Exception:
+        ollama_online = False
+
+    status_col1, status_col2 = st.columns([3, 1])
+    with status_col1:
+        if ollama_online:
+            st.markdown(
+                f"""
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.88rem; color: #34d399;">
+                    <span style="height: 10px; width: 10px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
+                    <b>Local Gemma 4 Connected</b> (Model: <code>{gemma_model}</code> via Ollama at <code>{ollama_url}</code>)
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"""
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.88rem; color: #fbbf24;">
+                    <span style="height: 10px; width: 10px; background-color: #f59e0b; border-radius: 50%; display: inline-block;"></span>
+                    <b>Local Fallback Mode Active</b> (Ollama offline at <code>{ollama_url}</code> — Deterministic tools fully available)
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+    with status_col2:
+        if st.button("🗑️ Clear Chat", key="btn_clear_chat", use_container_width=True):
+            session: ChatSession = st.session_state["chat_session"]
+            session.clear()
+            st.session_state["chat_preset_query"] = None
+            st.rerun()
+
+    # 2. Suggested Prompts
+    st.markdown("##### 💡 Suggested Questions")
+    p_col1, p_col2, p_col3 = st.columns(3)
+    p_col4, p_col5, p_col6 = st.columns(3)
+
+    submitted_prompt = None
+
+    with p_col1:
+        if st.button(
+            "🎯 What jobs match my profile?", key="prompt_btn_1", use_container_width=True
+        ):
+            submitted_prompt = "What jobs match my profile?"
+    with p_col2:
+        if st.button("🔍 What skills am I missing?", key="prompt_btn_2", use_container_width=True):
+            submitted_prompt = "What skills am I missing for my selected job?"
+    with p_col3:
+        if st.button("📚 Recommend free resources", key="prompt_btn_3", use_container_width=True):
+            submitted_prompt = "Recommend free Python learning resources."
+    with p_col4:
+        if st.button("🚀 What should I learn next?", key="prompt_btn_4", use_container_width=True):
+            submitted_prompt = "What should I do next to continue learning?"
+    with p_col5:
+        if st.button(
+            "📄 How can I improve my resume?", key="prompt_btn_5", use_container_width=True
+        ):
+            submitted_prompt = "How can I improve my resume?"
+    with p_col6:
+        if st.button("🗺️ Explain my learning plan", key="prompt_btn_6", use_container_width=True):
+            submitted_prompt = "Explain my four-week learning plan roadmap."
+
+    st.markdown("---")
+
+    # 3. Retrieve or construct typed ChatContext from existing session state
+    profile = st.session_state.get("student_profile")
+    opp = st.session_state.get("selected_opportunity")
+    analysis: ResumeAnalysis | None = st.session_state.get("resume_analysis")
+    plan = st.session_state.get("skill_builder_plan")
+
+    demonstrated: list[str] = []
+    partial: list[str] = []
+    missing: list[str] = []
+
+    if analysis:
+        for match in analysis.requirement_matches:
+            if match.status == EvidenceStatus.DEMONSTRATED:
+                demonstrated.append(match.requirement)
+            elif match.status == EvidenceStatus.PARTIAL:
+                partial.append(match.requirement)
+            elif match.status == EvidenceStatus.MISSING:
+                missing.append(match.requirement)
+        if not missing and analysis.missing_evidence:
+            missing = list(analysis.missing_evidence)
+    elif profile:
+        demonstrated = list(profile.skills)
+
+    chat_context = ChatContext(
+        student_id=profile.student_id if profile else "student-demo",
+        target_role=profile.target_role if profile else (opp.role if opp else "AI Engineer"),
+        selected_opportunity_id=opp.opportunity_id if opp else None,
+        selected_opportunity_title=f"{opp.role} ({opp.company})" if opp else None,
+        resume_analyzed=analysis is not None,
+        demonstrated_skills=demonstrated,
+        partial_skills=partial,
+        missing_skills=missing,
+        plan_generated=plan is not None,
+        plan_duration_weeks=len(plan.learning_steps) if (plan and plan.learning_steps) else 4,
+        active_week=1,
+        consent=ConsentDecision(consent_given=False),  # Strict local default
+    )
+
+    chat_session: ChatSession = st.session_state["chat_session"]
+    orchestrator: CareerChatOrchestrator = st.session_state["chat_orchestrator"]
+
+    # 4. Display Existing Messages
+    if not chat_session.messages:
+        st.markdown(
+            """
+            <div class="card-box" style="text-align: center; padding: 2.5rem 1.5rem; background: #0f172a; border: 1px dashed #334155;">
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🤖</div>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #f8fafc; margin-bottom: 0.4rem;">
+                    Hello! I'm your local AI Career Coach.
+                </div>
+                <p style="font-size: 0.95rem; color: #94a3b8; max-width: 600px; margin: 0 auto 1.2rem auto;">
+                    I have full context of your profile, verified skills, and roadmap. Ask me any question below,
+                    or click one of the suggested prompts above to get started.
+                </p>
+                <div style="display: inline-flex; gap: 12px; font-size: 0.8rem; color: #64748b;">
+                    <span>🔒 Local Privacy Protected</span>
+                    <span>•</span>
+                    <span>⚡ Deterministic ADK Workflows</span>
+                    <span>•</span>
+                    <span>🎯 Grounded in Fact</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    else:
+        for msg in chat_session.messages:
+            if msg.role == ChatRole.USER:
+                with st.chat_message("user"):
+                    st.write(msg.content)
+            elif msg.role == ChatRole.ASSISTANT:
+                with st.chat_message("assistant"):
+                    st.write(msg.content)
+                    if msg.tool_results:
+                        for tr in msg.tool_results:
+                            if tr.success:
+                                st.caption(
+                                    f"⚙️ **Source**: `{tr.provenance}` | **Runtime**: `{tr.runtime.value}`"
+                                )
+                            else:
+                                st.caption(
+                                    f"⚠️ **Tool notice**: `{tr.tool_name}` reported: {tr.error}"
+                                )
+                    if msg.actions:
+                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                        act_cols = st.columns(max(len(msg.actions), 1))
+                        for a_idx, act in enumerate(msg.actions):
+                            with act_cols[a_idx]:
+                                # Check if button should be rendered as disabled or handle action
+                                if act.action_type == ChatActionType.OPEN_SKILL_GAP_ANALYSIS:
+                                    curr_opp = st.session_state.get("selected_opportunity")
+                                    curr_analysis = st.session_state.get("resume_analysis")
+                                    # Validate prerequisites at click time
+                                    if not curr_opp:
+                                        st.warning(
+                                            "Select a job before comparing your resume against its requirements."
+                                        )
+                                        if st.button(
+                                            "Choose a Job",
+                                            key=f"btn_act_job_{msg.message_id}_{a_idx}",
+                                            type="secondary",
+                                        ):
+                                            navigate(JOB_EXPLORER)
+                                    elif not curr_analysis:
+                                        st.warning(
+                                            "Analyze your resume privately before viewing evidence-based skill gaps."
+                                        )
+                                        if st.button(
+                                            "Analyze My Resume",
+                                            key=f"btn_act_res_{msg.message_id}_{a_idx}",
+                                            type="secondary",
+                                        ):
+                                            navigate(MY_RESUME)
+                                    else:
+                                        if st.button(
+                                            f"📊 {act.label}",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                            type="primary",
+                                            disabled=not act.enabled,
+                                            help=act.disabled_reason,
+                                        ):
+                                            navigate(SKILL_GAP_ANALYSIS)
+                                elif act.action_type == ChatActionType.SELECT_JOB:
+                                    # Phase 3: Validate opportunity ID against current trusted search results at click time
+                                    job_matches = st.session_state.get("job_matches", [])
+                                    if st.button(
+                                        f"🎯 {act.label}",
+                                        key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        type="primary",
+                                    ):
+                                        job_matches = st.session_state.get("job_matches", [])
+                                        selected_match = next(
+                                            (
+                                                m
+                                                for m in job_matches
+                                                if m.opportunity.opportunity_id
+                                                == act.opportunity_id
+                                            ),
+                                            None,
+                                        )
+                                        if not selected_match:
+                                            try:
+                                                coord = st.session_state.get("coordinator")
+                                                scout = getattr(coord, "domain_coordinator", coord)
+                                                scout = getattr(scout, "job_scout", scout)
+                                                if scout and scout.provider:
+                                                    opp_list = scout.provider.search(
+                                                        OpportunitySearchQuery(
+                                                            role="AI Engineer",
+                                                            location="Remote",
+                                                            internship_only=True,
+                                                            keywords=[],
+                                                        )
+                                                    )
+                                                    for opp_cand in opp_list:
+                                                        if (
+                                                            opp_cand.opportunity_id
+                                                            == act.opportunity_id
+                                                        ):
+                                                            from agentic_career_lab.models import (
+                                                                OpportunityMatch,
+                                                            )
+
+                                                            selected_match = OpportunityMatch(
+                                                                opportunity=opp_cand,
+                                                                demonstrated_skills=[],
+                                                                partial_skills=[],
+                                                                missing_skills=[],
+                                                                why_relevant="Selected via Ask Career AI",
+                                                            )
+                                                            break
+                                            except Exception:
+                                                selected_match = None
+
+                                        if selected_match:
+                                            new_opp = selected_match.opportunity
+                                            prev_opp = st.session_state.get("selected_opportunity")
+                                            # Invalidate stale comparisons and plan if opportunity changed
+                                            if (
+                                                prev_opp
+                                                and prev_opp.opportunity_id
+                                                != new_opp.opportunity_id
+                                            ):
+                                                st.session_state["resume_analysis"] = None
+                                                st.session_state["skill_builder_plan"] = None
+                                                state = st.session_state.get(
+                                                    "career_workflow_state"
+                                                )
+                                                if state:
+                                                    state.resume_analysis = None
+                                                    state.skill_builder_plan = None
+
+                                            st.session_state["selected_opportunity"] = new_opp
+                                            state = st.session_state.get("career_workflow_state")
+                                            if state:
+                                                state.selected_opportunity = new_opp
+                                            navigate(MY_RESUME)
+                                        else:
+                                            st.error(
+                                                "Opportunity is no longer available or was not found in trusted search results."
+                                            )
+
+                                elif act.action_type == ChatActionType.OPEN_LEARNING_RESOURCE:
+                                    # Phase 4: Lookup trusted ResourceCatalog resource_id and render safe link
+                                    catalog: ResourceCatalog = st.session_state.get(
+                                        "resource_catalog", ResourceCatalog()
+                                    )
+                                    res = (
+                                        catalog.get_resource_by_id(act.resource_id)
+                                        if act.resource_id
+                                        else None
+                                    )
+                                    if res and res.url and str(res.url).startswith("https://"):
+                                        st.link_button(
+                                            f"🔗 {act.label}",
+                                            str(res.url),
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                            help=f"Provider: {res.provider} | Category: {res.category} | {res.free_or_paid.title()}",
+                                        )
+                                    else:
+                                        if st.button(
+                                            f"📚 {act.label}",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        ):
+                                            navigate(LEARNING_HUB)
+
+                                elif act.action_type == ChatActionType.CONTINUE_LEARNING:
+                                    # Phase 5: Check existing plan and navigate to My Learning Plan
+                                    plan = st.session_state.get("skill_builder_plan")
+                                    if not plan or not plan.learning_steps:
+                                        st.warning(
+                                            "Create your learning plan to continue learning."
+                                        )
+                                        if st.button(
+                                            "🗺️ Go to My Learning Plan",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                            type="secondary",
+                                        ):
+                                            navigate(MY_LEARNING_PLAN)
+                                    else:
+                                        if st.button(
+                                            f"🚀 {act.label}",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                            type="primary",
+                                        ):
+                                            navigate(MY_LEARNING_PLAN)
+
+                                elif act.action_type == ChatActionType.VIEW_CAREER_REPORT:
+                                    # Phase 6: Validate prerequisites and navigate to Career Report
+                                    opp = st.session_state.get("selected_opportunity")
+                                    analysis = st.session_state.get("resume_analysis")
+                                    plan = st.session_state.get("skill_builder_plan")
+
+                                    if not opp:
+                                        st.warning("Please select a job opportunity first.")
+                                        if st.button(
+                                            "Choose a Job",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        ):
+                                            navigate(JOB_EXPLORER)
+                                    elif not analysis:
+                                        st.warning(
+                                            "Please analyze your resume before generating a report."
+                                        )
+                                        if st.button(
+                                            "Analyze Resume",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        ):
+                                            navigate(MY_RESUME)
+                                    elif not plan or not plan.learning_steps:
+                                        st.warning("Please generate a learning plan first.")
+                                        if st.button(
+                                            "Generate Plan",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        ):
+                                            navigate(MY_LEARNING_PLAN)
+                                    else:
+                                        if st.button(
+                                            f"📋 {act.label}",
+                                            key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                            type="primary",
+                                        ):
+                                            navigate(CAREER_REPORT)
+
+                                elif act.action_type == ChatActionType.NAVIGATE_JOB_EXPLORER:
+                                    if st.button(
+                                        f"💼 {act.label}",
+                                        key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        type="primary",
+                                    ):
+                                        navigate(JOB_EXPLORER)
+                                elif act.action_type == ChatActionType.NAVIGATE_MY_RESUME:
+                                    if st.button(
+                                        f"📄 {act.label}",
+                                        key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        type="primary",
+                                    ):
+                                        navigate(MY_RESUME)
+                                elif act.action_type == ChatActionType.NAVIGATE_LEARNING_PLAN:
+                                    if st.button(
+                                        f"🗺️ {act.label}",
+                                        key=f"btn_act_{msg.message_id}_{act.action_id}",
+                                        type="secondary",
+                                    ):
+                                        navigate(MY_LEARNING_PLAN)
+    # 5. Handle chat input or suggested prompt click
+    user_input = st.chat_input("Ask a question about jobs, skills, or your learning roadmap...")
+    active_prompt = submitted_prompt or user_input
+
+    if active_prompt:
+        # Render user bubble immediately
+        with st.chat_message("user"):
+            st.write(active_prompt)
+
+        # Process through streaming orchestrator
+        with st.chat_message("assistant"):
+            status_placeholder = st.empty()
+            message_placeholder = st.empty()
+            tool_badges_placeholder = st.empty()
+
+            status_placeholder.info("⚡ Coordinating specialists and retrieving verified facts...")
+
+            stream_text = ""
+            final_response = None
+
+            for event_type, *event_data in orchestrator.process_message_stream(
+                user_message=active_prompt,
+                session=chat_session,
+                context=chat_context,
+            ):
+                if event_type == "tool_executing":
+                    intent_val = event_data[0]
+                    status_placeholder.info(
+                        f"⚙️ Running Google ADK tool adapter for {intent_val}..."
+                    )
+                elif event_type == "tool_result":
+                    status_placeholder.info("🧠 Generating response locally with Gemma 4...")
+                elif event_type == "token":
+                    chunk = event_data[0]
+                    stream_text += chunk
+                    message_placeholder.markdown(stream_text + "▌")
+                elif event_type == "done":
+                    final_response = event_data[0]
+                    break
+
+            status_placeholder.empty()
+            if final_response:
+                message_placeholder.markdown(final_response.message.content)
+                if final_response.tool_results:
+                    for tr in final_response.tool_results:
+                        if tr.success:
+                            tool_badges_placeholder.caption(
+                                f"⚙️ **Source**: `{tr.provenance}` | **Runtime**: `{tr.runtime.value}`"
+                            )
+                        else:
+                            tool_badges_placeholder.caption(
+                                f"⚠️ **Tool notice**: `{tr.tool_name}` reported: {tr.error}"
+                            )
+            elif stream_text:
+                message_placeholder.markdown(stream_text)
+
+        st.rerun()
+
+
+# ---------------------------------------------------------
 # Routing Dispatcher
 # ---------------------------------------------------------
 navigation = normalize_navigation(st.session_state.get("nav"))
@@ -2054,6 +2535,8 @@ if navigation in (DASHBOARD, "Home"):
     render_dashboard()
 elif navigation in (MY_PROFILE, "My Profile"):
     render_my_profile()
+elif navigation in (ASK_CAREER_AI, "Ask Career AI"):
+    render_ask_career_ai()
 elif navigation in (JOB_EXPLORER, "Find Opportunities"):
     render_job_explorer()
 elif navigation in (MY_RESUME, "Prepare Resume"):
