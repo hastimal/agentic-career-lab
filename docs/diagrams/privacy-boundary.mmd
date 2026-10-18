@@ -1,64 +1,40 @@
 flowchart LR
-    subgraph LocalMachine ["🔒 Host Device / Local Privacy Zone"]
-        direction TB
-        RawResume["📄 Raw Resume Document<br/>(PDF, DOCX, TXT)"]
-        PII["👤 Personally Identifiable Information<br/>• Student Name<br/>• Email & Phone<br/>• Full Work History"]
-        LocalContext["LocalResumeContext<br/>(Transient Memory Only)"]
-        LocalModel["Local Ollama Service<br/>(gemma4:12b @ localhost:11434)"]
-        Extractor["Local Resume Extractor"]
-        Validator["Deterministic Claim Validator"]
+    classDef local fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#064e3b;
+    classDef wall fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+    classDef cloud fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef offline fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
 
-        RawResume --> LocalContext
-        PII --> LocalContext
-        LocalContext --> Extractor
-        Extractor <--> LocalModel
-        Extractor --> Validator
+    subgraph LocalZone ["🔒 Local Privacy Zone (Host Machine)"]
+        direction TB
+        RawResume["📄 Raw Resume Document<br/>• Student Name & Contact Info<br/>• Full Work Experience Text"]
+        LocalModel["🦙 Local Ollama (gemma4:12b)<br/>• Extracts Evidence in Memory<br/>• Zero Cloud Transmission"]
+        RawResume --> LocalModel
     end
 
-    subgraph PrivacyWall ["🛡️ Privacy Boundary Enforcement"]
+    subgraph PrivacyWall ["🛡️ Privacy Guard & Consent Enforcement"]
         direction TB
-        Filter["Strict Key Filter<br/>Forbidden: raw_resume_text, email, phone, address"]
-        SecretCheck["Marker Inspection<br/>Forbidden: private resume secret tokens"]
-        ConsentGate{"Explicit Student<br/>Cloud Consent?"}
-        Sanitized["CloudPlanningContext<br/>• Target Role Title<br/>• Missing Skill Names<br/>• Required Skill Names"]
-
-        Validator -->|Structured Evidence| Filter
-        Filter --> SecretCheck
-        SecretCheck --> ConsentGate
-        ConsentGate -->|Approved| Sanitized
+        Gate{"Explicit Student<br/>Cloud Consent?"}
+        Filter["Strict Metadata Allowlist<br/>✅ Missing skill names<br/>❌ Zero resume text / PII"]
+        Gate -->|Consent Given| Filter
     end
 
-    subgraph CloudZone ["☁ Cloud AI Zone (Google Cloud Vertex AI)"]
+    subgraph CloudZone ["☁️ Optional Cloud AI (Vertex AI / Gemini)"]
         direction TB
-        GeminiFlash["Gemini Flash Reasoning<br/>(gemini-3.6-flash / Vertex AI)"]
-        CloudPlanner["Cloud Learning Synthesizer"]
-        Roadmap["Weekly Learning Roadmap<br/>& Portfolio Project Proposal"]
-
-        Sanitized --> GeminiFlash
-        GeminiFlash --> CloudPlanner
-        CloudPlanner --> Roadmap
+        Gemini["Gemini Flash<br/>• Generates Custom Plan<br/>• Never sees raw resume"]
     end
 
-    subgraph OfflineZone ["⚙ Local Deterministic Fallback"]
+    subgraph FallbackZone ["⚙️ Deterministic Offline Engine"]
         direction TB
-        PythonPlanner["Deterministic Python Planner<br/>(Offline Rule-Based Synthesizer)"]
-        Catalog["Local Learning Catalog"]
-        OfflineRoadmap["Deterministic Roadmap"]
-
-        ConsentGate -->|Declined / Offline| PythonPlanner
-        Catalog --> PythonPlanner
-        PythonPlanner --> OfflineRoadmap
+        Planner["Deterministic Python Planner<br/>• Rule-based roadmap from 104-item catalog<br/>• 100% offline execution"]
     end
 
-    RawResume -.->|❌ NEVER TRANSMITTED| CloudZone
-    PII -.->|❌ NEVER TRANSMITTED| CloudZone
+    LocalModel -->|Extracted Evidence| Gate
+    Filter -->|Sanitized Metadata Only| CloudZone
+    Gate -->|Consent Denied - Default| FallbackZone
 
-    classDef local fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
-    classDef wall fill:#fee2e2,stroke:#dc2626,stroke-width:2px;
-    classDef cloud fill:#dbeafe,stroke:#2563eb,stroke-width:2px;
-    classDef offline fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    RawResume -.-x|🚫 NEVER TRANSMITTED| CloudZone
 
-    class LocalMachine,RawResume,PII,LocalContext,LocalModel,Extractor,Validator local;
-    class PrivacyWall,Filter,SecretCheck,ConsentGate,Sanitized wall;
-    class CloudZone,GeminiFlash,CloudPlanner,Roadmap cloud;
-    class OfflineZone,PythonPlanner,Catalog,OfflineRoadmap offline;
+    class LocalZone,RawResume,LocalModel local;
+    class PrivacyWall,Gate,Filter wall;
+    class CloudZone,Gemini cloud;
+    class FallbackZone,Planner offline;

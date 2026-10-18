@@ -1,322 +1,173 @@
 # Agentic Career Lab
 
-A privacy-first hybrid multi-agent career platform for students and technical job seekers.
+<p align="center">
+  <b>A Privacy-First, Multi-Agent AI Career Assistant</b><br/>
+  <i>Empowering students and job seekers with evidence-grounded career planning, local AI resume intelligence, and actionable upskilling.</i>
+</p>
 
-**Core Technology Stack**:
-- **Google ADK** (Multi-Agent Coordinator)
-- **Local Gemma 4 on Ollama** (100% Private Resume Analysis & Evidence Extraction)
-- **Optional Gemini / Vertex AI** (Cloud Reasoning with Explicit Consent)
-- **Streamlit** (Responsive Student UI Shell & Interactive Career Journey Tracker)
-- **Docker & Docker Compose** (Container-First Deployment & Packaging)
-- **OpenTelemetry, Prometheus, Tempo & Grafana** (End-to-End Tracing & Observability)
-
----
-
-## 📸 Student Application Preview
-
-| Modern Student Dashboard | My Profile & Target Role | Job Explorer & Opportunities |
-| :---: | :---: | :---: |
-| [![Dashboard](docs/images/ui-dashboard.png)](docs/images/ui-dashboard.png) | [![My Profile](docs/images/ui-my-profile.png)](docs/images/ui-my-profile.png) | [![Job Explorer](docs/images/ui-job-explorer.png)](docs/images/ui-job-explorer.png) |
-| **Private Resume Analysis** | **Transparent Skill Gap Breakdown** | **Verified Learning Hub** |
-| [![My Resume](docs/images/ui-my-resume.png)](docs/images/ui-my-resume.png) | [![Skill Gap Analysis](docs/images/ui-skill-gap-analysis.png)](docs/images/ui-skill-gap-analysis.png) | [![Learning Hub](docs/images/ui-learning-hub.png)](docs/images/ui-learning-hub.png) |
-| **Guided Learning Plan** | **Exportable Career Report** | **Milestone Diagnostics** |
-| [![Learning Plan](docs/images/ui-learning-plan.png)](docs/images/ui-learning-plan.png) | [![Career Report](docs/images/ui-career-report.png)](docs/images/ui-career-report.png) | [![Activity & Diagnostics](docs/images/ui-activity-diagnostics.png)](docs/images/ui-activity-diagnostics.png) |
-
-> ℹ️ *For the complete inventory of all 10 verified application screenshots, see the [Screenshot Manifest](docs/images/SCREENSHOT-MANIFEST.md).*
+<p align="center">
+  <a href="https://github.com/hastimal/agentic-career-lab/releases/tag/v0.10.0"><img src="https://img.shields.io/badge/Release-v0.10.0-blue.svg?style=flat-square" alt="Release v0.10.0"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=flat-square&logo=python&logoColor=white" alt="Python 3.11+"></a>
+  <a href="https://google.github.io/adk-docs/"><img src="https://img.shields.io/badge/Google%20ADK-Coordinated-4285F4.svg?style=flat-square&logo=google&logoColor=white" alt="Google ADK"></a>
+  <a href="https://ai.google.dev/gemma"><img src="https://img.shields.io/badge/Gemma%204-12B%20Local-10b981.svg?style=flat-square" alt="Local Gemma 4"></a>
+  <a href="https://ollama.ai"><img src="https://img.shields.io/badge/Ollama-Offline%20First-000000.svg?style=flat-square" alt="Ollama"></a>
+  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white" alt="Docker"></a>
+  <a href="https://github.com/hastimal/agentic-career-lab/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg?style=flat-square" alt="CI Status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="MIT License"></a>
+</p>
 
 ---
 
-## 🚀 Key Highlights & Capabilities (v0.10.0)
+## 🌟 Executive Summary
 
-- **💬 Context-Aware "Ask Career AI" Chatbox:** Native conversational interface powered by local **Gemma 4** (`gemma4:12b`) and deterministic **Google ADK** specialized tool adapters.
-- **⚡ Real Gemma 4 Token Streaming:** Progressive token streaming directly in Streamlit via native Ollama streaming (`httpx.stream`) with clear visual progress states.
-- **🎯 5 Interactive Career Actions:** Students act directly on verified agent results rather than reading static recommendations:
-  - `SELECT_JOB`: Validates opportunity IDs and navigates to My Resume while invalidating stale comparisons upon job change.
-  - `OPEN_LEARNING_RESOURCE`: Renders verified `https://` links directly from the 104-item ResourceCatalog.
-  - `CONTINUE_LEARNING`: Inspects weekly milestones and guides student to their next incomplete task in My Learning Plan.
-  - `VIEW_CAREER_REPORT`: Validates workflow prerequisites and opens the exportable Career Report.
-  - `OPEN_SKILL_GAP_ANALYSIS`: Opens evidence-based skill gap breakdowns with verified Demonstrated vs Mentioned vs Missing criteria.
-- **🔒 100% Private Local Execution:** Chat reasoning, prompt scrubbing, tool calling, and resume extraction run entirely on your local device. Cloud Gemini execution is blocked by default and requires explicit student consent.
-- **🧭 Interactive Career Journey Progress Tracker:** Clickable, persistent 3-stage tracker (`1. Job Selected` → `2. Resume Analyzed` → `3. Learning Plan Ready`) across all primary student screens with dynamic "Continue Journey" navigation.
-- **👤 Dedicated Student Profile:** Manage field of study, graduation year, target role, and location preferences with clear visual separation between self-reported profile skills and verified resume evidence.
-- **💼 Job Explorer with Transparent Sourcing:** Explore real internships via Adzuna or evaluate deterministic sample roles with clear `DEMO DATA` vs `LIVE` indicators and verifiable requirement links.
-- **🔍 Explainable Skill Gap Analysis:** Transparent 3-category evaluation: Demonstrated Strengths (verified with concrete resume evidence), Mentioned/Partial Skills (keyword/coursework only), and Missing Job Requirements with actionable explanations.
-- **📚 Curated 104-Resource Learning Catalog:** High-quality multi-modal learning materials across 4 distinct learning modalities (WATCH, LEARN, PRACTICE, BUILD).
-- **🎨 Compact Resource Cards with Provider Favicons:** Clean dark-mode cards with small, official 24–32px provider icons, difficulty/duration chips, and direct canonical action buttons without oversized video thumbnails or banners.
-- **🗺️ Guided Weekly Learning Plan:** Strict 2-week (Fast-Track) or 4-week (Comprehensive) roadmaps with milestone deliverables, evidence notes fields, and independent progress calculations decoupled from the top-level Career Journey Tracker.
-- **📊 Exportable Markdown Career Report:** Compile readiness metrics, verified evidence, skill gaps, roadmap milestones, and capstone projects into an ATS-ready Markdown action plan.
-- **🔭 Clean Activity & Diagnostics:** Student-facing milestone timeline paired with collapsed developer OpenTelemetry spans, sanitized telemetry, and pre-configured Grafana/Tempo integration.
+**Agentic Career Lab** is an open-source, evidence-grounded career assistant. It combines specialized AI agents orchestrated with **Google ADK**, **local Gemma 4** (`gemma4:12b` via Ollama) for private resume evidence extraction, and an interactive **Streamlit** user experience.
+
+### Why Agentic Career Lab?
+- **100% Local-First Privacy by Default:** Uploaded resumes and student conversation transcripts never leave your computer.
+- **Evidence-Grounded Matching:** Eliminates hallucinations by requiring verifiable textual proof from your resume before claiming demonstrated skills.
+- **Interactive Career Agency:** Move beyond passive advice with 5 actionable career triggers (`Select Job`, `Skill Gap`, `Curated Resources`, `Continue Learning`, `Career Report`).
+- **Production Observability:** Built-in OpenTelemetry, Prometheus, Tempo, and Grafana instrumentation with strict PII sanitization.
 
 ---
 
-## 🏛️ System Architecture
+## 1. System Architecture
 
-![System Architecture](docs/images/system-architecture.svg)
+The application coordinates specialized agents across a strict privacy boundary: **Google ADK** manages workflow state, **Local Gemma 4** extracts resume evidence in private host memory, and **Job Scout** identifies target market requirements.
 
----
+![System Overview](docs/images/system-overview.svg)
 
-## 🗺️ Engineering Milestone Progress
-
-- [x] **Milestone 1: Foundation + UI Shell** — Complete
-- [x] **Milestone 2: Job Scout Agent** — Complete
-- [x] **Milestone 3: Private Resume Agent with Gemma 4 + Ollama** — Complete
-- [x] **Milestone 4: Skill Builder Agent** — Complete
-- [x] **Milestone 5: Google ADK Multi-Agent Coordinator** — Complete
-- [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
-- [x] **Milestone 7: Docker-First Application Distribution** — Complete
-- [x] **Milestone 8: OpenTelemetry + Grafana Observability & Evaluation** — Complete
-- [x] **v0.9.0: Streamlit Redesign, Learning Hub & Compact Guided Learning** — Published
-- [x] **v0.10.0: AI Career Agent Chatbox & Interactive Coaching Actions** — Release Ready Candidate
+> 💡 *For low-level container infrastructure and collector routing, see the [Docker & Observability Architecture](docs/architecture.md).*
 
 ---
 
+## 2. Interactive Student Journey
 
-## 🔀 Hybrid Gemini + Gemma Privacy Routing (Milestone 6)
+The platform guides students through an iterative four-stage career preparation pipeline:
 
-Milestone 6 provides a working end-to-end multi-agent career preparation demo enforcing strict data privacy boundaries:
-- **Local Gemma 4 Inference**: Private resume parsing, evidence extraction, and suggestion validation run locally via Ollama (`gemma4:12b`). Raw resume content is never transmitted to cloud models.
-- **Cloud Gemini Reasoning**: Generates customized learning plans and portfolio project recommendations with `gemini-3.6-flash` / `gemini-3.8-flash` via Vertex AI / Gemini API.
-- **Explicit Cloud Consent**: Streamlit UI includes explicit student consent toggles before sharing sanitized skill gap metadata with cloud AI. Declining consent gracefully falls back to deterministic Python planning.
-- **Google ADK Orchestration**: Sequences Job Scout, Private Resume Agent, and Skill Builder through typed boundaries and compiles the final Career Action Plan.
+![Student Journey](docs/images/student-journey.svg)
 
-### Hybrid Multi-Agent Workflow
-![Hybrid Agent Workflow](docs/images/hybrid-agent-workflow.svg)
+1. **Target Selection:** Define your academic background and select target roles in Job Explorer.
+2. **Private Evidence Extraction:** Parse uploaded resumes locally with Gemma 4 to identify verifiable experience.
+3. **Transparent Skill Gap Breakdown:** Categorize requirements into Demonstrated Strengths, Mentioned/Partial, and Missing gaps.
+4. **Actionable Upskilling:** Follow a tailored 4-phase roadmap (WATCH, LEARN, PRACTICE, BUILD) with weekly deliverables.
 
-### Strict Local vs. Cloud Privacy Boundary
+---
+
+## 3. Strict Local Privacy Boundary
+
+Privacy is our foundational design principle. Local execution is the default, and cloud reasoning is blocked unless explicitly unlocked by the student.
+
 ![Privacy Boundary](docs/images/privacy-boundary.svg)
 
----
-
-## 🔄 End-to-End Resume-to-Career-Plan Pipeline
-
-![Resume to Career Plan Workflow](docs/images/resume-to-career-plan-workflow.svg)
+- **Zero Cloud Transmission by Default:** Raw resume text, contact details, and transcripts remain in local process memory.
+- **Strict Payload Allowlist:** In optional cloud mode, only sanitized skill names and job titles are transmitted.
+- **Deterministic Offline Fallback:** If cloud consent is declined or Ollama is offline, a deterministic Python planner generates structured curricula directly from the local 104-item catalog.
 
 ---
 
-## 🐳 Container & Observability Architecture (Milestones 7 & 8)
+## 4. Ask Career AI & Interactive Actions
 
-![Docker Architecture](docs/images/docker-architecture.svg)
+In **v0.10.0**, students can converse naturally with **Ask Career AI** powered by local Gemma 4 token streaming. The assistant invokes grounded tools to produce executable action buttons:
 
----
+![Ask Career AI Action Flow](docs/images/ask-career-ai-flow.svg)
 
+| Action | Function | Target Screen |
+| :--- | :--- | :--- |
+| **`SELECT_JOB`** | Binds recommended job listing to active session state | Find Jobs / My Resume |
+| **`OPEN_SKILL_GAP_ANALYSIS`** | Routes to evidence-based requirement breakdown | Skill Gap Analysis |
+| **`OPEN_LEARNING_RESOURCE`** | Opens verified canonical resource directly | External Link (HTTPS) |
+| **`CONTINUE_LEARNING`** | Focuses student on their next active weekly milestone | Learning Plan |
+| **`VIEW_CAREER_REPORT`** | Opens the exportable Markdown career plan | Career Report |
 
-## 🎓 Google ADK Coordinator (Milestone 5)
-
-Gemini reasons. Gemma handles private resume intelligence locally. Python verifies deterministic facts. Google ADK coordinates the workflow.
-
-- **Orchestration**: Directs flow between Job Scout, Private Resume Agent, and Skill Builder.
-- **Privacy Boundary**: Guarantees raw resume data remains strictly in local models while sharing only structured outputs with the coordinator.
-- **Partial Failures**: Cleanly handles situations like an offline Ollama instance without destroying prior job scout sessions.
-
----
-
-## 🎯 Job Scout Agent (Milestone 2)
-
-The Job Scout Agent provides evidence-backed opportunity matching:
-
-- **Provider Abstraction**: Allows fetching opportunities securely (currently featuring a deterministic mock provider for testing).
-- **Source Preservation**: Every opportunity is tied to a verifiable external source URL to eliminate hallucinated job postings.
-- **Requirement Extraction**: Parses requirements securely from job descriptions.
-- **Skill Normalization**: Translates equivalent terms (e.g., `GCP` to `Google Cloud`, `k8s` to `Kubernetes`).
-- **Explainable Matching**: Categorizes requirements into `Demonstrated`, `Partial`, and `Missing` using deterministic validation rather than arbitrary percentages.
-
-**Limitations**: Currently runs via deterministic execution and mock data for UI safety. Live provider API integrations arrive in later milestones.
-
-```text
-Student Profile
-      |
-      v
-Job Scout
-      |
-      v
-Opportunity Provider
-      |
-      v
-Requirement Extraction
-      |
-      v
-Skill Matching
-      |
-      v
-Evidence-Backed Results
-```
-
-## 🔒 Private Resume Agent (Milestone 3)
-
-The Private Resume Agent ensures privacy by analyzing resumes strictly via a local Gemma 4 model through Ollama.
-
-- **Local Inference**: Raw resume text is **never** transmitted to Gemini or Vertex AI.
-- **Evidence Extraction**: Identifies skills, technologies, and experience strictly present in the resume.
-- **Requirement Mapping**: Maps extracted evidence against job requirements to flag missing gaps.
-- **Deterministic Validation**: Guardrails ensure that AI-suggested rewrites do not hallucinate new metrics, skills, or employers.
-- **Safe Fallback**: If Ollama is unavailable, the agent fails gracefully locally and will not invoke cloud models.
-
-```text
-Resume
-   |
-   v
-Gemma 4 / Ollama
-   |
-   v
-Evidence Extraction
-   |
-   v
-Requirement Mapping
-   |
-   v
-Resume Suggestions
-   |
-   v
-Claim Validator
-```
-
-## 🛠️ Skill Builder Agent & Guided Learning Platform (Milestone 4 & v0.9.0)
-
-The Skill Builder helps bridge the gap between your verified resume and the target role by producing an evidence-grounded, multi-modal learning plan:
-
-- **Deterministic Gaps**: Uses standard Python logic to identify and prioritize gaps based on requirements and M3 evidence.
-- **Priority Ranking**: Rules-based approach to score gaps (High/Medium/Low).
-- **Multi-Modal Guided Learning (v0.9.0)**:
-  - **📺 WATCH**: Curated YouTube tutorials and technical demos from verified engineering sources.
-  - **📖 LEARN**: Structured courses, certification paths, and official documentation (Google Cloud, CNCF, Kubernetes, Python).
-  - **💻 PRACTICE**: Interactive hands-on labs and exercises.
-  - **🛠️ BUILD**: GitHub reference architectures, open-source codebases, and capstone project deliverables.
-- **Task-Resource Integration**: Weekly checklist tasks link directly to canonical learning resources with practical evidence inputs (GitHub repo links, lab verification, notes).
-- **Dual Progress Decoupling**: Tracks overall and weekly learning completion independently from the high-level 3-stage Career Journey Progress Tracker.
-- **Privacy Focus**: Minimizes sharing by generating plans 100% locally when cloud AI consent is declined, with zero raw resume data ever sent over the network.
-
+> 📖 *For action schema contracts and multi-turn state details, see [docs/features/agent-chat.md](docs/features/agent-chat.md).*
 
 ---
 
-## 🎨 Planned Feature: Resume Studio (AI Resume Builder + Progress Tracker)
+## 5. Curated Application Experience
 
-*(Planned for integration post-M7/M8 stabilization, targeted prior to v1.0.0 — Not yet implemented)*
+| Modern Student Dashboard | Ask Career AI Assistant |
+| :---: | :---: |
+| [![Dashboard](docs/images/ui-dashboard.png)](docs/images/ui-dashboard.png) | [![Ask Career AI](docs/images/ui-agent-chat.png)](docs/images/ui-agent-chat.png) |
+| **Transparent Skill Gap Breakdown** | **Guided Multi-Modal Learning Plan** |
+| [![Skill Gap Analysis](docs/images/ui-skill-gap-analysis.png)](docs/images/ui-skill-gap-analysis.png) | [![Learning Plan](docs/images/ui-learning-plan.png)](docs/images/ui-learning-plan.png) |
 
-The upcoming **Resume Studio** extends the workflow into an interactive lifecycle loop:
-- **Continuous Progress Tracking**: Track skills across states (`Not Started` → `Learning` → `Completed` → `Demonstrated`).
-- **Local Conversational Evidence Gathering**: Multi-turn dialogue powered by local Gemma 4 on Ollama to explore student projects, codebase accomplishments, and artifacts without sending resumes or personal data to cloud services.
-- **Strict Evidence Verification**: Clear separation of self-reported claims from independently verifiable evidence (e.g. GitHub repos, Dockerfiles). Unverified skills are never claimed automatically.
-- **Side-by-Side Diff Review**: Proposes grounded resume bullet revisions with visual before/after diffs requiring explicit student approval.
-- **ATS-Friendly Export & Versioning**: Generates clean DOCX and PDF documents while preserving immutable version history and rollback capabilities.
-- **Dynamic Gap Recalculation**: Immediately updates job readiness scores and skill gap analyses upon approving resume revisions.
-
-![Resume Studio Workflow](docs/images/resume-studio-workflow.svg)
-
-For complete technical specifications, data models, and acceptance criteria, see [docs/features/resume-studio.md](docs/features/resume-studio.md).
+> 📸 *For the complete inventory of all 10 verified application screens, see the [Screenshot Manifest](docs/images/SCREENSHOT-MANIFEST.md).*
 
 ---
 
+## 6. Quickstart Guide
 
-## 🐳 Docker Quick Start (Recommended)
+### Option A: Docker Compose (Recommended)
 
-Run the entire application with Docker Compose in a single command:
+Run the containerized application connected to your host Ollama instance:
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/hastimal/agentic-career-lab.git
 cd agentic-career-lab
 
-# 2. Configure environment (optional overrides)
-cp .env.example .env
+# 2. Start local Ollama with Gemma 4 (Host)
+ollama run gemma4:12b
 
-# 3. Start the application
+# 3. Start the application stack
 docker compose up -d
 ```
 
 Open **[http://localhost:8501](http://localhost:8501)** in your browser.
 
-### Ollama Runtime Modes & Platform Guidance
-
-- **macOS / Apple Silicon (M1/M2/M3/M4) [Recommended]**:
-  Run Ollama natively on macOS (`brew install ollama` or via Ollama Desktop app) and pull Gemma 4:
-  ```bash
-  ollama run gemma4:12b
-  ```
-  The container connects automatically to `http://host.docker.internal:11434` with **full Metal GPU acceleration** (Docker Desktop for macOS does not support Metal GPU passthrough to Linux containers).
-
-- **Linux / Standalone (Containerized Ollama)**:
-  If running without native Ollama, start the containerized Ollama service using the standalone profile:
-  ```bash
-  docker compose --profile standalone up -d
-  # Download Gemma 4 model into the persistent container volume:
-  docker exec -it agentic-career-lab-ollama ollama pull gemma4:12b
-  ```
-
-- **🔭 Optional Observability Stack (Grafana, Prometheus, Tempo, OTel Collector)**:
-  Launch the complete observability stack alongside the application:
-  ```bash
-  docker compose --profile observability up -d
-  ```
-  - **Streamlit App**: [http://localhost:8501](http://localhost:8501)
-  - **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000) (pre-configured with Prometheus & Tempo)
-  - **Prometheus Metrics**: [http://localhost:9090](http://localhost:9090)
-  - **Tempo Traces**: [http://localhost:3200](http://localhost:3200)
-
-- **Stopping the Application**:
-  ```bash
-  docker compose down
-  ```
-
+- **Streamlit App:** `http://localhost:8501`
+- **Grafana Dashboard:** `http://localhost:3000` (pre-configured with Prometheus & Tempo)
+- **Prometheus Metrics:** `http://localhost:9090`
 
 ---
 
-## 🛠️ Local Development Quick Start (Virtual Environment)
+### Option B: Local Python Development
 
 ```bash
-# Clone repository
-git clone https://github.com/hastimal/agentic-career-lab.git
-cd agentic-career-lab
-
-# Create and activate virtual environment
-python3 -m venv .venv
+# 1. Install uv package manager (https://docs.astral.sh/uv/)
+uv venv
 source .venv/bin/activate
+uv sync --all-extras
 
-# Install dependencies in editable mode
-pip install -e ".[dev]"
-```
-
-### 2. Environment Configuration
-
-Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-### 3. Run Streamlit UI Shell
-
-```bash
-streamlit run src/agentic_career_lab/app.py
+# 2. Run Streamlit
+uv run streamlit run src/agentic_career_lab/app.py
 ```
 
 ---
 
-## 🧪 Testing, Quality Gates & Acceptance
+## 7. Automated Quality Gates & Testing
 
-Run the automated verification suite using `uv`:
+Our release pipeline enforces complete test verification across units, agent tools, and full browser workflows:
 
 ```bash
 # Code standards & formatting
 uv run ruff check .
 uv run ruff format --check .
 
-# Full unit and regression test suite (75 tests)
+# Fast unit & integration test suite (102 tests)
 uv run pytest
 
-# End-to-end browser acceptance suite across all 10 student workflows
+# Automated Playwright browser acceptance across all 10 student workflows
 uv run python scripts/test_browser_acceptance.py
-```
 
-### Verified Test Results (v0.9.0 Candidate)
-- **Ruff Linter & Formatter**: 75 files checked, 100% compliant.
-- **Pytest Suite**: 75 passed (including deterministic roadmaps, consent boundaries, provider icons, and catalog metadata).
-- **Playwright Browser Acceptance**: 10/10 student workflows verified live on Docker (`http://localhost:8501`).
+# Automated Playwright verification of all 5 interactive chat actions
+uv run python scripts/test_browser_actions.py
+```
 
 ---
 
-## ⚠️ Known Limitations & Future Roadmap
+## 8. Community, Roadmap & Resources
 
-For an honest assessment of current limitations (such as in-session learning progress persistence and planned future features), see:
-- [docs/known-issues.md](docs/known-issues.md) — Comprehensive v0.9.0 known issues and roadmap (v0.10.0–v0.12.0).
-- [docs/images/SCREENSHOT-MANIFEST.md](docs/images/SCREENSHOT-MANIFEST.md) — Detailed screenshot inventory and visual verification records.
-- [docs/manual-acceptance-checklist.md](docs/manual-acceptance-checklist.md) — Step-by-step verification walkthrough.
+- **Latest Release:** [v0.10.0 Release Notes](https://github.com/hastimal/agentic-career-lab/releases/tag/v0.10.0)
+- **Product Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md) (v0.11.0 Resume Studio through v0.15.0)
+- **Contributing Guidelines:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security & Privacy Policy:** [SECURITY.md](SECURITY.md)
+- **Code of Conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **Report an Issue:** [GitHub Issues](https://github.com/hastimal/agentic-career-lab/issues)
+- **Known Limitations:** [docs/known-issues.md](docs/known-issues.md)
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ by Hastimal Jangid and community contributors. Distributed under the MIT License.</sub>
+</p>

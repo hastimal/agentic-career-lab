@@ -1,0 +1,46 @@
+flowchart LR
+    classDef client fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef coord fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef local fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#064e3b;
+    classDef cloud fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px,color:#4c1d95;
+    classDef provider fill:#fdf2f8,stroke:#ec4899,stroke-width:2px,color:#831843;
+
+    subgraph ClientLayer ["1. Student Interface"]
+        UI["🖥️ Streamlit UI & Chatbox<br/><b>Ask Career AI (Port 8501)</b>"]
+    end
+
+    subgraph CoordLayer ["2. Orchestration Layer"]
+        ADK["🤖 Google ADK Coordinator<br/><b>Multi-Agent Orchestration</b>"]
+    end
+
+    subgraph LocalPrivacy ["3. Local Privacy Boundary (Host Machine)"]
+        direction TB
+        ResumeAgent["📄 Private Resume Agent<br/><b>Local Evidence Extraction</b>"]
+        Ollama["🦙 Ollama Local Server<br/><b>gemma4:12b (100% Private)</b>"]
+        ResumeAgent <--> Ollama
+    end
+
+    subgraph ExternalOps ["4. Opportunity Intelligence"]
+        JobScout["💼 Job Scout Agent<br/><b>Opportunity & Skill Parsing</b>"]
+        Catalog["📚 Resource Catalog<br/><b>104 Curated Learning Items</b>"]
+    end
+
+    subgraph OptionalCloud ["5. Optional Cloud AI (Consent-Gated)"]
+        Guard{"🛡️ Privacy Guard<br/>Consent ON?"}
+        Gemini["☁️ Gemini Flash<br/><b>Advanced Synthesis</b>"]
+        Fallback["⚙️ Deterministic Planner<br/><b>Offline Local Fallback</b>"]
+        Guard -->|Consent Given| Gemini
+        Guard -->|Consent Denied| Fallback
+    end
+
+    UI <-->|Student Context & Prompts| ADK
+    ADK <-->|Private Evidence Only| LocalPrivacy
+    ADK <-->|Opportunity Matching| JobScout
+    ADK <-->|Grounded Curriculum| OptionalCloud
+    Catalog -.->|Curated Resources| OptionalCloud
+
+    class UI client;
+    class ADK coord;
+    class LocalPrivacy,ResumeAgent,Ollama local;
+    class OptionalCloud,Gemini,Fallback,Guard cloud;
+    class ExternalOps,JobScout,Catalog provider;

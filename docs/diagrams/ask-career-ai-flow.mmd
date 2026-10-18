@@ -1,0 +1,39 @@
+flowchart LR
+    classDef user fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef agent fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef tools fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#064e3b;
+    classDef action fill:#fdf2f8,stroke:#ec4899,stroke-width:2px,color:#831843;
+
+    subgraph ChatBox ["1. Conversational Interface"]
+        Prompt["💬 Student Query<br/><i>'What gaps do I have for Cloud Engineer?'</i>"]
+    end
+
+    subgraph Orchestrator ["2. Ask Career AI Engine"]
+        Engine["🤖 CareerChatOrchestrator<br/>• Local Gemma 4 Streaming<br/>• Google ADK Tools Adapter"]
+        Prompt --> Engine
+    end
+
+    subgraph GroundedTools ["3. Grounded Career Tools"]
+        direction TB
+        T1["get_student_profile"]
+        T2["find_career_opportunities"]
+        T3["inspect_resume_analysis"]
+        T4["evaluate_skill_gap"]
+        T5["fetch_learning_recommendations"]
+        Engine <--> GroundedTools
+    end
+
+    subgraph Actions ["4. Interactive Career Actions"]
+        direction TB
+        A1["🎯 SELECT_JOB<br/>Activates job target in session"]
+        A2["🔍 OPEN_SKILL_GAP_ANALYSIS<br/>Routes to evidence breakdown"]
+        A3["🔗 OPEN_LEARNING_RESOURCE<br/>Vetted HTTPS catalog link"]
+        A4["🗺️ CONTINUE_LEARNING<br/>Navigates to active roadmap task"]
+        A5["📊 VIEW_CAREER_REPORT<br/>Opens exportable readiness summary"]
+        Engine --> Actions
+    end
+
+    class Prompt user;
+    class Engine agent;
+    class GroundedTools,T1,T2,T3,T4,T5 tools;
+    class Actions,A1,A2,A3,A4,A5 action;

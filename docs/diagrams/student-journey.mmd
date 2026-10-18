@@ -1,0 +1,35 @@
+flowchart LR
+    classDef step fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef action fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#064e3b;
+    classDef output fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+
+    subgraph Step1 ["Stage 1: Define Target"]
+        Profile["👤 Student Profile<br/>• Target Role & Focus<br/>• Graduation Year & Preferences"]
+    end
+
+    subgraph Step2 ["Stage 2: Explore & Select"]
+        Jobs["💼 Job Scout<br/>• Verified Market Postings<br/>• Requirement Extraction"]
+        SelectJob["🎯 Selected Job Target<br/>• Required & Preferred Skills"]
+        Jobs --> SelectJob
+    end
+
+    subgraph Step3 ["Stage 3: Evidence Extraction"]
+        Resume["📄 Uploaded Resume<br/>(PDF / DOCX / TXT)"]
+        Gemma["🔒 Local Gemma 4<br/>• Extracts Demonstrated Evidence<br/>• Never leaves host device"]
+        Resume --> Gemma
+    end
+
+    subgraph Step4 ["Stage 4: Analyze & Upskill"]
+        Gap["🔍 Skill Gap Analysis<br/>• Demonstrated Strengths<br/>• Missing Job Requirements"]
+        Plan["🗺️ Guided Learning Plan<br/>• WATCH / LEARN / PRACTICE / BUILD<br/>• Weekly Milestones & Deliverables"]
+        Report["📊 Career Readiness Report<br/>• Exportable Markdown Plan"]
+        Gap --> Plan --> Report
+    end
+
+    Profile --> Jobs
+    SelectJob --> Gap
+    Gemma --> Gap
+
+    class Profile,Jobs,SelectJob,Resume,Gemma,Gap step;
+    class Plan action;
+    class Report output;
