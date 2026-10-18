@@ -13,6 +13,7 @@ MY_LEARNING_PLAN = "My Learning Plan"
 CAREER_REPORT = "Career Report"
 ACTIVITY_DIAGNOSTICS = "Activity & Diagnostics"
 RESUME_STUDIO = "Resume Studio"
+ASK_CAREER_AI = "Ask Career AI"
 
 # Keep original string constants for backward compatibility with tests and bookmarks
 HOME = "Home"
@@ -24,8 +25,9 @@ ACTIVITY = "Agent Activity"
 CANONICAL_PAGES = [
     DASHBOARD,
     MY_PROFILE,
-    MY_RESUME,
+    ASK_CAREER_AI,
     JOB_EXPLORER,
+    MY_RESUME,
     SKILL_GAP_ANALYSIS,
     LEARNING_HUB,
     MY_LEARNING_PLAN,

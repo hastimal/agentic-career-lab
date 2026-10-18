@@ -22,9 +22,8 @@ class ResumeExtractor:
         Resume text:
         {resume_text}
         """
-        response_text = self.llm.generate(prompt)
-
         try:
+            response_text = self.llm.generate(prompt)
             data = json.loads(response_text)
             return ResumeEvidence(
                 skills=data.get("skills", []),
@@ -35,7 +34,29 @@ class ResumeExtractor:
                 unsupported_claims_detected=[],
             )
         except Exception:
-            # Fallback for parsing failure (e.g. if model output wasn't pure JSON)
+            # Deterministic local fallback if local Ollama times out or returns non-JSON:
+            # Inspect resume_text directly for known verifiable keywords instead of blindly attributing unmentioned skills.
+            known_skills = [
+                "Python",
+                "Docker",
+                "SQL",
+                "Google Cloud",
+                "REST APIs",
+                "Kubernetes",
+                "FastAPI",
+                "PostgreSQL",
+                "Git",
+            ]
+            resume_lower = resume_text.lower()
+            detected_skills = [s for s in known_skills if s.lower() in resume_lower]
+
             return ResumeEvidence(
-                skills=["Python", "Docker", "SQL"], technologies=["Python", "Docker", "SQL"]
+                skills=detected_skills,
+                technologies=detected_skills,
+                experience=[],
+                projects=[],
+                education=[],
+                unsupported_claims_detected=[
+                    "Local LLM extraction unavailable; matched from verified text keywords only."
+                ],
             )

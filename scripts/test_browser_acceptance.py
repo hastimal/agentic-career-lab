@@ -238,7 +238,7 @@ def run_full_browser_acceptance():
 
         # 10. Interactive Career Journey Tracker (in My Resume context)
         sidebar.locator("button:has-text('My Resume')").click()
-        page.wait_for_selector("text=Career Journey Progress", timeout=15000)
+        page.wait_for_selector(".journey-tracker-container", timeout=15000)
         page.wait_for_timeout(1000)
         page.screenshot(path="docs/images/ui-career-journey-tracker.png")
         print("  ✓ [10/10] docs/images/ui-career-journey-tracker.png verified & captured")

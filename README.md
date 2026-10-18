@@ -26,21 +26,24 @@ A privacy-first hybrid multi-agent career platform for students and technical jo
 
 ---
 
-## 🚀 Key Highlights & Capabilities (v0.9.0)
+## 🚀 Key Highlights & Capabilities (v0.10.0)
 
-- **🔒 100% Private Local Resume Processing:** Your resume text, contact details, and work history are parsed and analyzed entirely on your device using **Gemma 4** (`gemma4:12b`) running via local Ollama. Raw resume data is never transmitted to cloud AI or external providers.
+- **💬 Context-Aware "Ask Career AI" Chatbox:** Native conversational interface powered by local **Gemma 4** (`gemma4:12b`) and deterministic **Google ADK** specialized tool adapters.
+- **⚡ Real Gemma 4 Token Streaming:** Progressive token streaming directly in Streamlit via native Ollama streaming (`httpx.stream`) with clear visual progress states.
+- **🎯 5 Interactive Career Actions:** Students act directly on verified agent results rather than reading static recommendations:
+  - `SELECT_JOB`: Validates opportunity IDs and navigates to My Resume while invalidating stale comparisons upon job change.
+  - `OPEN_LEARNING_RESOURCE`: Renders verified `https://` links directly from the 104-item ResourceCatalog.
+  - `CONTINUE_LEARNING`: Inspects weekly milestones and guides student to their next incomplete task in My Learning Plan.
+  - `VIEW_CAREER_REPORT`: Validates workflow prerequisites and opens the exportable Career Report.
+  - `OPEN_SKILL_GAP_ANALYSIS`: Opens evidence-based skill gap breakdowns with verified Demonstrated vs Mentioned vs Missing criteria.
+- **🔒 100% Private Local Execution:** Chat reasoning, prompt scrubbing, tool calling, and resume extraction run entirely on your local device. Cloud Gemini execution is blocked by default and requires explicit student consent.
 - **🧭 Interactive Career Journey Progress Tracker:** Clickable, persistent 3-stage tracker (`1. Job Selected` → `2. Resume Analyzed` → `3. Learning Plan Ready`) across all primary student screens with dynamic "Continue Journey" navigation.
 - **👤 Dedicated Student Profile:** Manage field of study, graduation year, target role, and location preferences with clear visual separation between self-reported profile skills and verified resume evidence.
 - **💼 Job Explorer with Transparent Sourcing:** Explore real internships via Adzuna or evaluate deterministic sample roles with clear `DEMO DATA` vs `LIVE` indicators and verifiable requirement links.
 - **🔍 Explainable Skill Gap Analysis:** Transparent 3-category evaluation: Demonstrated Strengths (verified with concrete resume evidence), Mentioned/Partial Skills (keyword/coursework only), and Missing Job Requirements with actionable explanations.
-- **📚 Curated 104-Resource Learning Catalog:** High-quality multi-modal learning materials across 4 distinct learning modalities:
-  - **📺 WATCH**: 45 verified YouTube videos and tech conference tutorials (Nana, freeCodeCamp, Fireship, Corey Schafer, Karpathy, etc.).
-  - **📖 LEARN**: Structured courses, official documentation, and guides (Google Cloud, CNCF, Kubernetes, Python PSF).
-  - **💻 PRACTICE**: Hands-on interactive sandbox labs (Killercoda, Google Cloud Skills Boost, PGExercises).
-  - **🛠️ BUILD**: Canonical open-source repositories and portfolio architectures (Google Cloud Microservices Demo, FastAPI, etc.).
-- **🎨 Compact Resource Cards with Provider Favicons:** Clean dark-mode cards with small, official 24–32px provider icons (Google Cloud, Docker, YouTube, GitHub, Hugging Face, AWS, etc.), difficulty/duration chips, and direct canonical action buttons without oversized video thumbnails or banners.
+- **📚 Curated 104-Resource Learning Catalog:** High-quality multi-modal learning materials across 4 distinct learning modalities (WATCH, LEARN, PRACTICE, BUILD).
+- **🎨 Compact Resource Cards with Provider Favicons:** Clean dark-mode cards with small, official 24–32px provider icons, difficulty/duration chips, and direct canonical action buttons without oversized video thumbnails or banners.
 - **🗺️ Guided Weekly Learning Plan:** Strict 2-week (Fast-Track) or 4-week (Comprehensive) roadmaps with milestone deliverables, evidence notes fields, and independent progress calculations decoupled from the top-level Career Journey Tracker.
-- **💡 "Continue Learning" Action Recommendation:** Proactive recommendation banner highlighting the student's next incomplete weekly task and associated learning material.
 - **📊 Exportable Markdown Career Report:** Compile readiness metrics, verified evidence, skill gaps, roadmap milestones, and capstone projects into an ATS-ready Markdown action plan.
 - **🔭 Clean Activity & Diagnostics:** Student-facing milestone timeline paired with collapsed developer OpenTelemetry spans, sanitized telemetry, and pre-configured Grafana/Tempo integration.
 
@@ -62,7 +65,8 @@ A privacy-first hybrid multi-agent career platform for students and technical jo
 - [x] **Milestone 6: Hybrid Gemini + Gemma Routing** — Complete
 - [x] **Milestone 7: Docker-First Application Distribution** — Complete
 - [x] **Milestone 8: OpenTelemetry + Grafana Observability & Evaluation** — Complete
-- [x] **v0.9.0: Streamlit Redesign, Learning Hub & Compact Guided Learning** — Release Ready Candidate
+- [x] **v0.9.0: Streamlit Redesign, Learning Hub & Compact Guided Learning** — Published
+- [x] **v0.10.0: AI Career Agent Chatbox & Interactive Coaching Actions** — Release Ready Candidate
 
 ---
 

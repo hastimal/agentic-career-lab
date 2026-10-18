@@ -1,6 +1,6 @@
-# v0.9.0 Manual Acceptance Checklist & Testing Guide
+# v0.10.0 Manual Acceptance Checklist & Testing Guide
 
-This document defines the step-by-step verification checklist for the v0.9.0 Streamlit UX redesign, My Profile page, Quick Actions, Learning Hub, privacy boundaries, and observability features in **Agentic Career Lab**.
+This document defines the step-by-step verification checklist for the v0.10.0 "Ask Career AI" Chatbox, 5 Interactive Career Actions, Local Gemma 4 Streaming, and Privacy Boundaries in **Agentic Career Lab**.
 
 ---
 
@@ -8,29 +8,25 @@ This document defines the step-by-step verification checklist for the v0.9.0 Str
 
 | Area | Feature | Expected Behavior | Status |
 | :--- | :--- | :--- | :---: |
-| **Tracker** | Career Journey Progress Tracker | Clickable 3-stage tracker on all major student pages (Job Selected, Resume Analysis, Learning Plan) with "Continue Journey" button. | ✅ Pass |
+| **Chat** | Ask Career AI UI | Streamlit chat shell with real-time streaming, suggested prompt chips, and multi-turn state. | ✅ Pass |
+| **Chat** | Local Gemma 4 Streaming | Streamed token-by-token generation from local `gemma4:12b` via Ollama without cloud calls. | ✅ Pass |
+| **Chat** | ADK Tool Execution | Deterministic execution of specialized career tools (`find_jobs`, `recommend_resources`, etc.). | ✅ Pass |
+| **Action** | `SELECT_JOB` Action | Selects job from chat results, invalidates stale analyses, and navigates to My Resume. | ✅ Pass |
+| **Action** | `OPEN_LEARNING_RESOURCE` Action | Direct `https://` link button to verified ResourceCatalog resource without leaking PII. | ✅ Pass |
+| **Action** | `CONTINUE_LEARNING` Action | Inspects active learning plan, identifies next task, and navigates to My Learning Plan. | ✅ Pass |
+| **Action** | `VIEW_CAREER_REPORT` Action | Validates workflow prerequisites and navigates to Career Report with Markdown export. | ✅ Pass |
+| **Action** | `OPEN_SKILL_GAP_ANALYSIS` Action | Navigates to verified evidence-based Demonstrated vs Mentioned vs Missing skill breakdown. | ✅ Pass |
+| **Tracker** | Career Journey Progress Tracker | Clickable 3-stage tracker on all major student pages (Job Selected, Resume Analysis, Learning Plan). | ✅ Pass |
 | **Tracker** | Stage Invalidation on Job Change | Changing target opportunity invalidates stale resume analyses and roadmaps. | ✅ Pass |
 | **Profile** | Dedicated "My Profile" Page | Manage education level, graduation year, location, target role, and self-reported skills. | ✅ Pass |
 | **Profile** | Skill Integrity Distinction | Clean visual separation between self-reported profile skills and resume-verified skills. | ✅ Pass |
-| **Profile** | Job Explorer Integration | Preferences from student profile automatically prefill Job Explorer searches. | ✅ Pass |
-| **Quick Actions** | 4 Dashboard Actions | "Set Up My Profile", "Find Matching Jobs", "Compare My Resume", and "Identify My Top 3 Skill Gaps". | ✅ Pass |
 | **Privacy** | Cloud AI Consent Default | Unchecked by default (`False`). | ✅ Pass |
 | **Privacy** | Consent Declined | 100% local deterministic execution. Zero calls to Gemini / Vertex AI. | ✅ Pass |
-| **Privacy** | Consent Approved | Allows Gemini planner when credentials present, otherwise safe fallback. | ✅ Pass |
 | **Privacy** | Telemetry Sanitization | Zero raw resume text, contact info, prompts, or completions in spans. | ✅ Pass |
-| **Navigation** | 10 Intuitive Screens | Dashboard, My Profile, Job Explorer, My Resume, Skill Gap Analysis, Learning Hub, My Learning Plan, Career Report, Activity & Diagnostics, Resume Studio. | ✅ Pass |
-| **Resume** | Clean Skill Formatting | No raw `\n` literals in extracted skills; grouped by demonstrated vs missing. | ✅ Pass |
-| **Planner** | Exact Duration Fidelity | 2 weeks requested generates exactly 2 weeks; 4 weeks generates 4 weeks. | ✅ Pass |
 | **Learning** | Verified Multi-Modal Catalog | WATCH, LEARN, PRACTICE, and BUILD categories with canonical IDs and verified links. | ✅ Pass |
-| **Learning** | Compact Resource Cards | Clean dark cards with small provider icons (24–32px), title, metadata chips, description, and direct action buttons without oversized thumbnails. | ✅ Pass |
-| **Learning** | Canonical Provider Icon Mapping | Verified provider favicons for Google Cloud, YouTube, Docker, Kubernetes, GitHub, AWS, etc., with neutral fallback emoji (`🔖`). | ✅ Pass |
-| **Learning** | Continue Learning Banner | Dynamic recommendation banner identifying the next incomplete weekly task and associated resource. | ✅ Pass |
-| **Learning** | Task-Resource Associations | Weekly activities linked directly to canonical learning material via "Open Resource". | ✅ Pass |
-| **Learning** | Dual Progress Decoupling | Overall and weekly learning progress tracked separately from 3-stage Career Journey tracker. | ✅ Pass |
-| **Learning** | Evidence-Based Tracking | Students submit repo links, notes, or lab verification without auto-completion. | ✅ Pass |
+| **Learning** | Compact Resource Cards | Clean dark cards with small provider icons (24–32px), title, metadata chips, and action buttons. | ✅ Pass |
 | **Reporting** | Markdown Report Export | Generates structured `.md` career action plan with gap summary. | ✅ Pass |
 | **Diagnostics**| User vs Developer Split | Student timeline visible; raw telemetry traces collapsed under diagnostics. | ✅ Pass |
-| **Grafana** | Tempo Span Panel | Configured with valid TraceQL: `{resource.service.name = "agentic-career-lab"}`. | ✅ Pass |
 
 ---
 

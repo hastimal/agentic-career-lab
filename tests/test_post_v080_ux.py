@@ -30,6 +30,7 @@ from agentic_career_lab.models import (
 from agentic_career_lab.services.learning_resources import ResourceCatalog
 from agentic_career_lab.ui_helpers import (
     ACTIVITY_DIAGNOSTICS,
+    ASK_CAREER_AI,
     CAREER_REPORT,
     DASHBOARD,
     FALLBACK_EMOJI_ICON,
@@ -342,6 +343,7 @@ def test_canonical_ten_screens_navigation():
 
     assert normalize_navigation(DASHBOARD) == DASHBOARD
     assert normalize_navigation(MY_PROFILE) == MY_PROFILE
+    assert normalize_navigation(ASK_CAREER_AI) == ASK_CAREER_AI
     assert normalize_navigation(MY_RESUME) == MY_RESUME
     assert normalize_navigation(JOB_EXPLORER) == JOB_EXPLORER
     assert normalize_navigation(SKILL_GAP_ANALYSIS) == SKILL_GAP_ANALYSIS
