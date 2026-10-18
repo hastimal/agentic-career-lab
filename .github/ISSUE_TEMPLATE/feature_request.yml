@@ -1,0 +1,37 @@
+name: Feature Request
+description: Suggest an enhancement, new agent capability, or feature for Agentic Career Lab
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We welcome ideas for expanding Agentic Career Lab! Please review [docs/ROADMAP.md](docs/ROADMAP.md) before submitting to see if your proposal aligns with planned milestones.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement / Motivation
+      description: Is your feature request related to a problem or user challenge? Please describe.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution & User Experience
+      description: Describe the solution you'd like to see and how users would interact with it.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy & Data Considerations
+      description: How does this feature protect student privacy, local execution defaults, and data boundaries?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered.
+    validations:
+      required: false
