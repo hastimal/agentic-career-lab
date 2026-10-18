@@ -1,0 +1,70 @@
+name: Bug Report
+description: Report a bug, defect, or unexpected behavior in Agentic Career Lab
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please ensure that you do not include sensitive personal data or private resume contents in your report.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of Agentic Career Lab are you running? (e.g., v0.10.0, main branch)
+      placeholder: "v0.10.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: How are you running the application?
+      options:
+        - Docker Compose (Docker + Host Ollama)
+        - Native Python / uv (Local Streamlit + Host Ollama)
+        - Other (please specify in description)
+    validations:
+      required: true
+  - type: input
+    id: ollama-model
+    attributes:
+      label: Ollama Model & Version
+      description: Which local model is configured? (e.g., gemma4:12b, Ollama 0.5.x)
+      placeholder: "gemma4:12b on Ollama 0.5.7"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Open 'Ask Career AI'
+        2. Ask question: '...'
+        3. Click action button: '...'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Output
+      description: Terminal logs, browser console output, or stack traces (sanitize any personal data).
+      render: shell
+    validations:
+      required: false
