@@ -299,14 +299,19 @@ uv tool list
 
 ## ⚖️ L. Docker versus `uvx` Comparison
 
+Agentic Career Lab supports two officially maintained run modes:
+
 | Dimension | `uvx` Launcher Mode | Docker Compose Mode |
 | :--- | :--- | :--- |
-| **Target User** | Students & quick adopters | Platform developers & DevOps |
-| **Docker Required** | ❌ No | ✅ Yes |
-| **Git Clone Required** | ❌ No | ✅ Yes |
-| **Startup Time** | ~1-3 seconds (cached) | ~30-60 seconds (containers) |
-| **Telemetry & Observability** | Console & local logging | Full stack: Prometheus, Grafana, Tempo |
-| **Model Hosting** | Host Ollama | Host Ollama (bridged via `host.docker.internal`) |
+| **Primary Audience** | Students, job seekers & quick evaluations | Platform developers, evaluators & SREs |
+| **Docker Required** | ❌ No | ✅ Yes (Docker Desktop or Docker Engine) |
+| **Git Clone Required** | ❌ No | ✅ Yes (`git clone`) |
+| **Telemetry Stack** | ❌ No background OTel Collector / Grafana | ✅ Full stack: OTel Collector, Prometheus, Tempo, Grafana |
+| **Startup Speed** | ~1–3 seconds | ~30–60 seconds |
+| **Model Hosting** | Host Ollama (`gemma4:12b`) | Host Ollama or optional containerized profile |
+| **Full Reference** | Current guide (`docs/installation/uvx.md`) | [Docker Compose Guide](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/docker-compose.md) |
+
+> 💡 **Observability Note:** `uvx` mode executes only the Streamlit application and outputs diagnostic logs to your terminal. It does **not** automatically spawn or connect to the Prometheus/Tempo/Grafana telemetry stack. For multi-agent tracing and dashboards, use [Docker Compose Mode](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/docker-compose.md).
 
 ---
 

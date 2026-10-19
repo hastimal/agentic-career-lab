@@ -91,7 +91,59 @@ Privacy is a non-negotiable architectural boundary in Agentic Career Lab. We gua
 
 ---
 
-## 💻 Install & Run — Windows, macOS, Linux
+## 🧭 Choose How to Run
+
+Agentic Career Lab provides two officially supported ways to run:
+
+| Feature / Mode | ⚡ Option A: Quick Start (`uvx`) | 🐳 Option B: Full Observability (Docker Compose) |
+| :--- | :--- | :--- |
+| **Best For** | Students, quick evaluations, offline local use | Architecture exploration, telemetry, multi-agent tracing |
+| **Setup Time** | ~1 minute (no clone or build required) | ~3 minutes (containers build & start) |
+| **Git Clone** | ❌ Not required | ✅ `git clone` required |
+| **Docker Engine** | ❌ Not required | ✅ Docker Desktop or Docker Engine required |
+| **Ollama** | ✅ Local host Ollama (`gemma4:12b`) | ✅ Host Ollama or optional containerized profile |
+| **Telemetry Stack** | Console / local diagnostics only | ✅ OpenTelemetry Collector + Prometheus + Tempo + Grafana |
+| **Complete Guide** | [Cross-Platform uvx Guide](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/uvx.md) | [Docker Compose Observability Guide](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/docker-compose.md) |
+
+---
+
+### Option A: Quick Start with `uvx` (Fastest, No Clone Needed)
+
+Run the published application directly from PyPI in an isolated environment:
+
+```bash
+# 1. Verify prerequisites (Ollama & Gemma 4)
+uvx agentic-career-lab doctor
+
+# 2. Launch the interactive Streamlit application
+uvx agentic-career-lab
+```
+
+*Requirements:* Install [uv](https://docs.astral.sh/uv/) and [Ollama](https://ollama.com), then pull `gemma4:12b`. No repository checkout or virtualenv creation is needed.
+
+---
+
+### Option B: Docker Compose with Full Observability (Tracing & Dashboards)
+
+Run the complete multi-agent system alongside OpenTelemetry, Prometheus, Tempo, and Grafana:
+
+```bash
+# 1. Clone repository
+git clone https://github.com/hastimal/agentic-career-lab.git
+cd agentic-career-lab
+
+# 2. Launch full observability stack
+docker compose --profile observability up -d --build
+```
+
+- **Streamlit Web UI:** [http://localhost:8501](http://localhost:8501)
+- **Grafana Dashboards:** [http://localhost:3000](http://localhost:3000) (pre-configured anonymous admin)
+- **Prometheus Metrics:** [http://localhost:9090](http://localhost:9090)
+- **Tempo Distributed Tracing:** [http://localhost:3200](http://localhost:3200)
+
+---
+
+## 💻 Install & Run — Windows, macOS, Linux (Cross-Platform CLI)
 
 You can run **Agentic Career Lab** instantly on any desktop platform using [`uvx`](https://docs.astral.sh/uv/guides/tools/).
 
@@ -212,27 +264,13 @@ Open **[http://localhost:8501](http://localhost:8501)** in your browser.
 
 ## 🚀 Alternative Launch Options
 
-### Option A: Docker Compose (Full Telemetry Stack)
-
-Run the containerized application connected to your host Ollama instance:
+### Option A: Docker Compose Deployment
+For full details on deploying with containerized services and OpenTelemetry, see the dedicated [Docker Compose Deployment Guide](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/docker-compose.md).
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/hastimal/agentic-career-lab.git
-cd agentic-career-lab
-
-# 2. Start local Ollama with Gemma 4 (Host)
-ollama run gemma4:12b
-
-# 3. Start the application stack
-docker compose up -d
+# Start the full observability stack
+docker compose --profile observability up -d --build
 ```
-
-Open **[http://localhost:8501](http://localhost:8501)** in your browser.
-
-- **Streamlit App:** `http://localhost:8501`
-- **Grafana Dashboards:** `http://localhost:3000` (admin / admin)
-- **Prometheus Metrics:** `http://localhost:9090`
 
 ---
 
@@ -244,7 +282,7 @@ uv venv
 source .venv/bin/activate
 uv sync --all-extras
 
-# 2. Run Streamlit
+# 2. Run Streamlit locally
 uv run streamlit run src/agentic_career_lab/app.py
 ```
 
