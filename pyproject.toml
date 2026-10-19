@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentic-career-lab"
-version = "0.10.1"
+version = "0.10.2"
 description = "A privacy-first hybrid multi-agent career platform for college students and job seekers."
 readme = "README.md"
 requires-python = ">=3.11"
