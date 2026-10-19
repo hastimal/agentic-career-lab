@@ -91,24 +91,128 @@ Privacy is a non-negotiable architectural boundary in Agentic Career Lab. We gua
 
 ---
 
-## 🚀 Quickstart Guide
+## 💻 Install & Run — Windows, macOS, Linux
 
-### Option A: Direct Launch with `uvx` (Fastest, No Clone Needed)
+You can run **Agentic Career Lab** instantly on any desktop platform using [`uvx`](https://docs.astral.sh/uv/guides/tools/).
 
-Run the application directly in an isolated environment via `uvx`:
+With `uvx`, you **do not** need to:
+- ❌ Clone the Git repository
+- ❌ Create a Python virtual environment manually
+- ❌ Install Docker for standalone CLI mode
 
-```bash
-# Check system prerequisites (Ollama & Gemma 4)
-uvx agentic-career-lab doctor
-
-# Launch the interactive Streamlit application
-uvx agentic-career-lab
-```
-> 💡 *For detailed installation guidance, diagnostic troubleshooting, and custom port configuration, see [Installation with uvx](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/uvx.md).*
+### 📋 Prerequisites
+1. **[`uv` / `uvx`](https://docs.astral.sh/uv/)**: Fast Python package and tool runner (uv manages Python versions automatically).
+2. **[Ollama](https://ollama.com)**: Local inference engine running offline on your host machine.
+3. **`gemma4:12b` model**: Private, local AI model for resume intelligence and chat guidance.
+4. **Internet connection**: Only required for the initial package download and model pull.
 
 ---
 
-### Option B: Docker Compose (Full Telemetry Stack)
+### 🪟 Windows (PowerShell)
+
+**Step 1: Install `uv`** (using Windows Package Manager):
+```powershell
+winget install --id astral-sh.uv -e
+```
+*Alternative standalone installer:*
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**Step 2: Restart PowerShell** so the new `PATH` entries take effect.
+
+**Step 3: Verify installation:**
+```powershell
+uv --version
+uvx --version
+```
+
+**Step 4: Install Ollama for Windows:**
+Download and run the official installer from [https://ollama.com/download/windows](https://ollama.com/download/windows).
+
+**Step 5: Pull local Gemma 4 model:**
+```powershell
+ollama pull gemma4:12b
+```
+
+**Step 6: Check readiness:**
+```powershell
+uvx agentic-career-lab doctor
+```
+
+**Step 7: Launch application:**
+```powershell
+uvx agentic-career-lab
+```
+Open **[http://localhost:8501](http://localhost:8501)** in your browser.
+
+---
+
+### 🍎 macOS
+
+**Step 1: Install `uv`:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+*Restart your terminal if necessary to refresh your `PATH`.*
+
+**Step 2: Verify `uvx`:**
+```bash
+uvx --version
+```
+
+**Step 3: Install Ollama for macOS:**
+Download the native macOS app from [https://ollama.com/download/mac](https://ollama.com/download/mac).
+
+**Step 4: Pull model, run diagnostics, and launch:**
+```bash
+ollama pull gemma4:12b
+uvx agentic-career-lab doctor
+uvx agentic-career-lab
+```
+Open **[http://localhost:8501](http://localhost:8501)** in your browser.
+
+---
+
+### 🐧 Linux
+
+**Step 1: Install `uv`:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+*Verify `uvx --version` after reloading your shell.*
+
+**Step 2: Install Ollama for Linux:**
+Follow the official Linux installation command from [https://ollama.com/download/linux](https://ollama.com/download/linux):
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+**Step 3: Pull model, run diagnostics, and launch:**
+```bash
+ollama pull gemma4:12b
+uvx agentic-career-lab doctor
+uvx agentic-career-lab
+```
+Open **[http://localhost:8501](http://localhost:8501)** in your browser.
+
+---
+
+### 📊 Cross-Platform Quickstart & Validation Matrix
+
+| Platform | Install `uv` | Install Ollama | Pull Gemma 4 | Run Doctor | Launch App | Validation Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **macOS (Apple Silicon / Intel)** | `curl -LsSf https://astral.sh/uv/install.sh \| sh` | [ollama.com/download/mac](https://ollama.com/download/mac) | `ollama pull gemma4:12b` | `uvx agentic-career-lab doctor` | `uvx agentic-career-lab` | **Verified** (Release Acceptance) |
+| **Linux (Ubuntu / Debian / RHEL)** | `curl -LsSf https://astral.sh/uv/install.sh \| sh` | [ollama.com/download/linux](https://ollama.com/download/linux) | `ollama pull gemma4:12b` | `uvx agentic-career-lab doctor` | `uvx agentic-career-lab` | **Verified** (CI Suite & Docker) |
+| **Windows 10/11 (PowerShell)** | `winget install --id astral-sh.uv -e` | [ollama.com/download/windows](https://ollama.com/download/windows) | `ollama pull gemma4:12b` | `uvx agentic-career-lab doctor` | `uvx agentic-career-lab` | **Partially Verified** (Package build/install verified; full local Gemma GPU acceptance requires host testing) |
+
+> 📖 *For in-depth troubleshooting, PowerShell execution tips, and port configuration, see the [Cross-Platform uvx Installation Guide](https://github.com/hastimal/agentic-career-lab/blob/main/docs/installation/uvx.md).*
+
+---
+
+## 🚀 Alternative Launch Options
+
+### Option A: Docker Compose (Full Telemetry Stack)
 
 Run the containerized application connected to your host Ollama instance:
 
@@ -132,7 +236,7 @@ Open **[http://localhost:8501](http://localhost:8501)** in your browser.
 
 ---
 
-### Option C: Local Python Development
+### Option B: Local Python Development
 
 ```bash
 # 1. Install uv package manager (https://docs.astral.sh/uv/)

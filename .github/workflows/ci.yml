@@ -44,3 +44,42 @@ jobs:
       - name: Run Pytest Suite
         run: |
           uv run pytest
+
+  cli-smoke-tests:
+    name: CLI Smoke Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras
+
+      - name: Build Wheel
+        run: |
+          uv build
+
+      - name: Test CLI Help & Version
+        run: |
+          uv run agentic-career-lab --help
+          uv run agentic-career-lab --version
+
+      - name: Run Pytest CLI & Diagnostics Suite
+        run: |
+          uv run pytest tests/test_cli.py
