@@ -41,7 +41,7 @@ Before launching Agentic Career Lab, make sure you have:
 If testing from a pre-built wheel distribution file (e.g. from the `dist/` directory):
 
 ```bash
-uvx --from ./dist/agentic_career_lab-0.10.0-py3-none-any.whl agentic-career-lab
+uvx --from ./dist/agentic_career_lab-0.10.1-py3-none-any.whl agentic-career-lab
 ```
 
 ### Option B: From PyPI (Post-Publication)
@@ -54,7 +54,7 @@ uvx agentic-career-lab
 
 The CLI will start the Streamlit server and provide the local URL:
 ```text
-🚀 Starting Agentic Career Lab v0.10.0...
+🚀 Starting Agentic Career Lab v0.10.1...
 📍 Streamlit App: http://localhost:8501
 💡 Press Ctrl+C to stop.
 ```
@@ -67,7 +67,7 @@ To check whether your host machine meets all prerequisites (Python version, Olla
 
 ```bash
 # Pre-PyPI from wheel
-uvx --from ./dist/agentic_career_lab-0.10.0-py3-none-any.whl agentic-career-lab doctor
+uvx --from ./dist/agentic_career_lab-0.10.1-py3-none-any.whl agentic-career-lab doctor
 
 # Post-PyPI
 uvx agentic-career-lab doctor
@@ -76,7 +76,7 @@ uvx agentic-career-lab doctor
 Example doctor output:
 ```text
 ============================================================
-Agentic Career Lab Doctor — v0.10.0
+Agentic Career Lab Doctor — v0.10.1
 ============================================================
 [PASS]   Python Runtime: Python 3.11.6 (compatible >=3.11)
 [PASS]   Package Application: Streamlit entry point verified
