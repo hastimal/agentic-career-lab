@@ -104,7 +104,7 @@ uvx agentic-career-lab doctor
 # Launch the interactive Streamlit application
 uvx agentic-career-lab
 ```
-> 💡 *Before public PyPI release, install from the local wheel: `uvx --from ./dist/agentic_career_lab-0.10.0-py3-none-any.whl agentic-career-lab`. For detailed guidance, see [docs/installation/uvx.md](docs/installation/uvx.md).*
+> 💡 *Before public PyPI release, install from the local wheel: `uvx --from ./dist/agentic_career_lab-0.10.1-py3-none-any.whl agentic-career-lab`. For detailed guidance, see [docs/installation/uvx.md](docs/installation/uvx.md).*
 
 ---
 
