@@ -86,6 +86,10 @@ Open `http://localhost:8501` in your browser.
 To run the complete production environment including OpenTelemetry Collector, Prometheus, Tempo, and Grafana:
 
 ```bash
+# Check the host first: docker, uv, ollama and the model, the app port, and the
+# container -> host route. Prints the command that fixes whatever fails.
+scripts/setup.sh
+
 # Build and run the stack
 docker compose build app
 docker compose up -d
@@ -94,6 +98,8 @@ docker compose up -d
 docker compose ps
 curl http://localhost:8501/_stcore/health
 ```
+
+`scripts/setup.sh` changes nothing on its own: it exits 0 when the host is ready, 1 when a prerequisite is missing, and 2 when you decline the model pull. Pick a different app port with `ACL_APP_PORT=8502 scripts/setup.sh`.
 
 - **Streamlit App:** `http://localhost:8501`
 - **Grafana Dashboards:** `http://localhost:3000` (admin / admin)

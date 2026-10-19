@@ -132,7 +132,11 @@ Run the complete multi-agent system alongside OpenTelemetry, Prometheus, Tempo, 
 git clone https://github.com/hastimal/agentic-career-lab.git
 cd agentic-career-lab
 
-# 2. Launch full observability stack
+# 2. Check the host before building — docker, uv, ollama and the model it serves,
+#    the app port, and the container -> host route
+scripts/setup.sh
+
+# 3. Launch full observability stack
 docker compose --profile observability up -d --build
 ```
 
