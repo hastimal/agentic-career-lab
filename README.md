@@ -93,9 +93,24 @@ Privacy is a non-negotiable architectural boundary in Agentic Career Lab. We gua
 
 ## 🚀 Quickstart Guide
 
-### Option A: Docker Compose (Recommended)
+### Option A: Direct Launch with `uvx` (Fastest, No Clone Needed)
 
-Run the full application stack connected to your host Ollama instance:
+Run the application directly in an isolated environment via `uvx`:
+
+```bash
+# Check system prerequisites (Ollama & Gemma 4)
+uvx agentic-career-lab doctor
+
+# Launch the interactive Streamlit application
+uvx agentic-career-lab
+```
+> 💡 *Before public PyPI release, install from the local wheel: `uvx --from ./dist/agentic_career_lab-0.10.0-py3-none-any.whl agentic-career-lab`. For detailed guidance, see [docs/installation/uvx.md](docs/installation/uvx.md).*
+
+---
+
+### Option B: Docker Compose (Full Telemetry Stack)
+
+Run the containerized application connected to your host Ollama instance:
 
 ```bash
 # 1. Clone the repository
@@ -117,7 +132,7 @@ Open **[http://localhost:8501](http://localhost:8501)** in your browser.
 
 ---
 
-### Option B: Local Python Development
+### Option C: Local Python Development
 
 ```bash
 # 1. Install uv package manager (https://docs.astral.sh/uv/)
