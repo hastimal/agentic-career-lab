@@ -23,6 +23,10 @@ The following items represent known behaviors and architectural limitations in v
    - Initial cold-start queries against local Gemma 4 (12B parameters via Ollama) on CPU-only machines may take 60–90 seconds to load weights into memory.
    - Fine-grained token streaming and configurable 180s timeouts prevent disconnects while keeping the student informed with real-time status indicators.
 
+5. **PyPI Distribution Status**:
+   - `agentic-career-lab` package packaging has been verified for standalone `uvx` execution via wheel distributions.
+   - Global `uvx agentic-career-lab` command requires public PyPI release publication before direct remote resolution is active.
+
 ---
 
 ## 🗺️ Future Engineering Roadmap

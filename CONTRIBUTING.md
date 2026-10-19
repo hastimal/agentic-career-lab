@@ -60,10 +60,21 @@ uv run playwright install chromium
 
 ### 4. Running the Application Locally
 
-#### Option A: Running with Native Python (Fastest for UI and Agent Tweaks)
+### 4. Running the Application Locally
 
-Ensure Ollama is running (`ollama serve`). Then start Streamlit:
+#### Option A: Running with CLI / `uv run` (Fastest for UI and Agent Tweaks)
 
+Ensure Ollama is running (`ollama serve`). Then start the app or run diagnostics:
+
+```bash
+# Check environment and Ollama health
+uv run agentic-career-lab doctor
+
+# Launch the Streamlit application via console script
+uv run agentic-career-lab
+```
+
+You can also run directly with Streamlit:
 ```bash
 uv run streamlit run src/agentic_career_lab/app.py
 ```
