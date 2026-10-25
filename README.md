@@ -72,6 +72,20 @@ Privacy is a non-negotiable architectural boundary in Agentic Career Lab. We gua
 
 ---
 
+## ♿ Accessibility
+
+Agentic Career Lab should be usable with a keyboard and a screen reader. We aim for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA:
+
+- **Keyboard first:** every action is a real button or link, reachable with `Tab` and triggered with `Enter` or `Space`. The first `Tab` stop is "Skip to main content".
+- **Visible focus:** the focused control always has a solid blue outline that stands out on the light and dark themes.
+- **Screen reader feedback:** Ask Career AI announces when it starts and finishes a reply through a polite live region, so you do not have to hunt for the answer.
+- **Clear links:** learning resource links name the resource and say that they open in a new tab.
+- **Readable text:** custom cards and status messages meet the 4.5:1 contrast ratio for normal text.
+
+Run `uv run python scripts/test_browser_accessibility.py` against a running instance to check keyboard navigation and run [axe-core](https://github.com/dequelabs/axe-core). Found a barrier? Please [open an issue](https://github.com/hastimal/agentic-career-lab/issues).
+
+---
+
 ## 🎯 Key Features & Capabilities
 
 - **💬 Multi-Turn "Ask Career AI":** Context-aware career mentor answering queries about readiness, missing skills, and interview preparation.
@@ -309,6 +323,9 @@ uv run python scripts/test_browser_acceptance.py
 
 # Automated Playwright verification of all 5 interactive chat actions
 uv run python scripts/test_browser_actions.py
+
+# Keyboard navigation and axe-core accessibility checks (no Ollama needed)
+uv run python scripts/test_browser_accessibility.py
 ```
 
 ---

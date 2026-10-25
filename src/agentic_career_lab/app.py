@@ -72,6 +72,8 @@ from agentic_career_lab.ui_helpers import (
     SKILL_GAP_ANALYSIS,
     get_provider_icon_url,
     get_workflow_progress,
+    live_region_html,
+    new_tab_link_html,
     normalize_navigation,
 )
 
@@ -100,6 +102,33 @@ st.markdown(
         --primary-dark: #0f172a;
         --border-color: #e2e8f0;
         --text-muted: #64748b;
+    }
+
+    /* Keyboard focus ring: solid and offset, with at least 3:1 contrast on both the
+       light and dark Streamlit themes (WCAG 2.4.7 Focus Visible, 1.4.11 Non-text Contrast) */
+    button:focus-visible,
+    a:focus-visible,
+    summary:focus-visible,
+    [role="tab"]:focus-visible {
+        outline: 3px solid var(--primary-blue) !important;
+        outline-offset: 2px;
+    }
+
+    /* Text for screen readers only */
+    .sr-only {
+        position: absolute !important;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    /* Keep the hidden live region from adding an empty row to the layout */
+    .element-container:has(.live-region) {
+        position: absolute;
     }
 
     /* Hero Banner */
@@ -402,9 +431,11 @@ def render_compact_resource_card(
             )
 
     action_btn_html = (
-        f"<a href='{resource.url}' target='_blank' class='btn-resource-action'>{action_label}</a>"
+        new_tab_link_html(
+            resource.url, action_label, css_class="btn-resource-action", context=resource.title
+        )
         if resource.url
-        else "<span style='font-size: 0.8rem; color: #64748b; font-style: italic;'>Search official portal</span>"
+        else "<span style='font-size: 0.8rem; color: #94a3b8; font-style: italic;'>Search official portal</span>"
     )
 
     # Relevant skills display
@@ -750,7 +781,7 @@ def render_dashboard():
     st.markdown(
         """
         <div class="hero-banner">
-            <div class="hero-title">Agentic Career Lab</div>
+            <div class="hero-title" role="heading" aria-level="1">Agentic Career Lab</div>
             <div class="hero-subtitle">
                 Explore real and demo job opportunities, analyze your resume privately on your device,
                 and generate a personalized technical learning roadmap.
@@ -1824,7 +1855,7 @@ def render_my_learning_plan():
                     )
                     if assoc_res and assoc_res.url:
                         st.markdown(
-                            f"<span style='font-size: 0.82rem;'>📚 Related Material: <a href='{assoc_res.url}' target='_blank'>{assoc_res.title}</a> ({assoc_res.provider})</span>",
+                            f"<span style='font-size: 0.82rem;'>📚 Related Material: {new_tab_link_html(assoc_res.url, assoc_res.title)} ({assoc_res.provider})</span>",
                             unsafe_allow_html=True,
                         )
 
@@ -2086,6 +2117,13 @@ def render_ask_career_ai():
         "Context-aware AI Career Coach powered by local Gemma 4 and deterministic Google ADK workflows."
     )
 
+    # Hidden status line for screen readers. The reply streams in token by token, so we
+    # announce when it starts and when it is done instead of reading every chunk.
+    live_region = st.empty()
+    live_region.markdown(
+        live_region_html(st.session_state.pop("chat_live_message", "")), unsafe_allow_html=True
+    )
+
     render_career_journey_tracker(page_key_prefix="chat", compact=True)
 
     # 1. Connection & Privacy Status Header
@@ -2106,8 +2144,8 @@ def render_ask_career_ai():
         if ollama_online:
             st.markdown(
                 f"""
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.88rem; color: #34d399;">
-                    <span style="height: 10px; width: 10px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 12px; background: #0f172a; border-radius: 8px; font-size: 0.88rem; color: #34d399;">
+                    <span aria-hidden="true" style="height: 10px; width: 10px; background-color: #10b981; border-radius: 50%; display: inline-block;"></span>
                     <b>Local Gemma 4 Connected</b> (Model: <code>{gemma_model}</code> via Ollama at <code>{ollama_url}</code>)
                 </div>
                 """,
@@ -2116,8 +2154,8 @@ def render_ask_career_ai():
         else:
             st.markdown(
                 f"""
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.88rem; color: #fbbf24;">
-                    <span style="height: 10px; width: 10px; background-color: #f59e0b; border-radius: 50%; display: inline-block;"></span>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 12px; background: #0f172a; border-radius: 8px; font-size: 0.88rem; color: #fbbf24;">
+                    <span aria-hidden="true" style="height: 10px; width: 10px; background-color: #f59e0b; border-radius: 50%; display: inline-block;"></span>
                     <b>Local Fallback Mode Active</b> (Ollama offline at <code>{ollama_url}</code> — Deterministic tools fully available)
                 </div>
                 """,
@@ -2216,12 +2254,12 @@ def render_ask_career_ai():
                     I have full context of your profile, verified skills, and roadmap. Ask me any question below,
                     or click one of the suggested prompts above to get started.
                 </p>
-                <div style="display: inline-flex; gap: 12px; font-size: 0.8rem; color: #64748b;">
-                    <span>🔒 Local Privacy Protected</span>
-                    <span>•</span>
-                    <span>⚡ Deterministic ADK Workflows</span>
-                    <span>•</span>
-                    <span>🎯 Grounded in Fact</span>
+                <div style="display: inline-flex; gap: 12px; font-size: 0.8rem;">
+                    <span style="color: #94a3b8;">🔒 Local Privacy Protected</span>
+                    <span style="color: #94a3b8;" aria-hidden="true">•</span>
+                    <span style="color: #94a3b8;">⚡ Deterministic ADK Workflows</span>
+                    <span style="color: #94a3b8;" aria-hidden="true">•</span>
+                    <span style="color: #94a3b8;">🎯 Grounded in Fact</span>
                 </div>
             </div>
             """,
@@ -2483,6 +2521,9 @@ def render_ask_career_ai():
             tool_badges_placeholder = st.empty()
 
             status_placeholder.info("⚡ Coordinating specialists and retrieving verified facts...")
+            live_region.markdown(
+                live_region_html("Career AI is preparing a reply."), unsafe_allow_html=True
+            )
 
             stream_text = ""
             final_response = None
@@ -2522,6 +2563,10 @@ def render_ask_career_ai():
                             )
             elif stream_text:
                 message_placeholder.markdown(stream_text)
+
+            done_message = "Career AI replied. The answer is the last message in the chat."
+            live_region.markdown(live_region_html(done_message), unsafe_allow_html=True)
+            st.session_state["chat_live_message"] = done_message
 
         st.rerun()
 
