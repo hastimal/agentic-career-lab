@@ -1,5 +1,6 @@
 """Navigation constants and workflow progression helpers for Agentic Career Lab."""
 
+from html import escape
 from typing import Any
 
 # Canonical student-centric page constants
@@ -188,3 +189,36 @@ def get_provider_icon_url(provider: str, url: str | None = None) -> str | None:
             return PROVIDER_ICON_MAP["Google Cloud"]
 
     return None
+
+
+def new_tab_link_html(url: str, label: str, css_class: str = "", context: str = "") -> str:
+    """Return an HTML link that opens in a new tab and says so to screen reader users.
+
+    The visible label stays at the start of the accessible name (WCAG 2.5.3), a trailing
+    "↗" is hidden from screen readers because it is decorative, and a visually hidden
+    suffix names the resource and warns about the new tab (WCAG 2.4.4).
+    """
+    text = label.strip()
+    arrow = ""
+    if text.endswith("↗"):
+        text = text.removesuffix("↗").strip()
+        arrow = "<span aria-hidden='true'> ↗</span>"
+    hidden = f": {context}" if context else ""
+    class_attr = f" class='{css_class}'" if css_class else ""
+    return (
+        f"<a href='{escape(url, quote=True)}' target='_blank' rel='noopener noreferrer'"
+        f"{class_attr}>{escape(text)}{arrow}"
+        f"<span class='sr-only'>{escape(hidden)} (opens in a new tab)</span></a>"
+    )
+
+
+def live_region_html(message: str = "") -> str:
+    """Return a visually hidden polite live region (WCAG 4.1.3 Status Messages).
+
+    Screen readers announce changes to its text without moving focus. Keep the element
+    rendered at a stable position and only change the message, otherwise nothing is read.
+    """
+    return (
+        "<div class='sr-only live-region' role='status' aria-live='polite' aria-atomic='true'>"
+        f"{escape(message)}</div>"
+    )
