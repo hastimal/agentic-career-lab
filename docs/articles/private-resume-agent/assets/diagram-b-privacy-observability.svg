@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" style="background:#ffffff; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <filter id="cardShadowB" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.06"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.04"/>
+    </filter>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrow-blue-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Header -->
+  <g transform="translate(80, 50)">
+    <rect x="0" y="0" width="180" height="28" rx="6" fill="#f5f3ff"/>
+    <text x="12" y="19" font-size="12" font-weight="700" fill="#7c3aed" letter-spacing="1">OBSERVABILITY &amp; PRIVACY</text>
+    <text x="0" y="65" font-size="32" font-weight="800" fill="#0f172a">Telemetry Sanitization and Observability Stack</text>
+    <text x="0" y="92" font-size="16" font-weight="400" fill="#475569">Strict structural boundary: telemetry records metadata only; cloud reasoning is gated by explicit consent with zero raw resume payloads</text>
+  </g>
+
+  <!-- Big Observability & Cloud Boundary -->
+  <g transform="translate(80, 175)">
+    <!-- Container 1: App & Telemetry Sanitizer -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="440" height="660" rx="20" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="25" y="24" width="220" height="34" rx="8" fill="#1e293b"/>
+      <text x="40" y="46" font-size="13" font-weight="700" fill="#ffffff">🐳 APP CONTAINER (:8501)</text>
+
+      <!-- Subcard: Sanitizer Module -->
+      <g transform="translate(25, 80)">
+        <rect x="0" y="0" width="390" height="260" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="390" height="48" rx="14" fill="#f1f5f9"/>
+        <text x="18" y="30" font-size="15" font-weight="700" fill="#0f172a">🔭 OpenTelemetry Instrumentation</text>
+
+        <g transform="translate(18, 65)">
+          <text x="0" y="16" font-size="12" font-weight="700" fill="#334155">trace_span() Context Manager</text>
+          <text x="0" y="36" font-size="11" fill="#64748b">Module: agentic_career_lab.observability</text>
+          
+          <rect x="0" y="50" width="354" height="120" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="14" y="22" font-size="11" font-weight="700" fill="#dc2626">Attribute Denylist Sanitizer:</text>
+          <text x="14" y="42" font-size="11" fill="#7f1d1d">• Filters: "resume", "prompt", "response"</text>
+          <text x="14" y="60" font-size="11" fill="#7f1d1d">• Filters: "text", "pii", "content"</text>
+          <line x1="14" y1="72" x2="340" y2="72" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="14" y="90" font-size="11" font-weight="700" fill="#166534">Allowed Telemetry Metadata:</text>
+          <text x="14" y="108" font-size="11" fill="#15803d">• duration_ms, eval_tokens, model_name, status</text>
+        </g>
+      </g>
+
+      <!-- Subcard: Consent Guard -->
+      <g transform="translate(25, 365)">
+        <rect x="0" y="0" width="390" height="260" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="390" height="48" rx="14" fill="#fef3c7"/>
+        <text x="18" y="30" font-size="15" font-weight="700" fill="#92400e">🛡️ Cloud Consent &amp; Privacy Guard</text>
+
+        <g transform="translate(18, 65)">
+          <text x="0" y="16" font-size="12" font-weight="700" fill="#334155">assert_cloud_safe() Pre-Flight Guard</text>
+          <text x="0" y="36" font-size="11" fill="#64748b">Module: agentic_career_lab.routing.privacy</text>
+          
+          <rect x="0" y="50" width="354" height="120" rx="8" fill="#fffbeb" stroke="#fef3c7"/>
+          <text x="14" y="22" font-size="11" font-weight="700" fill="#b45309">Consent Checkbox in UI:</text>
+          <text x="14" y="40" font-size="11" fill="#78350f">• Default: UNCHECKED (100% offline)</text>
+          <line x1="14" y1="52" x2="340" y2="52" stroke="#fef3c7" stroke-width="1"/>
+          <text x="14" y="70" font-size="11" font-weight="700" fill="#b45309">Payload Whitelist Verification:</text>
+          <text x="14" y="88" font-size="11" fill="#78350f">• Only anonymized skill tokens allowed</text>
+          <text x="14" y="106" font-size="11" fill="#dc2626">• Raises PrivacyGuardError if resume text present</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Container 2: OpenTelemetry Observability Stack -->
+    <g transform="translate(480, 0)">
+      <rect x="0" y="0" width="460" height="660" rx="20" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="25" y="24" width="280" height="34" rx="8" fill="#7c3aed"/>
+      <text x="40" y="46" font-size="13" font-weight="700" fill="#ffffff">📊 OBSERVABILITY PROFILE (Docker)</text>
+
+      <!-- OTel Collector -->
+      <g transform="translate(25, 80)">
+        <rect x="0" y="0" width="410" height="135" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="40" rx="12" fill="#f5f3ff"/>
+        <text x="16" y="26" font-size="13" font-weight="700" fill="#6d28d9">📡 OpenTelemetry Collector (:4317 gRPC / :4318 HTTP)</text>
+        <g transform="translate(16, 55)">
+          <text x="0" y="16" font-size="11" fill="#475569">• Receives sanitized span batches from application</text>
+          <text x="0" y="34" font-size="11" fill="#475569">• Pipeline 1: Traces exported to Tempo via OTLP</text>
+          <text x="0" y="52" font-size="11" fill="#475569">• Pipeline 2: spanmetrics connector derives rate/latency histograms</text>
+          <text x="0" y="70" font-size="11" fill="#475569">• Prometheus exporter serves metrics at :8889</text>
+        </g>
+      </g>
+
+      <!-- Tempo -->
+      <g transform="translate(25, 235)">
+        <rect x="0" y="0" width="410" height="120" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="40" rx="12" fill="#f5f3ff"/>
+        <text x="16" y="26" font-size="13" font-weight="700" fill="#6d28d9">⏱️ Grafana Tempo (:3200)</text>
+        <g transform="translate(16, 55)">
+          <text x="0" y="16" font-size="11" fill="#475569">• Distributed trace storage (local block store)</text>
+          <text x="0" y="34" font-size="11" fill="#475569">• Stores multi-agent spans &amp; parent-child timings</text>
+          <text x="0" y="52" font-size="11" font-weight="600" fill="#0f172a">• Real Trace: 947c2209b3513394471ff14a0675c9ec (101.0s)</text>
+        </g>
+      </g>
+
+      <!-- Prometheus -->
+      <g transform="translate(25, 375)">
+        <rect x="0" y="0" width="410" height="115" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="40" rx="12" fill="#f5f3ff"/>
+        <text x="16" y="26" font-size="13" font-weight="700" fill="#6d28d9">📈 Prometheus Server (:9090)</text>
+        <g transform="translate(16, 55)">
+          <text x="0" y="16" font-size="11" fill="#475569">• Scrapes otel-collector:8889 every 5 seconds</text>
+          <text x="0" y="34" font-size="11" fill="#475569">• Stores calls_total, duration_ms histograms</text>
+          <text x="0" y="52" font-size="11" fill="#475569">• Local time-series database with 15-day retention</text>
+        </g>
+      </g>
+
+      <!-- Grafana -->
+      <g transform="translate(25, 510)">
+        <rect x="0" y="0" width="410" height="120" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="40" rx="12" fill="#eff6ff"/>
+        <text x="16" y="26" font-size="13" font-weight="700" fill="#1d4ed8">📊 Grafana UI Dashboard (:3000)</text>
+        <g transform="translate(16, 55)">
+          <text x="0" y="16" font-size="11" fill="#475569">• Anonymous admin access enabled for local dev</text>
+          <text x="0" y="34" font-size="11" fill="#475569">• Explore view: Direct TraceQL queries into Tempo</text>
+          <text x="0" y="52" font-size="11" fill="#475569">• Dashboard: Correlates agent latency &amp; call rates</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Container 3: Optional Cloud & Public Services -->
+    <g transform="translate(980, 0)">
+      <rect x="0" y="0" width="460" height="660" rx="20" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="25" y="24" width="310" height="34" rx="8" fill="#2563eb"/>
+      <text x="40" y="46" font-size="13" font-weight="700" fill="#ffffff">☁️ OPTIONAL EXTERNAL SERVICES</text>
+
+      <!-- Google Cloud Vertex AI / Gemini -->
+      <g transform="translate(25, 80)">
+        <rect x="0" y="0" width="410" height="260" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="48" rx="14" fill="#eff6ff"/>
+        <text x="18" y="30" font-size="15" font-weight="700" fill="#1d4ed8">Google Cloud Vertex AI (Gemini 1.5)</text>
+
+        <g transform="translate(18, 65)">
+          <text x="0" y="16" font-size="12" font-weight="700" fill="#1e293b">Sanitized Curriculum Reasoning</text>
+          <text x="0" y="36" font-size="11" fill="#64748b">Only invoked when student explicitly checks consent box</text>
+          
+          <rect x="0" y="50" width="374" height="125" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="14" y="22" font-size="11" font-weight="700" fill="#047857">✅ Allowed Payload Contents:</text>
+          <text x="14" y="40" font-size="11" fill="#065f46">• target_role: "AI Engineering Intern"</text>
+          <text x="14" y="58" font-size="11" fill="#065f46">• missing_skills: ["Docker", "Kubernetes"]</text>
+          <text x="14" y="76" font-size="11" fill="#065f46">• requested_duration_weeks: 4</text>
+          <line x1="14" y1="88" x2="360" y2="88" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="14" y="106" font-size="11" font-weight="700" fill="#dc2626">❌ Strictly Blocked:</text>
+          <text x="14" y="122" font-size="10.5" fill="#7f1d1d">Raw resume text, names, emails, phone numbers</text>
+        </g>
+      </g>
+
+      <!-- Public Job Aggregator -->
+      <g transform="translate(25, 365)">
+        <rect x="0" y="0" width="410" height="260" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadowB)"/>
+        <rect x="0" y="0" width="410" height="48" rx="14" fill="#f1f5f9"/>
+        <text x="18" y="30" font-size="15" font-weight="700" fill="#0f172a">Job Scout Provider (Adzuna / Mock)</text>
+
+        <g transform="translate(18, 65)">
+          <text x="0" y="16" font-size="12" font-weight="700" fill="#1e293b">Public Opportunity Search</text>
+          <text x="0" y="36" font-size="11" fill="#64748b">Module: agentic_career_lab.providers</text>
+          
+          <rect x="0" y="50" width="374" height="125" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="14" y="22" font-size="11" font-weight="700" fill="#0f172a">Public Job Search Parameters:</text>
+          <text x="14" y="42" font-size="11" fill="#475569">• Role title: "AI Engineering Intern"</text>
+          <text x="14" y="62" font-size="11" fill="#475569">• Location: "Texas" / "Remote"</text>
+          <line x1="14" y1="76" x2="360" y2="76" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="14" y="96" font-size="11" fill="#047857">✅ Zero candidate information is queried</text>
+          <text x="14" y="114" font-size="11" fill="#64748b">• Returns public job titles &amp; required skills</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Connectors -->
+    <!-- App -> OTel Collector -->
+    <path d="M 415 140 L 505 140" stroke="#7c3aed" stroke-width="2.5" fill="none" marker-end="url(#arrow-purple)"/>
+    <text x="425" y="130" font-size="10.5" font-weight="700" fill="#7c3aed">OTLP gRPC :4317</text>
+
+    <!-- App Consent Guard -> Vertex AI -->
+    <path d="M 415 480 Q 700 480, 980 200" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow-blue-b)"/>
+    <text x="660" y="360" font-size="11" font-weight="700" fill="#2563eb">HTTPS 443 (Sanitized Metadata Only)</text>
+  </g>
+</svg>
+

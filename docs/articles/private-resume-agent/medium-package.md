@@ -1,13 +1,13 @@
 # Medium Publishing Package
 
-This document contains publication assets, social copy, metadata, and checklist items for publishing the technical article **"Building a Private AI Resume Agent with Gemma 4, Ollama, and Docker"** to Medium and Google Cloud Community.
+This document contains publication assets, social copy, metadata, and checklist items for publishing the revised technical article **"Building a Private AI Resume Agent with Gemma 4, Ollama, and Docker"** to Medium and the Google Cloud Community.
 
 ---
 
 ## 📌 Article Metadata
 
 - **Article Title**: Building a Private AI Resume Agent with Gemma 4, Ollama, and Docker
-- **Subtitle**: How to build production-grade, privacy-first career intelligence on local hardware with zero resume leakage to cloud language models.
+- **Subtitle**: How to architect, deploy, and trace privacy-first career intelligence on local hardware without sending sensitive candidate resumes to cloud models.
 - **SEO Title**: Private AI Resume Agent with Gemma 4, Ollama & Docker
   *(58 characters - fits ~60 character maximum)*
 - **SEO Description**: Architect and trace a private resume AI agent using local Gemma 4, Ollama, Docker Compose, and OpenTelemetry without leaking PII to cloud models.
@@ -32,25 +32,30 @@ Select up to 5 tags in the Medium story settings:
 
 ## 🖼️ Suggested Cover Image
 
-- **Recommended Primary Asset**: `assets/privacy-boundary.svg` (or exported PNG `assets/privacy-boundary.png`)
-- **Alternative Asset**: `assets/tempo-trace.png` (displays authentic OpenTelemetry waterfall)
-- **Alt Text**: *Architectural diagram contrasting local resume analysis inside Ollama against optional sanitized cloud synthesis.*
-- **Image Caption**: *Architecture of Agentic Career Lab: Strict separation between local private execution and optional cloud reasoning.*
+We have prepared high-resolution 16:9 (1672 × 941) cover art tailored for Medium and Google Cloud Community headers:
+
+1. **Recommended Hero Cover (`assets/cover-art-architecture.png`)**:
+   - Modern isometric architectural rendering showcasing Gemma 4, Ollama, Docker containers, and OpenTelemetry instrumentation.
+   - Clean, professional styling with Google Cloud and privacy-first visual motifs.
+   - Alt text: *Isometric architecture visualization of a private AI agent stack running Gemma 4, Ollama, Docker, and OpenTelemetry.*
+2. **Alternative Dark Variant (`assets/cover-art-dark.png`)**:
+   - High-contrast developer-centric aesthetic suitable for technical publications.
+3. **Alternative Minimal Variant (`assets/cover-art-minimal.png`)**:
+   - Minimalist illustration focusing on the privacy firewall boundary.
 
 ---
 
 ## 📸 Medium Image Insertion Order
 
-Embed images in the Medium draft in the following order:
+Embed the images in your Medium draft in the following order:
 
 | Visual | File Path | In-Article Section | Caption |
 | :---: | :--- | :--- | :--- |
-| **Figure 1** | `assets/system-architecture.svg` | Section 2 | *High-level multi-agent architecture of Agentic Career Lab, illustrating task separation across Job Scout, Private Resume Agent, and Skill Builder.* |
-| **Figure 2** | `assets/privacy-boundary.svg` | Section 2 | *The structural privacy firewall. Raw resumes are parsed in volatile RAM and evaluated exclusively by local Gemma 4. Cloud synthesis engines receive sanitized skill gap tokens only when consent is granted.* |
-| **Figure 3** | `assets/ui-my-resume.png` | Section 4 | *The Streamlit My Resume view. Displays uploaded resume confirmation, local memory parsing, privacy notice, and local Gemma 4 evidence extraction.* |
-| **Figure 4** | `assets/docker-architecture.svg` | Section 6 | *Complete Docker Compose topology. The application container bridges to host-native Ollama via `host.docker.internal:11434` and exports telemetry to the local observability stack.* |
-| **Figure 5** | `assets/tempo-trace.png` | Section 8 | *Grafana Tempo trace waterfall for `coordinator.prepare_resume` (Trace ID `683d9afbcad39c179c29cf914682fc42`). Spans illustrate end-to-end execution across the coordinator, agent, and Ollama inference layer.* |
-| **Figure 6** | `assets/grafana-dashboard.png` | Section 8 | *Real-time Grafana dashboard monitoring agent request rates, p95 execution latency, and error rates without logging PII.* |
+| **Figure 1** | `assets/diagram-a-private-resume-architecture.png` | Section 2 | *Figure 1: Private Resume Processing Architecture. Raw resume documents are parsed in volatile memory inside Docker and evaluated by native Ollama running Gemma 4 on the host machine.* |
+| **Figure 2** | `assets/ui-my-resume.png` | Section 6 | *Figure 2: The Streamlit My Resume view. Displays uploaded resume confirmation, local memory parsing, privacy notice, and local Gemma 4 evidence extraction triggers.* |
+| **Figure 3** | `assets/ui-skill-gap-analysis.png` | Section 6 | *Figure 3: Skill Gap Analysis view. Shows transparent three-category breakdown: Demonstrated Strengths (verified with resume evidence), Mentioned/Partial Skills, and Missing Requirements.* |
+| **Figure 4** | `assets/diagram-b-privacy-observability.png` | Section 7 | *Figure 4: Observability and Privacy Architecture. OpenTelemetry spans are sanitized in-app, exported over OTLP gRPC to the Collector, and routed to Tempo and Prometheus. Optional cloud reasoning is gated by explicit user consent.* |
+| **Figure 5** | `assets/tempo-trace-waterfall.png` | Section 9 | *Figure 5: Grafana Tempo trace waterfall for `coordinator.prepare_resume` (Trace ID `947c2209b3513394471ff14a0675c9ec`). Illustrates the four-span hierarchy across the coordinator, private resume agent, and two distinct Ollama inference calls.* |
 
 ---
 
@@ -59,21 +64,20 @@ Embed images in the Medium draft in the following order:
 ### LinkedIn Announcement
 
 ```markdown
-How do you build AI resume analysis without sending sensitive personal resumes to a cloud LLM?
+Building an AI resume assistant sounds simple: upload a resume, call an LLM, and return a skills summary.
 
-Prompting a model with "please do not store this" is not a privacy strategy. Privacy must be enforced by architecture.
+But where does that resume go, and what happens when the application needs cloud services, logs, and distributed tracing?
 
-In my latest technical deep dive, I break down how we built the Private Resume Agent in Agentic Career Lab:
+Prompt engineering alone ("please do not store this data") is not an architectural defense. In our latest engineering deep dive, we walk through how we solved this in Agentic Career Lab:
 
-🔹 Local Inference with Gemma 4: Extracting structured skills and experience directly on the host using Ollama (Metal GPU-accelerated on Apple Silicon).
-🔹 Structural Privacy Boundary: Raw resumes remain in volatile memory; optional cloud engines (like Gemini Flash) only receive sanitized skill gap tokens (e.g., ["Docker", "Kubernetes"]) with explicit user consent.
-🔹 Production Docker Stack: Containerized Streamlit UI bridged to native host Ollama via host.docker.internal.
-🔹 Zero-Leakage Observability: Full OpenTelemetry tracing pipeline (OTel Collector -> Grafana Tempo -> Prometheus) with automatic sanitization of prompts, responses, and candidate PII.
+🔹 Local Inference with Gemma 4: Extracting structured skills and experience directly on the host workstation using Ollama (leveraging Apple Silicon Metal acceleration).
+🔹 Architectural Privacy Boundaries: Raw resumes are parsed in volatile session state; optional cloud reasoning (Gemini Flash) only receives allowlisted metadata tokens with explicit user consent.
+🔹 Production Docker Stack: Containerized Streamlit UI bridged to host-native Ollama via host.docker.internal.
+🔹 Observability Without Data Leakage: Sanitized OpenTelemetry tracing pipeline (OTel Collector -> Grafana Tempo -> Prometheus) with automatic denylist attribute filtering.
+🔹 Authentic Trace Evidence: Analyzing real 4-span Tempo waterfalls (101.0s duration) showing exact latency distribution across sequential inference calls.
 
-Includes real code excerpts, reproducible Docker Compose setups, and authentic distributed trace waterfalls.
-
-Read the full breakdown: [ARTICLE_LINK]
-Open source repo on GitHub: https://github.com/hastimal/agentic-career-lab
+Read the full engineering article: [ARTICLE_LINK]
+GitHub Repository: https://github.com/hastimal/agentic-career-lab
 
 #Gemma #Ollama #Docker #OpenTelemetry #Privacy #GenerativeAI #GoogleCloud #AIArchitecture
 ```
@@ -81,11 +85,11 @@ Open source repo on GitHub: https://github.com/hastimal/agentic-career-lab
 ### X / Twitter Thread Starter
 
 ```markdown
-1/7 Can you build a production-grade AI resume agent without shipping candidate resumes to cloud APIs?
+1/8 Building an AI resume assistant sounds simple: upload a document, call an LLM, return a skills summary.
 
-Yes. But you can't rely on prompt engineering. Privacy must be enforced by architecture.
+But where does that resume go? And what happens when you need logs and distributed traces?
 
-Here is how we built it using Google's Gemma 4, Ollama, Docker, and OpenTelemetry 🧵👇
+Here is how we architected a private resume agent with Gemma 4, Ollama, Docker, and OpenTelemetry 🧵👇
 ```
 
 ---
@@ -95,18 +99,14 @@ Here is how we built it using Google's Gemma 4, Ollama, Docker, and OpenTelemetr
 1. **Import via Medium Story Importer**:
    - Navigate to `medium.com/p/import`.
    - Provide the raw GitHub URL or paste the Markdown directly.
-2. **Convert SVGs to High-Resolution PNGs for Medium**:
-   - Medium does not natively render SVG images.
-   - Convert `system-architecture.svg`, `privacy-boundary.svg`, and `docker-architecture.svg` into PNG format using standard macOS tools:
-     ```bash
-     qlmanage -t -s 2000 -o docs/articles/private-resume-agent/assets/ docs/articles/private-resume-agent/assets/*.svg
-     ```
+2. **Use Pre-Rendered High-Resolution PNGs**:
+   - Medium does not render SVG files.
+   - All article diagrams have already been rendered to crisp 16:9 1600×900 PNGs in `docs/articles/private-resume-agent/assets/`.
 3. **Format Code Blocks**:
    - Ensure syntax highlighting is set to `Python`, `YAML`, or `Bash`.
-   - Medium supports triple backtick code blocks with automatic formatting.
+   - All code snippets are labeled with their origin file and line ranges.
 4. **Verify Hyperlinks**:
    - Confirm all links to `github.com/hastimal/agentic-career-lab` resolve cleanly.
 5. **Set Canonical Link**:
    - Go to **Story Settings → Advanced Settings → Customize Canonical Link**.
    - Set to your portfolio or original GitHub documentation URL.
-
